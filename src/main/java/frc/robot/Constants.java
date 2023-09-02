@@ -70,18 +70,18 @@ public final class Constants {
 
   public static class DriveConstants {
     public static final double MAX_MODULE_VELOCITY = 5.0;
-    public static final double MAX_ROBOT_VELOCITY = 3.0;
-    public static final double MAX_ROBOT_RAD_VELOCITY = 3.0;
+    public static final double MAX_ROBOT_VELOCITY = 4.0;
+    public static final double MAX_ROBOT_RAD_VELOCITY = 4.0;
 
     // TODO: Change based on actual robot!
-    public static final double TRACK_WIDTH = Units.inchesToMeters(25);
-    public static final double WHEEL_BASE = Units.inchesToMeters(25);
+    public static final double TRACK_WIDTH = Units.inchesToMeters(20);
+    public static final double WHEEL_BASE = Units.inchesToMeters(23.5);
 
     public static final SwerveDriveKinematics KINEMATICS = new SwerveDriveKinematics(
-        new Translation2d(WHEEL_BASE / 2, -TRACK_WIDTH / 2),
-        new Translation2d(WHEEL_BASE / 2, TRACK_WIDTH / 2),
-        new Translation2d(-WHEEL_BASE / 2, -TRACK_WIDTH / 2),
-        new Translation2d(-WHEEL_BASE / 2, TRACK_WIDTH / 2));
+        new Translation2d(TRACK_WIDTH / 2.0, WHEEL_BASE / 2.0),
+        new Translation2d(TRACK_WIDTH / 2.0, -WHEEL_BASE / 2.0),
+        new Translation2d(-TRACK_WIDTH / 2.0, WHEEL_BASE / 2.0),
+        new Translation2d(-TRACK_WIDTH / 2.0, -WHEEL_BASE / 2.0));
 
     public static final double XY_SPEED_LIMIT = 0.5;
     public static final double Z_SPEED_LIMIT = 0.5;

@@ -1,6 +1,8 @@
 package frc.robot.commands;
 
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -29,9 +31,9 @@ public class DriveCommand extends CommandBase {
         ySpeed = Math.abs(ySpeed) > 0.05 ? ySpeed : 0.0;
         zSpeed = Math.abs(zSpeed) > 0.05 ? zSpeed : 0.0;
 
-        xSpeed *= DriveConstants.XY_SPEED_LIMIT;
-        ySpeed *= DriveConstants.XY_SPEED_LIMIT;
-        zSpeed *= DriveConstants.Z_SPEED_LIMIT;
+        xSpeed *= DriveConstants.XY_SPEED_LIMIT * DriveConstants.MAX_ROBOT_VELOCITY;
+        ySpeed *= DriveConstants.XY_SPEED_LIMIT * DriveConstants.MAX_ROBOT_VELOCITY;
+        zSpeed *= DriveConstants.Z_SPEED_LIMIT * DriveConstants.MAX_ROBOT_RAD_VELOCITY;
 
         ChassisSpeeds speeds;
 
@@ -44,8 +46,6 @@ public class DriveCommand extends CommandBase {
 
         SwerveModuleState[] calculatedModuleStates = DriveConstants.KINEMATICS.toSwerveModuleStates(speeds);
         swerveSubsystem.setModules(calculatedModuleStates);
-
-        System.out.println(calculatedModuleStates[1]);
     }
 
     @Override
