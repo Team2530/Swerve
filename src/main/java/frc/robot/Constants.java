@@ -37,11 +37,12 @@ public final class Constants {
     public static final double STEER_RADIANS_PER_MINUTE = STEER_ROTATION_TO_RADIANS / 60d;
 
     public static final double MODULE_KP = 0.5;
+    public static final double MODULE_KD = 0.01;
 
     // --------- Front Left Module --------- \\
-    public static final int FL_DRIVE_ID = 0;
-    public static final int FL_STEER_ID = 1;
-    public static final int FL_ABSOLUTE_ENCODER_PORT = 0;
+    public static final int FL_DRIVE_ID = 30;
+    public static final int FL_STEER_ID = 25;
+    public static final int FL_ABSOLUTE_ENCODER_PORT = 3;
     public static final double FL_OFFSET_RADIANS = 0.0;
     public static final boolean FL_ABSOLUTE_ENCODER_REVERSED = false;
 
@@ -69,7 +70,7 @@ public final class Constants {
   }
 
   public static class DriveConstants {
-    public static final double MAX_MODULE_VELOCITY = 5.0;
+    public static final double MAX_MODULE_VELOCITY = 2;
     public static final double MAX_ROBOT_VELOCITY = 4.0;
     public static final double MAX_ROBOT_RAD_VELOCITY = 4.0;
 
@@ -83,7 +84,7 @@ public final class Constants {
         new Translation2d(-TRACK_WIDTH / 2.0, WHEEL_BASE / 2.0),
         new Translation2d(-TRACK_WIDTH / 2.0, -WHEEL_BASE / 2.0));
 
-    public static final double XY_SPEED_LIMIT = 0.5;
+    public static final double XY_SPEED_LIMIT = 0.75;
     public static final double Z_SPEED_LIMIT = 0.5;
   }
 }

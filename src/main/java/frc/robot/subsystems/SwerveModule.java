@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.sensors.CANCoder;
 import com.revrobotics.*;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
@@ -19,7 +20,7 @@ public class SwerveModule {
     private final RelativeEncoder driveMotorEncoder;
     private final RelativeEncoder steerMotorEncoder;
 
-    private final AnalogInput absoluteEncoder;
+    private final CANCoder absoluteEncoder;
 
     private final double motorOffsetRadians;
     private final boolean isAbsoluteEncoderReversed;
@@ -36,7 +37,7 @@ public class SwerveModule {
         driveMotorEncoder = driveMotor.getEncoder();
         steerMotorEncoder = steerMotor.getEncoder();
 
-        absoluteEncoder = new AnalogInput(absoluteEncoderPort);
+        absoluteEncoder = new CANCoder(absoluteEncoderPort);
 
         this.motorOffsetRadians = motorOffsetRadians;
         this.isAbsoluteEncoderReversed = isAbsoluteEncoderReversed;
@@ -47,7 +48,7 @@ public class SwerveModule {
         steerMotorEncoder.setPositionConversionFactor(SwerveModuleConstants.STEER_ROTATION_TO_RADIANS);
         steerMotorEncoder.setVelocityConversionFactor(SwerveModuleConstants.STEER_RADIANS_PER_MINUTE);
 
-        steerPID = new PIDController(SwerveModuleConstants.MODULE_KP, 0, 0);
+        steerPID = new PIDController(SwerveModuleConstants.MODULE_KP, 0, SwerveModuleConstants.MODULE_KD);
         steerPID.enableContinuousInput(-Math.PI, Math.PI);
 
         moduleNumber++;
@@ -72,14 +73,14 @@ public class SwerveModule {
     }
 
     public double getAbsoluteEncoderPosition() {
-        double angle = absoluteEncoder.getVoltage() * RobotController.getVoltage5V() * 2 * Math.PI;
+        double angle = absoluteEncoder.getAbsolutePosition() * Math.PI / 180;
         angle -= motorOffsetRadians;
         return angle * (isAbsoluteEncoderReversed ? -1.0 : 1.0);
     }
 
     public void resetEncoders() {
         driveMotorEncoder.setPosition(0);
-        steerMotorEncoder.setPosition(getAbsoluteEncoderPosition());
+        steerMotorEncoder.setPosition(getAbsoluteEncoderPosition() * Math.PI / 180);
     }
 
     public SwerveModuleState getModuleState() {
@@ -97,7 +98,7 @@ public class SwerveModule {
         }
 
         state = SwerveModuleState.optimize(state, new Rotation2d(getSteerPosition()));
-        driveMotor.set(state.speedMetersPerSecond / DriveConstants.MAX_MODULE_VELOCITY);
+        driveMotor.set(state.speedMetersPerSecond / DriveConstants.MAX_MODULE_VELOCITY * 0.5);
         steerMotor.set(steerPID.calculate(getSteerPosition(), state.angle.getRadians()));
 
     }
