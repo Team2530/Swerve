@@ -5,6 +5,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.SwerveModuleConstants;
@@ -13,19 +14,21 @@ import frc.robot.subsystems.SwerveSubsystem;
 public class DriveCommand extends CommandBase {
     private final SwerveSubsystem swerveSubsystem;
     private final Joystick joystick;
+    private final XboxController xbox;
 
-    public DriveCommand(SwerveSubsystem swerveSubsystem, Joystick joystick) {
+    public DriveCommand(SwerveSubsystem swerveSubsystem, Joystick joystick, XboxController xbox) {
         this.swerveSubsystem = swerveSubsystem;
         this.joystick = joystick;
+        this.xbox = xbox;
 
         addRequirements(swerveSubsystem);
     }
 
     @Override
     public void execute() {
-        double xSpeed = joystick.getX();
-        double ySpeed = joystick.getY();
-        double zSpeed = joystick.getZ();
+        double xSpeed = xbox.getLeftX();
+        double ySpeed = xbox.getLeftY();
+        double zSpeed = xbox.getRightX();
 
         xSpeed = Math.abs(xSpeed) > 0.05 ? xSpeed : 0.0;
         ySpeed = Math.abs(ySpeed) > 0.05 ? ySpeed : 0.0;
@@ -38,7 +41,7 @@ public class DriveCommand extends CommandBase {
         ChassisSpeeds speeds;
 
         // Drive Field Oriented
-        if (joystick.getRawButton(2)) {
+        if (xbox.getLeftBumper()) {
             speeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, zSpeed, swerveSubsystem.getRotation2d());
         } else {
             speeds = new ChassisSpeeds(xSpeed, ySpeed, zSpeed);

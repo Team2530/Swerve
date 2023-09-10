@@ -25,7 +25,7 @@ public class RobotContainer {
   private final XboxController xbox = new XboxController(ControllerConstants.OPERATOR_CONTROLLER_PORT);
 
   private final SwerveSubsystem swerveDriveSubsystem = new SwerveSubsystem();
-  private final DriveCommand normalDrive = new DriveCommand(swerveDriveSubsystem, joystick);
+  private final DriveCommand normalDrive = new DriveCommand(swerveDriveSubsystem, joystick, xbox);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
