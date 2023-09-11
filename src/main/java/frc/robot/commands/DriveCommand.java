@@ -30,9 +30,11 @@ public class DriveCommand extends CommandBase {
         double ySpeed = xbox.getLeftY();
         double zSpeed = xbox.getRightX();
 
-        xSpeed = Math.abs(xSpeed) > 0.05 ? xSpeed : 0.0;
-        ySpeed = Math.abs(ySpeed) > 0.05 ? ySpeed : 0.0;
-        zSpeed = Math.abs(zSpeed) > 0.05 ? zSpeed : 0.0;
+        double mag_xy = Math.sqrt(xSpeed*xSpeed + ySpeed*ySpeed);
+
+        xSpeed = mag_xy > 0.15 ? xSpeed : 0.0;
+        ySpeed = mag_xy > 0.15 ? ySpeed : 0.0;
+        zSpeed = Math.abs(zSpeed) > 0.15 ? zSpeed : 0.0;
 
         xSpeed *= DriveConstants.XY_SPEED_LIMIT * DriveConstants.MAX_ROBOT_VELOCITY;
         ySpeed *= DriveConstants.XY_SPEED_LIMIT * DriveConstants.MAX_ROBOT_VELOCITY;

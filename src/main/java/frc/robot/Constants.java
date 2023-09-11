@@ -28,8 +28,8 @@ public final class Constants {
 
   public static class SwerveModuleConstants {
     public static final double WHEEL_DIAMETER = Units.inchesToMeters(4);
-    public static final double STEERING_GEAR_RATIO = 1 / (150d / 7d);
-    public static final double DRIVE_GEAR_RATIO = 1 / 6.75;
+    public static final double STEERING_GEAR_RATIO = 1.d / (150d / 7d);
+    public static final double DRIVE_GEAR_RATIO = 1.d / 6.75d;
 
     public static final double DRIVE_ROTATION_TO_METER = DRIVE_GEAR_RATIO * Math.PI * WHEEL_DIAMETER;
     public static final double STEER_ROTATION_TO_RADIANS = STEERING_GEAR_RATIO * Math.PI * 2d;
@@ -42,9 +42,9 @@ public final class Constants {
     // --------- Front Left Module --------- \\
     public static final int FL_DRIVE_ID = 30;
     public static final int FL_STEER_ID = 25;
-    public static final int FL_ABSOLUTE_ENCODER_PORT = 3;
-    public static final double FL_OFFSET_RADIANS = 0.0;
-    public static final boolean FL_ABSOLUTE_ENCODER_REVERSED = false;
+    public static final int FL_ABSOLUTE_ENCODER_PORT = 40;
+    public static final double FL_OFFSET_RADIANS = 0.466332d + Math.PI*0.5d;
+    public static final boolean FL_ABSOLUTE_ENCODER_REVERSED = true;
 
     // --------- Front Right Module --------- \\
     public static final int FR_DRIVE_ID = 2;
