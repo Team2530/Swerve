@@ -2,7 +2,9 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.sensors.CANCoder;
 import com.revrobotics.*;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -26,6 +28,7 @@ public class SwerveModule {
 
     private final double motorOffsetRadians;
     private final boolean isAbsoluteEncoderReversed;
+    private final boolean motor_inv;
 
     private final PIDController steerPID;
 
@@ -35,10 +38,12 @@ public class SwerveModule {
     SlewRateLimiter turnratelimiter = new SlewRateLimiter(4.d);
 
     public SwerveModule(int steerCanID, int driveCanID, int absoluteEncoderPort, double motorOffsetRadians,
-            boolean isAbsoluteEncoderReversed) {
+            boolean isAbsoluteEncoderReversed, boolean motorReversed) {
         driveMotor = new CANSparkMax(driveCanID, MotorType.kBrushless);
+        driveMotor.setIdleMode(IdleMode.kBrake);
         steerMotor = new CANSparkMax(steerCanID, MotorType.kBrushless);
 
+        this.motor_inv = motorReversed;
         driveMotorEncoder = driveMotor.getEncoder();
         steerMotorEncoder = steerMotor.getEncoder();
 
@@ -104,14 +109,14 @@ public class SwerveModule {
         }
 
         state = SwerveModuleState.optimize(state, new Rotation2d(getSteerPosition()));
-        double drive_command = state.speedMetersPerSecond / DriveConstants.MAX_MODULE_VELOCITY * 0.5;
-        driveMotor.set(drive_command);
+        double drive_command = state.speedMetersPerSecond / DriveConstants.MAX_MODULE_VELOCITY;
+        driveMotor.set(drive_command * (motor_inv ? -1.0 : 1.0));
 
         // This is stupid
         // steerPID.setP(Constants.SwerveModuleConstants.MODULE_KP * Math.abs(drive_command));
         steerMotor.set(steerPID.calculate(getSteerPosition(), state.angle.getRadians()));
         // SmartDashboard.putNumber("Abs" + thisModuleNumber, getAbsoluteEncoderPosition());
-        // SmartDashboard.putNumber("Real" + thisModuleNumber, getSteerPosition());
+        SmartDashboard.putNumber("Drive" + thisModuleNumber, drive_command);
     }
 
     public void stop() {

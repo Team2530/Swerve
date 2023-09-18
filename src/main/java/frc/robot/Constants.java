@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import org.opencv.core.Mat;
+
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
@@ -36,42 +38,51 @@ public final class Constants {
     public static final double DRIVE_METERS_PER_MINUTE = DRIVE_ROTATION_TO_METER / 60d;
     public static final double STEER_RADIANS_PER_MINUTE = STEER_ROTATION_TO_RADIANS / 60d;
 
-    public static final double MODULE_KP = 0.5;
-    public static final double MODULE_KD = 0.01;
+    // Actual drive gains
+    // public static final double MODULE_KP = 0.5;
+    // public static final double MODULE_KD = 0.03;
+
+    // Softer gains for off-the-floor testing
+    public static final double MODULE_KP = 0.7491;//0.56368;
+    public static final double MODULE_KD = 0.0057682;//0.0076954;
 
     // --------- Front Left Module --------- \\
-    public static final int FL_DRIVE_ID = 30;
-    public static final int FL_STEER_ID = 25;
-    public static final int FL_ABSOLUTE_ENCODER_PORT = 40;
+    public static final int FL_DRIVE_ID = 2;
+    public static final int FL_STEER_ID = 1;
+    public static final int FL_ABSOLUTE_ENCODER_PORT = 1;
     public static final double FL_OFFSET_RADIANS = 0.466332d + Math.PI*0.5d;
     public static final boolean FL_ABSOLUTE_ENCODER_REVERSED = true;
+    public static final boolean FL_MOTOR_REVERSED = false;
 
     // --------- Front Right Module --------- \\
-    public static final int FR_DRIVE_ID = 2;
+    public static final int FR_DRIVE_ID = 4;
     public static final int FR_STEER_ID = 3;
-    public static final int FR_ABSOLUTE_ENCODER_PORT = 1;
-    public static final double FR_OFFSET_RADIANS = 0.0;
-    public static final boolean FR_ABSOLUTE_ENCODER_REVERSED = false;
+    public static final int FR_ABSOLUTE_ENCODER_PORT = 4;
+    public static final double FR_OFFSET_RADIANS = Units.degreesToRadians(335.742)+ Math.PI*0.5d;
+    public static final boolean FR_ABSOLUTE_ENCODER_REVERSED = true;
+    public static final boolean FR_MOTOR_REVERSED = false;
 
     // --------- Back Right Module --------- \\
-    public static final int BR_DRIVE_ID = 4;
+    public static final int BR_DRIVE_ID = 6;
     public static final int BR_STEER_ID = 5;
     public static final int BR_ABSOLUTE_ENCODER_PORT = 2;
-    public static final double BR_OFFSET_RADIANS = 0.0;
-    public static final boolean BR_ABSOLUTE_ENCODER_REVERSED = false;
+    public static final double BR_OFFSET_RADIANS = Units.degreesToRadians(53.350)+ Math.PI*0.5d;
+    public static final boolean BR_ABSOLUTE_ENCODER_REVERSED = true;
+    public static final boolean BR_MOTOR_REVERSED = false;
 
     // --------- Back Left Module --------- \\
-    public static final int BL_DRIVE_ID = 6;
+    public static final int BL_DRIVE_ID = 8;
     public static final int BL_STEER_ID = 7;
     public static final int BL_ABSOLUTE_ENCODER_PORT = 3;
-    public static final double BL_OFFSET_RADIANS = 0.0;
-    public static final boolean BL_ABSOLUTE_ENCODER_REVERSED = false;
+    public static final double BL_OFFSET_RADIANS = Units.degreesToRadians(322.119)+ Math.PI*0.5d;
+    public static final boolean BL_ABSOLUTE_ENCODER_REVERSED = true;
+    public static final boolean BL_MOTOR_REVERSED = false;
 
   }
 
   public static class DriveConstants {
-    public static final double MAX_MODULE_VELOCITY = 2;
-    public static final double MAX_ROBOT_VELOCITY = 4.0;
+    public static final double MAX_MODULE_VELOCITY = 1;
+    public static final double MAX_ROBOT_VELOCITY = 1;
     public static final double MAX_ROBOT_RAD_VELOCITY = 4.0;
 
     // TODO: Change based on actual robot!
@@ -84,7 +95,7 @@ public final class Constants {
         new Translation2d(-TRACK_WIDTH / 2.0, WHEEL_BASE / 2.0),
         new Translation2d(-TRACK_WIDTH / 2.0, -WHEEL_BASE / 2.0));
 
-    public static final double XY_SPEED_LIMIT = 0.75;
-    public static final double Z_SPEED_LIMIT = 0.5;
+    public static final double XY_SPEED_LIMIT = 0.8;
+    public static final double Z_SPEED_LIMIT = 0.4;
   }
 }
