@@ -43,8 +43,8 @@ public final class Constants {
     // public static final double MODULE_KD = 0.03;
 
     // Softer gains for off-the-floor testing
-    public static final double MODULE_KP = 0.7491;//0.56368;
-    public static final double MODULE_KD = 0.0057682;//0.0076954;
+    public static final double MODULE_KP = 0.75628;//0.7491; //0.56368;
+    public static final double MODULE_KD = 0.0066806;//0.0057682; //0.0076954;
 
     // --------- Front Left Module --------- \\
     public static final int FL_DRIVE_ID = 2;
@@ -86,8 +86,8 @@ public final class Constants {
     public static final double MAX_ROBOT_RAD_VELOCITY = 4.0;
 
     // TODO: Change based on actual robot!
-    public static final double TRACK_WIDTH = Units.inchesToMeters(20);
-    public static final double WHEEL_BASE = Units.inchesToMeters(23.5);
+    public static final double TRACK_WIDTH = Units.inchesToMeters(18.75);
+    public static final double WHEEL_BASE = Units.inchesToMeters(18.75);
 
     public static final SwerveDriveKinematics KINEMATICS = new SwerveDriveKinematics(
         new Translation2d(TRACK_WIDTH / 2.0, WHEEL_BASE / 2.0),

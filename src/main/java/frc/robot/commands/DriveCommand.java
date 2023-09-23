@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -69,13 +70,15 @@ public class DriveCommand extends CommandBase {
         ySpeed *= DriveConstants.XY_SPEED_LIMIT * DriveConstants.MAX_ROBOT_VELOCITY;
         zSpeed *= DriveConstants.Z_SPEED_LIMIT * DriveConstants.MAX_ROBOT_RAD_VELOCITY;
 
-        if (xbox.getRightBumper()) {
+        if (!xbox.getRightBumper()) {
             xSpeed *= 0.25;
             ySpeed *= 0.25;
             zSpeed *= 0.25;
         }
 
         if (xbox.getXButton()) swerveSubsystem.zeroHeading();
+
+        if (xbox.getAButton()) swerveSubsystem.resetOdometry(new Pose2d());
 
         ChassisSpeeds speeds;
 

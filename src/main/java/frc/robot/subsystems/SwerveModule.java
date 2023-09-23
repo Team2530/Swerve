@@ -99,7 +99,7 @@ public class SwerveModule {
     }
 
     public SwerveModulePosition getModulePosition() {
-        return new SwerveModulePosition(getDriveVelocity(), new Rotation2d(getSteerPosition()));
+        return new SwerveModulePosition(getDrivePosition(), new Rotation2d(getSteerPosition()));
     }
 
     public void setModuleState(SwerveModuleState state) {

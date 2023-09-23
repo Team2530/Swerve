@@ -53,7 +53,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        odometry.update(getRotation2d(), getModulePositions());
+        odometry.update(geRotation2dOdometry(), getModulePositions());
         field.setRobotPose(getPose());
         SmartDashboard.putData("Field", field);
 
@@ -65,7 +65,9 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public Pose2d getPose() {
-        return odometry.getPoseMeters();
+        Pose2d p = odometry.getPoseMeters();
+        p = new Pose2d(p.getX(),-p.getY(), p.getRotation().div(-1).rotateBy(new Rotation2d(Math.PI/2.0)));
+        return p;
     }
 
     public void resetOdometry(Pose2d pose) {
@@ -78,6 +80,10 @@ public class SwerveSubsystem extends SubsystemBase {
 
     public Rotation2d getRotation2d() {
         return new Rotation2d(getHeading());
+    }
+
+    public Rotation2d geRotation2dOdometry() {
+        return new Rotation2d(getHeading() + Math.PI / 2);
     }
 
     public void stopDrive() {
@@ -97,8 +103,12 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public ChassisSpeeds getChassisSpeeds() {
-        return DriveConstants.KINEMATICS.toChassisSpeeds(frontLeft.getModuleState(), frontRight.getModuleState(),
+        ChassisSpeeds speeds =  DriveConstants.KINEMATICS.toChassisSpeeds(frontLeft.getModuleState(), frontRight.getModuleState(),
                 backLeft.getModuleState(), backRight.getModuleState());
+
+        return speeds;
+
+        
     }
 
     public SwerveModulePosition[] getModulePositions() {
