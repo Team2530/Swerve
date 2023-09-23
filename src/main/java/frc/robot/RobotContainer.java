@@ -5,11 +5,21 @@
 package frc.robot;
 
 import frc.robot.Constants.ControllerConstants;
+import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.SwerveModuleConstants;
 import frc.robot.commands.DriveCommand;
 import frc.robot.subsystems.SwerveSubsystem;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.*;
+
+import com.pathplanner.lib.PathConstraints;
+import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -61,6 +71,33 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return null;
+    return followTrajectoryCommand(PathPlanner.loadPath("TestPath", new PathConstraints(0.5, 1)), true);
   }
+
+  // Assuming this method is part of a drivetrain subsystem that provides the
+  // necessary methods
+  public Command followTrajectoryCommand(PathPlannerTrajectory traj, boolean isFirstPath) {
+    return new SequentialCommandGroup(
+        new InstantCommand(() -> {
+          // Reset odometry for the first path you run during auto
+          if (isFirstPath) {
+            swerveDriveSubsystem.resetOdometry(traj.getInitialHolonomicPose());
+          }
+        }),
+        new PPSwerveControllerCommand(
+            traj,
+            swerveDriveSubsystem::getPose, // Pose supplier
+            DriveConstants.KINEMATICS, // SwerveDriveKinematics
+            new PIDController(0, 0, 0), // X controller. Tune these values for your robot. Leaving them 0 will only use
+                                        // feedforwards.
+            new PIDController(0, 0, 0), // Y controller (usually the same values as X controller)
+            new PIDController(0, 0, 0), // Rotation controller. Tune these values for your robot. Leaving them 0 will
+                                        // only use feedforwards.
+            swerveDriveSubsystem::setModules, // Module states consumer
+            true, // Should the path be automatically mirrored depending on alliance color.
+                  // Optional, defaults to true
+            swerveDriveSubsystem // Requires this drive subsystem
+        ));
+  }
+
 }

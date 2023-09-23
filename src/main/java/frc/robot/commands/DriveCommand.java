@@ -39,9 +39,8 @@ public class DriveCommand extends CommandBase {
             // TODO: Check is it sqrt2 or 1.0...
             Translation2d result = norm.times((mag - deadzone) / (1.0 - deadzone));
             return new Translation2d(
-                clamp(result.getX(), -1.0, 1.0),
-                clamp(result.getY(), -1.0, 1.0)
-            );
+                    clamp(result.getX(), -1.0, 1.0),
+                    clamp(result.getY(), -1.0, 1.0));
         }
     }
 
@@ -53,17 +52,14 @@ public class DriveCommand extends CommandBase {
     public void execute() {
         Translation2d xySpeed = DeadBand(new Translation2d(xbox.getLeftX(), xbox.getLeftY()), 0.15);
         double zSpeed = DeadBand(xbox.getRightX(), 0.1);
-        double xSpeed = xySpeed.getX(); //xbox.getLeftX();
-        double ySpeed = xySpeed.getY(); //xbox.getLeftY();
+        double xSpeed = xySpeed.getX(); // xbox.getLeftX();
+        double ySpeed = xySpeed.getY(); // xbox.getLeftY();
 
-        System.out.println(xySpeed.getNorm());
-        
         // double mag_xy = Math.sqrt(xSpeed*xSpeed + ySpeed*ySpeed);
 
         // xSpeed = mag_xy > 0.15 ? xSpeed : 0.0;
         // ySpeed = mag_xy > 0.15 ? ySpeed : 0.0;
         // zSpeed = Math.abs(zSpeed) > 0.15 ? zSpeed : 0.0;
-
 
         // TODO: Full speed!
         xSpeed *= DriveConstants.XY_SPEED_LIMIT * DriveConstants.MAX_ROBOT_VELOCITY;
@@ -76,9 +72,11 @@ public class DriveCommand extends CommandBase {
             zSpeed *= 0.25;
         }
 
-        if (xbox.getXButton()) swerveSubsystem.zeroHeading();
+        if (xbox.getXButton())
+            swerveSubsystem.zeroHeading();
 
-        if (xbox.getAButton()) swerveSubsystem.resetOdometry(new Pose2d());
+        if (xbox.getAButton())
+            swerveSubsystem.resetOdometry(new Pose2d());
 
         ChassisSpeeds speeds;
 
