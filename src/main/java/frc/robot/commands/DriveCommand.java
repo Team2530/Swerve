@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -14,13 +15,24 @@ import frc.robot.subsystems.SwerveSubsystem;
 
 public class DriveCommand extends CommandBase {
     private final SwerveSubsystem swerveSubsystem;
-    private final Joystick joystick;
     private final XboxController xbox;
 
-    public DriveCommand(SwerveSubsystem swerveSubsystem, Joystick joystick, XboxController xbox) {
+    private SlewRateLimiter dsratelimiter = new SlewRateLimiter(4);
+
+    private double DRIVE_MULT = 1.0;
+    private final double SLOWMODE_MULT = 0.25;
+
+    private enum DriveState {
+        Free,
+        Locked
+    };
+    private DriveState state = DriveState.Free;
+
+    public DriveCommand(SwerveSubsystem swerveSubsystem, XboxController xbox) {
         this.swerveSubsystem = swerveSubsystem;
-        this.joystick = joystick;
         this.xbox = xbox;
+
+        dsratelimiter.reset(SLOWMODE_MULT);
 
         addRequirements(swerveSubsystem);
     }
@@ -51,30 +63,24 @@ public class DriveCommand extends CommandBase {
 
     @Override
     public void execute() {
-        Translation2d xySpeed = DeadBand(new Translation2d(xbox.getLeftX(), xbox.getLeftY()), 0.15);
+        Translation2d xyRaw = new Translation2d(xbox.getLeftX(), xbox.getLeftY());
+        Translation2d xySpeed = DeadBand(xyRaw, 0.15);
         double zSpeed = DeadBand(xbox.getRightX(), 0.1);
         double xSpeed = xySpeed.getX(); //xbox.getLeftX();
         double ySpeed = xySpeed.getY(); //xbox.getLeftY();
 
         System.out.println(xySpeed.getNorm());
-        
-        // double mag_xy = Math.sqrt(xSpeed*xSpeed + ySpeed*ySpeed);
-
-        // xSpeed = mag_xy > 0.15 ? xSpeed : 0.0;
-        // ySpeed = mag_xy > 0.15 ? ySpeed : 0.0;
-        // zSpeed = Math.abs(zSpeed) > 0.15 ? zSpeed : 0.0;
-
 
         // TODO: Full speed!
         xSpeed *= DriveConstants.XY_SPEED_LIMIT * DriveConstants.MAX_ROBOT_VELOCITY;
         ySpeed *= DriveConstants.XY_SPEED_LIMIT * DriveConstants.MAX_ROBOT_VELOCITY;
         zSpeed *= DriveConstants.Z_SPEED_LIMIT * DriveConstants.MAX_ROBOT_RAD_VELOCITY;
 
-        if (!xbox.getRightBumper()) {
-            xSpeed *= 0.25;
-            ySpeed *= 0.25;
-            zSpeed *= 0.25;
-        }
+        // double dmult = dsratelimiter.calculate(xbox.getRightBumper() ? 1.0 : SLOWMODE_MULT);
+        double dmult = dsratelimiter.calculate((DRIVE_MULT-SLOWMODE_MULT) * xbox.getRightTriggerAxis() + SLOWMODE_MULT);
+        xSpeed *= dmult;
+        ySpeed *= dmult;
+        zSpeed *= dmult;
 
         if (xbox.getXButton()) swerveSubsystem.zeroHeading();
 
@@ -89,8 +95,26 @@ public class DriveCommand extends CommandBase {
             speeds = new ChassisSpeeds(xSpeed, ySpeed, zSpeed);
         }
 
-        SwerveModuleState[] calculatedModuleStates = DriveConstants.KINEMATICS.toSwerveModuleStates(speeds);
-        swerveSubsystem.setModules(calculatedModuleStates);
+        // State transition logic
+        switch (state) {
+            case Free:
+                state = xbox.getBButton() ? DriveState.Locked : DriveState.Free;
+                break;
+            case Locked:
+                state = ((xyRaw.getNorm() > 0.15) && !xbox.getBButton()) ? DriveState.Free : DriveState.Locked;
+                break;
+        }
+
+        // Drive execution logic
+        switch (state) {
+            case Free:
+                SwerveModuleState[] calculatedModuleStates = DriveConstants.KINEMATICS.toSwerveModuleStates(speeds);
+                swerveSubsystem.setModules(calculatedModuleStates);
+                break;
+            case Locked:
+                swerveSubsystem.setXstance();
+                break;
+        }
     }
 
     @Override

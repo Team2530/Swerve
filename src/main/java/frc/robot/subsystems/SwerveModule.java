@@ -42,6 +42,7 @@ public class SwerveModule {
         driveMotor = new CANSparkMax(driveCanID, MotorType.kBrushless);
         driveMotor.setIdleMode(IdleMode.kBrake);
         steerMotor = new CANSparkMax(steerCanID, MotorType.kBrushless);
+        steerMotor.setIdleMode(IdleMode.kBrake);
 
         this.motor_inv = motorReversed;
         driveMotorEncoder = driveMotor.getEncoder();
@@ -102,12 +103,7 @@ public class SwerveModule {
         return new SwerveModulePosition(getDrivePosition(), new Rotation2d(getSteerPosition()));
     }
 
-    public void setModuleState(SwerveModuleState state) {
-        if (Math.abs(state.speedMetersPerSecond) < 0.001) {
-            stop();
-            return;
-        }
-
+    public void setModuleStateRaw(SwerveModuleState state) {
         state = SwerveModuleState.optimize(state, new Rotation2d(getSteerPosition()));
         double drive_command = state.speedMetersPerSecond / DriveConstants.MAX_MODULE_VELOCITY;
         driveMotor.set(drive_command * (motor_inv ? -1.0 : 1.0));
@@ -117,6 +113,14 @@ public class SwerveModule {
         steerMotor.set(steerPID.calculate(getSteerPosition(), state.angle.getRadians()));
         // SmartDashboard.putNumber("Abs" + thisModuleNumber, getAbsoluteEncoderPosition());
         SmartDashboard.putNumber("Drive" + thisModuleNumber, drive_command);
+    }
+
+    public void setModuleState(SwerveModuleState state) {
+        if (Math.abs(state.speedMetersPerSecond) < 0.001) {
+            stop();
+            return;
+        }
+        setModuleStateRaw(state);
     }
 
     public void stop() {

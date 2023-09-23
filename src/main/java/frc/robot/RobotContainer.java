@@ -21,11 +21,10 @@ import edu.wpi.first.wpilibj2.command.button.*;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-  private final Joystick joystick = new Joystick(ControllerConstants.DRIVER_CONTROLLER_PORT);
-  private final XboxController xbox = new XboxController(ControllerConstants.OPERATOR_CONTROLLER_PORT);
+  private final XboxController xbox = new XboxController(ControllerConstants.DRIVER_CONTROLLER_PORT);
 
   private final SwerveSubsystem swerveDriveSubsystem = new SwerveSubsystem();
-  private final DriveCommand normalDrive = new DriveCommand(swerveDriveSubsystem, joystick, xbox);
+  private final DriveCommand normalDrive = new DriveCommand(swerveDriveSubsystem, xbox);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.

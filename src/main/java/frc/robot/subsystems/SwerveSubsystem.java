@@ -85,6 +85,7 @@ public class SwerveSubsystem extends SubsystemBase {
     public Rotation2d geRotation2dOdometry() {
         return new Rotation2d(getHeading() + Math.PI / 2);
     }
+    
 
     public void stopDrive() {
         frontLeft.stop();
@@ -100,6 +101,13 @@ public class SwerveSubsystem extends SubsystemBase {
         frontRight.setModuleState(states[1]);
         backLeft.setModuleState(states[2]);
         backRight.setModuleState(states[0]);
+    }
+
+    public void setXstance() {
+        frontLeft.setModuleStateRaw(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
+        frontRight.setModuleStateRaw(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
+        backLeft.setModuleStateRaw(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
+        backRight.setModuleStateRaw(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
     }
 
     public ChassisSpeeds getChassisSpeeds() {
