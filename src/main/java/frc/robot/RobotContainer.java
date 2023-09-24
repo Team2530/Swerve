@@ -10,16 +10,27 @@ import frc.robot.Constants.SwerveModuleConstants;
 import frc.robot.commands.DriveCommand;
 import frc.robot.subsystems.SwerveSubsystem;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.*;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.button.*;
+
+import java.util.List;
+import java.util.Set;
 
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.PathPoint;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
+import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -70,7 +81,48 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return followTrajectoryCommand(PathPlanner.loadPath("TestPath", new PathConstraints(0.5, 1)), true);
+    // PathPlannerTrajectory traj = PathPlanner.generatePath(
+    // new PathConstraints(Constants.DriveConstants.MAX_ROBOT_VELOCITY, 3),
+    // new PathPoint(new Translation2d(0, 0), Rotation2d.fromDegrees(0)), //
+    // position, heading
+    // new PathPoint(new Translation2d(10.0, 0), Rotation2d.fromDegrees(0)) //
+    // position, heading
+    // );
+    PathPlannerTrajectory traj = PathPlanner.loadPath("Spin",
+        new PathConstraints(Constants.DriveConstants.MAX_ROBOT_VELOCITY / 2.0,
+            Constants.DriveConstants.MAX_ROBOT_VELOCITY / 2.0));
+
+    return followTrajectoryCommand(traj, true);
+    // return new Command() {
+
+    // @Override
+    // public Set<Subsystem> getRequirements() {
+    // return Set.of(swerveDriveSubsystem);
+    // }
+
+    // @Override
+    // public void initialize() {
+    // // TODO Auto-generated method stub
+    // Command.super.initialize();
+    // swerveDriveSubsystem.resetOdometry(new Pose2d(0.0, 0.0, new
+    // Rotation2d(0.0)));
+    // }
+
+    // @Override
+    // public void execute() {
+    // // TODO Auto-generated method stub
+    // Command.super.execute();
+    // swerveDriveSubsystem.setChassisSpeeds(new ChassisSpeeds(1.0, 0.0, 0.0));
+    // SmartDashboard.putString("Chassis vel",
+    // swerveDriveSubsystem.getChassisSpeeds().toString());
+    // }
+
+    // @Override
+    // public boolean isFinished() {
+    // // TODO Auto-generated method stub
+    // return Command.super.isFinished();
+    // }
+    // };
   }
 
   // Assuming this method is part of a drivetrain subsystem that provides the
@@ -80,19 +132,27 @@ public class RobotContainer {
         new InstantCommand(() -> {
           // Reset odometry for the first path you run during auto
           if (isFirstPath) {
-            swerveDriveSubsystem.resetOdometry(traj.getInitialHolonomicPose());
+            swerveDriveSubsystem.zeroHeading();
+            Pose2d initpose = traj.getInitialHolonomicPose();
+            swerveDriveSubsystem.resetOdometry(
+                new Pose2d(new Translation2d(initpose.getX(), -initpose.getY()), initpose.getRotation()));
           }
         }),
+
+        // TODO: TUNE!!!!
         new PPSwerveControllerCommand(
             traj,
             swerveDriveSubsystem::getPose, // Pose supplier
-            DriveConstants.KINEMATICS, // SwerveDriveKinematics
-            new PIDController(0, 0, 0), // X controller. Tune these values for your robot. Leaving them 0 will only use
-                                        // feedforwards.
-            new PIDController(0, 0, 0), // Y controller (usually the same values as X controller)
-            new PIDController(0, 0, 0), // Rotation controller. Tune these values for your robot. Leaving them 0 will
-                                        // only use feedforwards.
-            swerveDriveSubsystem::setModules, // Module states consumer
+            new PIDController(
+                1.0,
+                0,
+                0), // X controller
+            new PIDController(
+                1.0,
+                0,
+                0), // Y controller
+            new PIDController(1.0, 0, 0), // Rotation controller
+            swerveDriveSubsystem::setChassisSpeedsAUTO, // Chassis speeds states consumer
             true, // Should the path be automatically mirrored depending on alliance color.
                   // Optional, defaults to true
             swerveDriveSubsystem // Requires this drive subsystem

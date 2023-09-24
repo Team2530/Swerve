@@ -42,12 +42,12 @@ public class SwerveSubsystem extends SubsystemBase {
     public SwerveSubsystem() {
         zeroHeading();
         // new Thread(() -> {
-        //     try {
-        //         Thread.sleep(1000);
-        //         zeroHeading();
-        //     } catch (Exception e) {
-        //         // TODO: handle exception
-        //     }
+        // try {
+        // Thread.sleep(1000);
+        // zeroHeading();
+        // } catch (Exception e) {
+        // // TODO: handle exception
+        // }
         // }).start();
     }
 
@@ -57,16 +57,23 @@ public class SwerveSubsystem extends SubsystemBase {
         field.setRobotPose(getPose());
         SmartDashboard.putData("Field", field);
 
-        SmartDashboard.putString("Robot Pose", getPose().getTranslation().toString());
+        SmartDashboard.putString("Robot Pose",
+                getPose().toString());
     }
 
     public void zeroHeading() {
         navX.reset();
     }
 
+    public void setHeading(double deg) {
+        zeroHeading();
+        navX.setAngleAdjustment(deg);
+    }
+
     public Pose2d getPose() {
         Pose2d p = odometry.getPoseMeters();
-        p = new Pose2d(p.getX(),-p.getY(), p.getRotation().div(-1).rotateBy(new Rotation2d(Math.PI/2.0)));
+        // - Y!!!
+        p = new Pose2d(p.getX(), -p.getY(), p.getRotation().div(-1).rotateBy(new Rotation2d(Math.PI / 2.0)));
         return p;
     }
 
@@ -85,7 +92,6 @@ public class SwerveSubsystem extends SubsystemBase {
     public Rotation2d geRotation2dOdometry() {
         return new Rotation2d(getHeading() + Math.PI / 2);
     }
-    
 
     public void stopDrive() {
         frontLeft.stop();
@@ -103,6 +109,16 @@ public class SwerveSubsystem extends SubsystemBase {
         backRight.setModuleState(states[0]);
     }
 
+    public void setChassisSpeedsAUTO(ChassisSpeeds speeds) {
+        double tmp = -speeds.vxMetersPerSecond;
+        speeds.vxMetersPerSecond = -speeds.vyMetersPerSecond;
+        speeds.vyMetersPerSecond = tmp; // FORWARDS
+        // SmartDashboard.putNumber("Radians Chassis CMD",
+        // speeds.omegaRadiansPerSecond);
+        SwerveModuleState[] states = DriveConstants.KINEMATICS.toSwerveModuleStates(speeds);
+        setModules(states);
+    }
+
     public void setXstance() {
         frontLeft.setModuleStateRaw(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
         frontRight.setModuleStateRaw(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
@@ -111,12 +127,11 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public ChassisSpeeds getChassisSpeeds() {
-        ChassisSpeeds speeds =  DriveConstants.KINEMATICS.toChassisSpeeds(frontLeft.getModuleState(), frontRight.getModuleState(),
+        ChassisSpeeds speeds = DriveConstants.KINEMATICS.toChassisSpeeds(frontLeft.getModuleState(),
+                frontRight.getModuleState(),
                 backLeft.getModuleState(), backRight.getModuleState());
 
         return speeds;
-
-        
     }
 
     public SwerveModulePosition[] getModulePositions() {

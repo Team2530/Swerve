@@ -5,7 +5,6 @@ import com.revrobotics.*;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
-
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -40,9 +39,11 @@ public class SwerveModule {
     public SwerveModule(int steerCanID, int driveCanID, int absoluteEncoderPort, double motorOffsetRadians,
             boolean isAbsoluteEncoderReversed, boolean motorReversed) {
         driveMotor = new CANSparkMax(driveCanID, MotorType.kBrushless);
+        driveMotor.setInverted(false);
         driveMotor.setIdleMode(IdleMode.kBrake);
         steerMotor = new CANSparkMax(steerCanID, MotorType.kBrushless);
         steerMotor.setIdleMode(IdleMode.kBrake);
+        steerMotor.setInverted(false);
 
         this.motor_inv = motorReversed;
         driveMotorEncoder = driveMotor.getEncoder();
@@ -109,9 +110,11 @@ public class SwerveModule {
         driveMotor.set(drive_command * (motor_inv ? -1.0 : 1.0));
 
         // This is stupid
-        // steerPID.setP(Constants.SwerveModuleConstants.MODULE_KP * Math.abs(drive_command));
+        // steerPID.setP(Constants.SwerveModuleConstants.MODULE_KP *
+        // Math.abs(drive_command));
         steerMotor.set(steerPID.calculate(getSteerPosition(), state.angle.getRadians()));
-        // SmartDashboard.putNumber("Abs" + thisModuleNumber, getAbsoluteEncoderPosition());
+        // SmartDashboard.putNumber("Abs" + thisModuleNumber,
+        // getAbsoluteEncoderPosition());
         SmartDashboard.putNumber("Drive" + thisModuleNumber, drive_command);
     }
 

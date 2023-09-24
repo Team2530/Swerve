@@ -42,15 +42,15 @@ public final class Constants {
     // public static final double MODULE_KP = 0.5;
     // public static final double MODULE_KD = 0.03;
 
-    // NOTE: This is tuned for the carpet, might have oscillations on other floor types!
-    public static final double MODULE_KP = 0.75628;//0.7491; //0.56368;
-    public static final double MODULE_KD = 0.0066806;//0.0057682; //0.0076954;
+    // NOTE: This may need additional tuning!
+    public static final double MODULE_KP = 0.75628;// 0.7491; //0.56368;
+    public static final double MODULE_KD = 0.0066806;// 0.0057682; //0.0076954;
 
     // --------- Front Left Module --------- \\
     public static final int FL_DRIVE_ID = 2;
     public static final int FL_STEER_ID = 1;
     public static final int FL_ABSOLUTE_ENCODER_PORT = 1;
-    public static final double FL_OFFSET_RADIANS = Units.degreesToRadians(26.543) + Math.PI*0.5d;
+    public static final double FL_OFFSET_RADIANS = Units.degreesToRadians(26.543) + Math.PI * 0.5d;
     public static final boolean FL_ABSOLUTE_ENCODER_REVERSED = true;
     public static final boolean FL_MOTOR_REVERSED = false;
 
@@ -58,7 +58,7 @@ public final class Constants {
     public static final int FR_DRIVE_ID = 4;
     public static final int FR_STEER_ID = 3;
     public static final int FR_ABSOLUTE_ENCODER_PORT = 4;
-    public static final double FR_OFFSET_RADIANS = Units.degreesToRadians(336.621)+ Math.PI*0.5d;
+    public static final double FR_OFFSET_RADIANS = Units.degreesToRadians(336.621) + Math.PI * 0.5d;
     public static final boolean FR_ABSOLUTE_ENCODER_REVERSED = true;
     public static final boolean FR_MOTOR_REVERSED = false;
 
@@ -66,7 +66,7 @@ public final class Constants {
     public static final int BR_DRIVE_ID = 6;
     public static final int BR_STEER_ID = 5;
     public static final int BR_ABSOLUTE_ENCODER_PORT = 2;
-    public static final double BR_OFFSET_RADIANS = Units.degreesToRadians(54.404)+ Math.PI*0.5d;
+    public static final double BR_OFFSET_RADIANS = Units.degreesToRadians(54.404) + Math.PI * 0.5d;
     public static final boolean BR_ABSOLUTE_ENCODER_REVERSED = true;
     public static final boolean BR_MOTOR_REVERSED = false;
 
@@ -74,16 +74,16 @@ public final class Constants {
     public static final int BL_DRIVE_ID = 8;
     public static final int BL_STEER_ID = 7;
     public static final int BL_ABSOLUTE_ENCODER_PORT = 3;
-    public static final double BL_OFFSET_RADIANS = Units.degreesToRadians(320.801)+ Math.PI*0.5d;
+    public static final double BL_OFFSET_RADIANS = Units.degreesToRadians(320.801) + Math.PI * 0.5d;
     public static final boolean BL_ABSOLUTE_ENCODER_REVERSED = true;
     public static final boolean BL_MOTOR_REVERSED = false;
 
   }
 
   public static class DriveConstants {
-    public static final double MAX_MODULE_VELOCITY = 1;
-    public static final double MAX_ROBOT_VELOCITY = 1;
-    public static final double MAX_ROBOT_RAD_VELOCITY = 4.0;
+    public static final double MAX_MODULE_VELOCITY = 4.8;
+    public static final double MAX_ROBOT_VELOCITY = 4.8;
+    public static final double MAX_ROBOT_RAD_VELOCITY = 1.60407810804 * Math.PI * 3.0;
 
     // TODO: Change based on actual robot!
     public static final double TRACK_WIDTH = Units.inchesToMeters(18.75);
@@ -96,6 +96,6 @@ public final class Constants {
         new Translation2d(-TRACK_WIDTH / 2.0, -WHEEL_BASE / 2.0));
 
     public static final double XY_SPEED_LIMIT = 0.8;
-    public static final double Z_SPEED_LIMIT = 0.4;
+    public static final double Z_SPEED_LIMIT = 1.0;
   }
 }
