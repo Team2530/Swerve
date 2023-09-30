@@ -6,8 +6,10 @@ package frc.robot;
 
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.SwerveModuleConstants;
 import frc.robot.commands.DriveCommand;
+import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.SwerveSubsystem;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -42,10 +44,14 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-  private final XboxController xbox = new XboxController(ControllerConstants.DRIVER_CONTROLLER_PORT);
+  private final XboxController driverXbox = new XboxController(ControllerConstants.DRIVER_CONTROLLER_PORT);
+  // private final XboxController operatorXbox = new
+  // XboxController(ControllerConstants.OPERATOR_CONTROLLER_PORT);
 
   private final SwerveSubsystem swerveDriveSubsystem = new SwerveSubsystem();
-  private final DriveCommand normalDrive = new DriveCommand(swerveDriveSubsystem, xbox);
+  private final Intake intake = new Intake(IntakeConstants.OFFSET_RADIANS, driverXbox);
+
+  private final DriveCommand normalDrive = new DriveCommand(swerveDriveSubsystem, driverXbox);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -93,36 +99,6 @@ public class RobotContainer {
             Constants.DriveConstants.MAX_ROBOT_VELOCITY / 2.0));
 
     return followTrajectoryCommand(traj, true);
-    // return new Command() {
-
-    // @Override
-    // public Set<Subsystem> getRequirements() {
-    // return Set.of(swerveDriveSubsystem);
-    // }
-
-    // @Override
-    // public void initialize() {
-    // // TODO Auto-generated method stub
-    // Command.super.initialize();
-    // swerveDriveSubsystem.resetOdometry(new Pose2d(0.0, 0.0, new
-    // Rotation2d(0.0)));
-    // }
-
-    // @Override
-    // public void execute() {
-    // // TODO Auto-generated method stub
-    // Command.super.execute();
-    // swerveDriveSubsystem.setChassisSpeeds(new ChassisSpeeds(1.0, 0.0, 0.0));
-    // SmartDashboard.putString("Chassis vel",
-    // swerveDriveSubsystem.getChassisSpeeds().toString());
-    // }
-
-    // @Override
-    // public boolean isFinished() {
-    // // TODO Auto-generated method stub
-    // return Command.super.isFinished();
-    // }
-    // };
   }
 
   // Assuming this method is part of a drivetrain subsystem that provides the

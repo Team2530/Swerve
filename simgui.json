@@ -5,7 +5,18 @@
         "header": {
           "open": false
         }
+      },
+      "Talon SRX[11]": {
+        "header": {
+          "open": true
+        }
       }
+    }
+  },
+  "NTProvider": {
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/Field": "Field2d"
     }
   }
 }
