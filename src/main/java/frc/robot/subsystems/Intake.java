@@ -5,20 +5,22 @@ import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IntakeConstants;
 
 public class Intake extends SubsystemBase {
 
     private WPI_TalonSRX actuatorMotor = new WPI_TalonSRX(IntakeConstants.ACTUATOR_MOTOR_PORT);
-    private CANSparkMax leftIntake = new CANSparkMax(IntakeConstants.WHEEL_LEFT_PORT, MotorType.kBrushless);
-    private CANSparkMax rightIntake = new CANSparkMax(IntakeConstants.WHEEL_RIGHT_PORT, MotorType.kBrushless);
+    private CANSparkMax leftIntake;
+    private CANSparkMax rightIntake;
 
     private CANCoder actuatorEncoder = new CANCoder(IntakeConstants.ACTUATOR_ENCODER_PORT);
     private final double actuatorOffsetRadians;
@@ -46,13 +48,25 @@ public class Intake extends SubsystemBase {
     public Intake(double actuatorOffsetRadians, XboxController xbox) {
         this.actuatorOffsetRadians = actuatorOffsetRadians;
         this.xbox = xbox;
+
+        this.leftIntake = new CANSparkMax(IntakeConstants.WHEEL_LEFT_PORT, MotorType.kBrushless);
+        this.rightIntake = new CANSparkMax(IntakeConstants.WHEEL_RIGHT_PORT, MotorType.kBrushless);
+
+        leftIntake.setIdleMode(IdleMode.kBrake);
+        rightIntake.setIdleMode(IdleMode.kBrake);
     }
 
     @Override
     public void periodic() {
         double currentAngle = actuatorEncoder.getAbsolutePosition() * (Math.PI / 180d);
 
+        setIntakeSpeed(xbox.getRightY());
+
+        SmartDashboard.putNumber("RIGHTY", xbox.getRightY());
+
         actuatorMotor.set(actuatorPID.calculate(currentAngle, Units.degreesToRadians(intakeState.angleDegrees)));
+
+        
 
         // Set intake state based on the xbox POV
         switch (xbox.getPOV()) {
@@ -74,7 +88,7 @@ public class Intake extends SubsystemBase {
 
     }
 
-    public void set(double speed) {
+    public void setIntakeSpeed(double speed) {
         leftIntake.set(speed);
         rightIntake.set(-speed);
     }

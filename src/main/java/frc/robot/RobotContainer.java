@@ -45,11 +45,10 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
  */
 public class RobotContainer {
   private final XboxController driverXbox = new XboxController(ControllerConstants.DRIVER_CONTROLLER_PORT);
-  // private final XboxController operatorXbox = new
-  // XboxController(ControllerConstants.OPERATOR_CONTROLLER_PORT);
+  private final XboxController operatorXbox = new XboxController(ControllerConstants.OPERATOR_CONTROLLER_PORT);
 
   private final SwerveSubsystem swerveDriveSubsystem = new SwerveSubsystem();
-  private final Intake intake = new Intake(IntakeConstants.OFFSET_RADIANS, driverXbox);
+  private final Intake intake = new Intake(IntakeConstants.OFFSET_RADIANS, operatorXbox);
 
   private final DriveCommand normalDrive = new DriveCommand(swerveDriveSubsystem, driverXbox);
 
