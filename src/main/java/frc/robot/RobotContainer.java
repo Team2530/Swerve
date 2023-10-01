@@ -89,8 +89,9 @@ public class RobotContainer {
     // position, heading
     // );
     PathPlannerTrajectory traj = PathPlanner.loadPath("Spin",
-        new PathConstraints(Constants.DriveConstants.MAX_ROBOT_VELOCITY / 2.0,
-            Constants.DriveConstants.MAX_ROBOT_VELOCITY / 2.0));
+        new PathConstraints(DriveConstants.MAX_ROBOT_VELOCITY,
+            DriveConstants.MAX_ROBOT_VELOCITY * 2));
+
 
     return followTrajectoryCommand(traj, true);
     // return new Command() {
@@ -144,14 +145,14 @@ public class RobotContainer {
             traj,
             swerveDriveSubsystem::getPose, // Pose supplier
             new PIDController(
-                1.0,
+                3.0,
                 0,
                 0), // X controller
             new PIDController(
-                1.0,
+                3.0,
                 0,
                 0), // Y controller
-            new PIDController(1.0, 0, 0), // Rotation controller
+            new PIDController(0.17, 0, 0.0), // Rotation controller
             swerveDriveSubsystem::setChassisSpeedsAUTO, // Chassis speeds states consumer
             true, // Should the path be automatically mirrored depending on alliance color.
                   // Optional, defaults to true

@@ -6,6 +6,7 @@ import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.*;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -53,12 +54,15 @@ public class SwerveSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+        double rads = getPose().getRotation().getRadians(); 
         odometry.update(geRotation2dOdometry(), getModulePositions());
         field.setRobotPose(getPose());
         SmartDashboard.putData("Field", field);
 
         SmartDashboard.putString("Robot Pose",
                 getPose().toString());
+
+        SmartDashboard.putNumber("Spin Velocity", (getPose().getRotation().getRadians() - rads) / 0.02);
     }
 
     public void zeroHeading() {
