@@ -69,7 +69,7 @@ public class DriveCommand extends CommandBase {
         double xSpeed = xySpeed.getX(); // xbox.getLeftX();
         double ySpeed = xySpeed.getY(); // xbox.getLeftY();
 
-        System.out.println("DriveCMD working");
+        System.out.println(xySpeed.getNorm());
 
         // double mag_xy = Math.sqrt(xSpeed*xSpeed + ySpeed*ySpeed);
 

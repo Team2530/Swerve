@@ -83,7 +83,7 @@ public final class Constants {
   public static class DriveConstants {
     public static final double MAX_MODULE_VELOCITY = 4.8;
     public static final double MAX_ROBOT_VELOCITY = 4.8;
-    public static final double MAX_ROBOT_RAD_VELOCITY = 1.60407810804 * Math.PI * 3.0;
+    public static final double MAX_ROBOT_RAD_VELOCITY = 12.0; // Approx. Measured rads/sec
 
     // TODO: Change based on actual robot!
     public static final double TRACK_WIDTH = Units.inchesToMeters(18.75);

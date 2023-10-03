@@ -184,23 +184,23 @@ public class RobotContainer {
   // necessary methods
   public Command followTrajectoryCommand(PathPlannerTrajectory traj, boolean isFirstPath,
       HashMap<String, Command> eventMap) {
-    Command swerveController = new PPSwerveControllerCommand(
-        traj,
-        swerveDriveSubsystem::getPose, // Pose supplier
-        new PIDController(
-            1.0,
-            0,
-            0), // X controller
-        new PIDController(
-            1.0,
-            0,
-            0), // Y controller
-        new PIDController(0.0, 0, 0), // Rotation controller
-        swerveDriveSubsystem::setChassisSpeedsAUTO, // Chassis speeds states consumer
-        true, // Should the path be automatically mirrored depending on alliance color.
-              // Optional, defaults to true
-        swerveDriveSubsystem // Requires this drive subsystem
-    );
+      Command swerveController = new PPSwerveControllerCommand(
+            traj,
+            swerveDriveSubsystem::getPose, // Pose supplier
+            new PIDController(
+                3.0,
+                0,
+                0), // X controller
+            new PIDController(
+                3.0,
+                0,
+                0), // Y controller
+            new PIDController(0.17, 0, 0.0), // Rotation controller
+            swerveDriveSubsystem::setChassisSpeedsAUTO, // Chassis speeds states consumer
+            true, // Should the path be automatically mirrored depending on alliance color.
+                  // Optional, defaults to true
+            swerveDriveSubsystem // Requires this drive subsystem
+        ));
 
     return new SequentialCommandGroup(
         new InstantCommand(() -> {
@@ -212,6 +212,7 @@ public class RobotContainer {
                 new Pose2d(new Translation2d(initpose.getX(), -initpose.getY()), initpose.getRotation()));
           }
         }),
+
         new FollowPathWithEvents(swerveController, traj.getMarkers(), eventMap));
   }
 }
