@@ -25,7 +25,7 @@ import edu.wpi.first.math.util.Units;
 public final class Constants {
   public static class ControllerConstants {
     public static final int DRIVER_CONTROLLER_PORT = 1;
-    // public static final int OPERATOR_CONTROLLER_PORT = -1;
+    public static final int OPERATOR_CONTROLLER_PORT = 2;
   }
 
   public static class SwerveModuleConstants {
@@ -97,5 +97,20 @@ public final class Constants {
 
     public static final double XY_SPEED_LIMIT = 0.8;
     public static final double Z_SPEED_LIMIT = 1.0;
+  }
+
+  public static class IntakeConstants {
+    // Intake ports
+    public static final int WHEEL_LEFT_PORT = 9;
+    public static final int WHEEL_RIGHT_PORT = 10;
+    public static final int INTAKE_CURRENT_LIMIT = 40;
+
+    public static final int ACTUATOR_MOTOR_PORT = 11;
+    public static final int ACTUATOR_ENCODER_PORT = 5;
+    // CANcoder #5 reading when intake is vertical
+    public static final double OFFSET_RADIANS = Units.degreesToRadians(102.0);
+    public static final double ACTUATOR_GEAR_RATIO = (30.f/28.f);
+
+    public static final double MAX_SPEED = 0.50;
   }
 }

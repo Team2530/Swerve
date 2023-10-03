@@ -26,6 +26,7 @@ public class DriveCommand extends CommandBase {
         Free,
         Locked
     };
+
     private DriveState state = DriveState.Free;
 
     public DriveCommand(SwerveSubsystem swerveSubsystem, XboxController xbox) {
@@ -68,8 +69,7 @@ public class DriveCommand extends CommandBase {
         double xSpeed = xySpeed.getX(); // xbox.getLeftX();
         double ySpeed = xySpeed.getY(); // xbox.getLeftY();
 
-
-        // System.out.println(xySpeed.getNorm());
+        System.out.println(xySpeed.getNorm());
 
         // double mag_xy = Math.sqrt(xSpeed*xSpeed + ySpeed*ySpeed);
 
@@ -77,14 +77,15 @@ public class DriveCommand extends CommandBase {
         // ySpeed = mag_xy > 0.15 ? ySpeed : 0.0;
         // zSpeed = Math.abs(zSpeed) > 0.15 ? zSpeed : 0.0;
 
-
         // TODO: Full speed!
         xSpeed *= DriveConstants.XY_SPEED_LIMIT * DriveConstants.MAX_ROBOT_VELOCITY;
         ySpeed *= DriveConstants.XY_SPEED_LIMIT * DriveConstants.MAX_ROBOT_VELOCITY;
         zSpeed *= DriveConstants.Z_SPEED_LIMIT * DriveConstants.MAX_ROBOT_RAD_VELOCITY;
 
-        // double dmult = dsratelimiter.calculate(xbox.getRightBumper() ? 1.0 : SLOWMODE_MULT);
-        double dmult = dsratelimiter.calculate((DRIVE_MULT-SLOWMODE_MULT) * xbox.getRightTriggerAxis() + SLOWMODE_MULT);
+        // double dmult = dsratelimiter.calculate(xbox.getRightBumper() ? 1.0 :
+        // SLOWMODE_MULT);
+        double dmult = dsratelimiter
+                .calculate((DRIVE_MULT - SLOWMODE_MULT) * xbox.getRightTriggerAxis() + SLOWMODE_MULT);
         xSpeed *= dmult;
         ySpeed *= dmult;
         zSpeed *= dmult;
