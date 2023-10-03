@@ -59,36 +59,19 @@ public class Intake extends SubsystemBase {
         rightIntake.setSmartCurrentLimit(IntakeConstants.INTAKE_CURRENT_LIMIT);
     }
 
+    public IntakeState getIntakeState() {
+        return this.intakeState;
+    }
+
     @Override
     public void periodic() {
-        double currentAngle = (Units.degreesToRadians(actuatorEncoder.getAbsolutePosition()) - IntakeConstants.OFFSET_RADIANS) * IntakeConstants.ACTUATOR_GEAR_RATIO;
+        double currentAngle = (Units.degreesToRadians(actuatorEncoder.getAbsolutePosition())
+                - IntakeConstants.OFFSET_RADIANS) * IntakeConstants.ACTUATOR_GEAR_RATIO;
 
-        boolean intakeIn = (intakeState == IntakeState.STOWED) || (intakeState == IntakeState.PICKUP);
-        setIntakeSpeed(xbox.getLeftTriggerAxis() * (intakeIn ? -1 : 1) - 0.2);
-
-        SmartDashboard.putString("Intake State", intakeState.toString());
-
-        actuatorMotor.set(Util.cap(actuatorPID.calculate(currentAngle, Units.degreesToRadians(intakeState.angleDegrees)), IntakeConstants.MAX_SPEED));
+        actuatorMotor
+                .set(Util.cap(actuatorPID.calculate(currentAngle, Units.degreesToRadians(intakeState.angleDegrees)),
+                        IntakeConstants.MAX_SPEED));
         SmartDashboard.putNumber("Intake Current (A)", leftIntake.getOutputCurrent());
-
-        // Set intake state based on the xbox POV
-        switch (xbox.getPOV()) {
-            case -1:
-                break;
-            case 0:
-                setIntakeState(IntakeState.STOWED);
-                break;
-            case 90:
-                setIntakeState(IntakeState.HIGH);
-                break;
-            case 180:
-                setIntakeState(IntakeState.PICKUP);
-                break;
-            case 270:
-                setIntakeState(IntakeState.PLACE);
-                break;
-        }
-
     }
 
     public void setIntakeSpeed(double speed) {

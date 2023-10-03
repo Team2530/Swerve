@@ -9,28 +9,37 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.SwerveModuleConstants;
 import frc.robot.commands.DriveCommand;
+import frc.robot.commands.OperatorCommand;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.subsystems.Intake.IntakeState;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.trajectory.constraint.MecanumDriveKinematicsConstraint;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.Subsystem;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 
 import com.pathplanner.lib.PathConstraints;
 import com.pathplanner.lib.PathPlanner;
 import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.PathPoint;
+import com.pathplanner.lib.commands.FollowPathWithEvents;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
 import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
@@ -51,6 +60,7 @@ public class RobotContainer {
   private final Intake intake = new Intake(driverXbox);
 
   private final DriveCommand normalDrive = new DriveCommand(swerveDriveSubsystem, driverXbox);
+  private final OperatorCommand normalOperator = new OperatorCommand(intake, operatorXbox);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -60,6 +70,7 @@ public class RobotContainer {
     configureBindings();
 
     swerveDriveSubsystem.setDefaultCommand(normalDrive);
+    intake.setDefaultCommand(normalOperator);
   }
 
   /**
@@ -93,7 +104,7 @@ public class RobotContainer {
     // new PathPoint(new Translation2d(10.0, 0), Rotation2d.fromDegrees(0)) //
     // position, heading
     // );
-    PathPlannerTrajectory traj = PathPlanner.loadPath("Spin",
+    PathPlannerTrajectory traj = PathPlanner.loadPath("TestPath",
         new PathConstraints(Constants.DriveConstants.MAX_ROBOT_VELOCITY / 2.0,
             Constants.DriveConstants.MAX_ROBOT_VELOCITY / 2.0));
 
@@ -103,6 +114,59 @@ public class RobotContainer {
   // Assuming this method is part of a drivetrain subsystem that provides the
   // necessary methods
   public Command followTrajectoryCommand(PathPlannerTrajectory traj, boolean isFirstPath) {
+    Command swerveController = new PPSwerveControllerCommand(
+        traj,
+        swerveDriveSubsystem::getPose, // Pose supplier
+        new PIDController(
+            1.0,
+            0,
+            0), // X controller
+        new PIDController(
+            1.0,
+            0,
+            0), // Y controller
+        new PIDController(1.0, 0, 0), // Rotation controller
+        swerveDriveSubsystem::setChassisSpeedsAUTO, // Chassis speeds states consumer
+        true, // Should the path be automatically mirrored depending on alliance color.
+              // Optional, defaults to true
+        swerveDriveSubsystem // Requires this drive subsystem
+    );
+
+    CommandBase intakecommand = new InstantCommand(() -> {
+      System.out.println("Starting intake!");
+      intake.setIntakeState(IntakeState.PICKUP);
+      intake.setIntakeSpeed(-0.3);
+    });
+    CommandBase stowcommand = new InstantCommand(() -> {
+      System.out.println("Stowing intake!");
+      intake.setIntakeState(IntakeState.STOWED);
+      intake.setIntakeSpeed(-0.2);
+    });
+    CommandBase shootcommand = new SequentialCommandGroup(
+        new InstantCommand(() -> {
+          System.out.println("Starting Shooting");
+          // intake.setIntakeState(IntakeState.PLACE);
+        }),
+        new WaitCommand(1.5),
+        // new InstantCommand(() -> {
+        // intake.setIntakeSpeed(1.0);
+        // }),
+        // new WaitCommand(0.5),
+        new InstantCommand(() -> {
+          System.out.println("Done Shooting");
+        }));
+    intakecommand.addRequirements(intake);
+    stowcommand.addRequirements(intake);
+    shootcommand.addRequirements(intake);
+
+    HashMap<String, Command> eventMap = new HashMap<>();
+    // Make the intake intake
+    eventMap.put("intake", intakecommand);
+    // Stow the intake, hold game object
+    eventMap.put("stow", stowcommand);
+    // Rotate to shoot, shoot at max power
+    eventMap.put("shoot", shootcommand);
+
     return new SequentialCommandGroup(
         new InstantCommand(() -> {
           // Reset odometry for the first path you run during auto
@@ -114,24 +178,7 @@ public class RobotContainer {
           }
         }),
 
-        // TODO: TUNE!!!!
-        new PPSwerveControllerCommand(
-            traj,
-            swerveDriveSubsystem::getPose, // Pose supplier
-            new PIDController(
-                1.0,
-                0,
-                0), // X controller
-            new PIDController(
-                1.0,
-                0,
-                0), // Y controller
-            new PIDController(1.0, 0, 0), // Rotation controller
-            swerveDriveSubsystem::setChassisSpeedsAUTO, // Chassis speeds states consumer
-            true, // Should the path be automatically mirrored depending on alliance color.
-                  // Optional, defaults to true
-            swerveDriveSubsystem // Requires this drive subsystem
-        ));
+        new FollowPathWithEvents(swerveController, traj.getMarkers(), eventMap));
   }
 
 }
