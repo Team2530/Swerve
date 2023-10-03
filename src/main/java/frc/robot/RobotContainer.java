@@ -48,7 +48,7 @@ public class RobotContainer {
   private final XboxController operatorXbox = new XboxController(ControllerConstants.OPERATOR_CONTROLLER_PORT);
 
   private final SwerveSubsystem swerveDriveSubsystem = new SwerveSubsystem();
-  private final Intake intake = new Intake(IntakeConstants.OFFSET_RADIANS, operatorXbox);
+  private final Intake intake = new Intake(driverXbox);
 
   private final DriveCommand normalDrive = new DriveCommand(swerveDriveSubsystem, driverXbox);
 

@@ -1,8 +1,11 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.Util;
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.ctre.phoenix.sensors.CANCoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
@@ -18,21 +21,19 @@ import frc.robot.Constants.IntakeConstants;
 
 public class Intake extends SubsystemBase {
 
-    private WPI_TalonSRX actuatorMotor = new WPI_TalonSRX(IntakeConstants.ACTUATOR_MOTOR_PORT);
+    private WPI_VictorSPX actuatorMotor = new WPI_VictorSPX(IntakeConstants.ACTUATOR_MOTOR_PORT);
     private CANSparkMax leftIntake;
     private CANSparkMax rightIntake;
 
     private CANCoder actuatorEncoder = new CANCoder(IntakeConstants.ACTUATOR_ENCODER_PORT);
-    private final double actuatorOffsetRadians;
 
-    private final PIDController actuatorPID = new PIDController(0.00001, 0.0, 0.0);
+    private final PIDController actuatorPID = new PIDController(1.5, 0.0, 0.0);
 
     public static enum IntakeState {
-        STOWED(90),
-        PICKUP(-30),
-        PLACE(0),
-        HIGH(50),
-        LOW(20);
+        STOWED(-30),
+        PICKUP(120),
+        PLACE(60),
+        HIGH(45);
 
         private double angleDegrees;
 
@@ -45,8 +46,7 @@ public class Intake extends SubsystemBase {
 
     private final XboxController xbox;
 
-    public Intake(double actuatorOffsetRadians, XboxController xbox) {
-        this.actuatorOffsetRadians = actuatorOffsetRadians;
+    public Intake(XboxController xbox) {
         this.xbox = xbox;
 
         this.leftIntake = new CANSparkMax(IntakeConstants.WHEEL_LEFT_PORT, MotorType.kBrushless);
@@ -54,19 +54,22 @@ public class Intake extends SubsystemBase {
 
         leftIntake.setIdleMode(IdleMode.kBrake);
         rightIntake.setIdleMode(IdleMode.kBrake);
+
+        leftIntake.setSmartCurrentLimit(IntakeConstants.INTAKE_CURRENT_LIMIT);
+        rightIntake.setSmartCurrentLimit(IntakeConstants.INTAKE_CURRENT_LIMIT);
     }
 
     @Override
     public void periodic() {
-        double currentAngle = actuatorEncoder.getAbsolutePosition() * (Math.PI / 180d);
+        double currentAngle = (Units.degreesToRadians(actuatorEncoder.getAbsolutePosition()) - IntakeConstants.OFFSET_RADIANS) * IntakeConstants.ACTUATOR_GEAR_RATIO;
 
-        setIntakeSpeed(xbox.getRightY());
+        boolean intakeIn = (intakeState == IntakeState.STOWED) || (intakeState == IntakeState.PICKUP);
+        setIntakeSpeed(xbox.getLeftTriggerAxis() * (intakeIn ? -1 : 1) - 0.2);
 
-        SmartDashboard.putNumber("RIGHTY", xbox.getRightY());
+        SmartDashboard.putString("Intake State", intakeState.toString());
 
-        actuatorMotor.set(actuatorPID.calculate(currentAngle, Units.degreesToRadians(intakeState.angleDegrees)));
-
-        
+        actuatorMotor.set(Util.cap(actuatorPID.calculate(currentAngle, Units.degreesToRadians(intakeState.angleDegrees)), IntakeConstants.MAX_SPEED));
+        SmartDashboard.putNumber("Intake Current (A)", leftIntake.getOutputCurrent());
 
         // Set intake state based on the xbox POV
         switch (xbox.getPOV()) {
@@ -75,7 +78,7 @@ public class Intake extends SubsystemBase {
             case 0:
                 setIntakeState(IntakeState.STOWED);
                 break;
-            case 315:
+            case 90:
                 setIntakeState(IntakeState.HIGH);
                 break;
             case 180:
