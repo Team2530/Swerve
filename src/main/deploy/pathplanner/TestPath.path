@@ -49,16 +49,16 @@
     },
     {
       "anchorPoint": {
-        "x": 0.984827268799837,
-        "y": 1.9412585833718679
+        "x": 1.0,
+        "y": 2.0
       },
       "prevControl": {
-        "x": 0.9821503327801329,
-        "y": 0.7036969900798852
+        "x": 0.9999999999999999,
+        "y": 0.762435511507443
       },
       "nextControl": {
-        "x": 0.9821503327801329,
-        "y": 0.7036969900798852
+        "x": 0.9999999999999999,
+        "y": 0.762435511507443
       },
       "holonomicAngle": -90.0,
       "isReversal": true,
@@ -70,7 +70,7 @@
           "shoot"
         ],
         "executionBehavior": "sequential",
-        "waitBehavior": "minimum",
+        "waitBehavior": "deadline",
         "waitTime": 5.0
       }
     },
@@ -108,7 +108,7 @@
       ]
     },
     {
-      "position": 1.2799999999999938,
+      "position": 1.0,
       "names": [
         "stow"
       ]

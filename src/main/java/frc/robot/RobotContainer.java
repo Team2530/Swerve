@@ -104,34 +104,14 @@ public class RobotContainer {
     // new PathPoint(new Translation2d(10.0, 0), Rotation2d.fromDegrees(0)) //
     // position, heading
     // );
-    PathPlannerTrajectory traj = PathPlanner.loadPath("TestPath",
+    List<PathPlannerTrajectory> traj = PathPlanner.loadPathGroup("TestPath",
         new PathConstraints(Constants.DriveConstants.MAX_ROBOT_VELOCITY / 2.0,
             Constants.DriveConstants.MAX_ROBOT_VELOCITY / 2.0));
 
-    return followTrajectoryCommand(traj, true);
+    return getAutoCommand(traj);
   }
 
-  // Assuming this method is part of a drivetrain subsystem that provides the
-  // necessary methods
-  public Command followTrajectoryCommand(PathPlannerTrajectory traj, boolean isFirstPath) {
-    Command swerveController = new PPSwerveControllerCommand(
-        traj,
-        swerveDriveSubsystem::getPose, // Pose supplier
-        new PIDController(
-            1.0,
-            0,
-            0), // X controller
-        new PIDController(
-            1.0,
-            0,
-            0), // Y controller
-        new PIDController(1.0, 0, 0), // Rotation controller
-        swerveDriveSubsystem::setChassisSpeedsAUTO, // Chassis speeds states consumer
-        true, // Should the path be automatically mirrored depending on alliance color.
-              // Optional, defaults to true
-        swerveDriveSubsystem // Requires this drive subsystem
-    );
-
+  public Command getAutoCommand(List<PathPlannerTrajectory> path) {
     CommandBase intakecommand = new InstantCommand(() -> {
       System.out.println("Starting intake!");
       intake.setIntakeState(IntakeState.PICKUP);
@@ -145,19 +125,26 @@ public class RobotContainer {
     CommandBase shootcommand = new SequentialCommandGroup(
         new InstantCommand(() -> {
           System.out.println("Starting Shooting");
-          // intake.setIntakeState(IntakeState.PLACE);
+          intake.setIntakeState(IntakeState.PLACE);
         }),
-        new WaitCommand(1.5),
-        // new InstantCommand(() -> {
-        // intake.setIntakeSpeed(1.0);
-        // }),
-        // new WaitCommand(0.5),
+        new WaitCommand(0.5),
         new InstantCommand(() -> {
+          intake.setIntakeSpeed(1.0);
+        }),
+        new WaitCommand(1.0),
+        new InstantCommand(() -> {
+          intake.setIntakeSpeed(0.0);
+          intake.setIntakeState(IntakeState.STOWED);
           System.out.println("Done Shooting");
         }));
     intakecommand.addRequirements(intake);
     stowcommand.addRequirements(intake);
     shootcommand.addRequirements(intake);
+
+    CommandBase stopcommand = new InstantCommand(() -> {
+      swerveDriveSubsystem.stopDrive();
+    });
+    stopcommand.addRequirements(swerveDriveSubsystem);
 
     HashMap<String, Command> eventMap = new HashMap<>();
     // Make the intake intake
@@ -166,6 +153,54 @@ public class RobotContainer {
     eventMap.put("stow", stowcommand);
     // Rotate to shoot, shoot at max power
     eventMap.put("shoot", shootcommand);
+
+    SequentialCommandGroup auton = new SequentialCommandGroup();
+
+    for (int i = 0; i < path.size(); ++i) {
+      // if (i != 0) {
+      // auton.addCommands(new SequentialCommandGroup(
+      // new WaitCommand(1.0),
+      // new InstantCommand(() -> {
+      // System.out.println("Between paths");
+      // }),
+      // new WaitCommand(1.0)));
+      // }
+      auton.addCommands(followTrajectoryCommand(path.get(i), i == 0, eventMap));
+      List<String> names = path.get(i).getEndStopEvent().names;
+
+      // if (names.size() > 0)
+      // auton.addCommands(stopcommand);
+
+      for (String name : names) {
+        if (eventMap.containsKey(name))
+          auton.addCommands(eventMap.get(name));
+      }
+    }
+
+    return auton;
+  }
+
+  // Assuming this method is part of a drivetrain subsystem that provides the
+  // necessary methods
+  public Command followTrajectoryCommand(PathPlannerTrajectory traj, boolean isFirstPath,
+      HashMap<String, Command> eventMap) {
+    Command swerveController = new PPSwerveControllerCommand(
+        traj,
+        swerveDriveSubsystem::getPose, // Pose supplier
+        new PIDController(
+            1.0,
+            0,
+            0), // X controller
+        new PIDController(
+            1.0,
+            0,
+            0), // Y controller
+        new PIDController(0.0, 0, 0), // Rotation controller
+        swerveDriveSubsystem::setChassisSpeedsAUTO, // Chassis speeds states consumer
+        true, // Should the path be automatically mirrored depending on alliance color.
+              // Optional, defaults to true
+        swerveDriveSubsystem // Requires this drive subsystem
+    );
 
     return new SequentialCommandGroup(
         new InstantCommand(() -> {
@@ -177,8 +212,6 @@ public class RobotContainer {
                 new Pose2d(new Translation2d(initpose.getX(), -initpose.getY()), initpose.getRotation()));
           }
         }),
-
         new FollowPathWithEvents(swerveController, traj.getMarkers(), eventMap));
   }
-
 }
