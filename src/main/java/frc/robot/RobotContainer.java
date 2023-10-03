@@ -60,7 +60,7 @@ public class RobotContainer {
   private final Intake intake = new Intake(driverXbox);
 
   private final DriveCommand normalDrive = new DriveCommand(swerveDriveSubsystem, driverXbox);
-  private final OperatorCommand normalOperator = new OperatorCommand(intake, operatorXbox);
+  private final OperatorCommand normalOperator = new OperatorCommand(intake, driverXbox);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -115,7 +115,7 @@ public class RobotContainer {
     CommandBase intakecommand = new InstantCommand(() -> {
       System.out.println("Starting intake!");
       intake.setIntakeState(IntakeState.PICKUP);
-      intake.setIntakeSpeed(-0.3);
+      intake.setIntakeSpeed(-0.2);
     });
     CommandBase stowcommand = new InstantCommand(() -> {
       System.out.println("Stowing intake!");
@@ -184,23 +184,23 @@ public class RobotContainer {
   // necessary methods
   public Command followTrajectoryCommand(PathPlannerTrajectory traj, boolean isFirstPath,
       HashMap<String, Command> eventMap) {
-      Command swerveController = new PPSwerveControllerCommand(
-            traj,
-            swerveDriveSubsystem::getPose, // Pose supplier
-            new PIDController(
-                3.0,
-                0,
-                0), // X controller
-            new PIDController(
-                3.0,
-                0,
-                0), // Y controller
-            new PIDController(0.17, 0, 0.0), // Rotation controller
-            swerveDriveSubsystem::setChassisSpeedsAUTO, // Chassis speeds states consumer
-            true, // Should the path be automatically mirrored depending on alliance color.
-                  // Optional, defaults to true
-            swerveDriveSubsystem // Requires this drive subsystem
-        ));
+    Command swerveController = new PPSwerveControllerCommand(
+        traj,
+        swerveDriveSubsystem::getPose, // Pose supplier
+        new PIDController(
+            3.0,
+            0,
+            0), // X controller
+        new PIDController(
+            3.0,
+            0,
+            0), // Y controller
+        new PIDController(0.3, 0, 0.0), // Rotation controller
+        swerveDriveSubsystem::setChassisSpeedsAUTO, // Chassis speeds states consumer
+        true, // Should the path be automatically mirrored depending on alliance color.
+              // Optional, defaults to true
+        swerveDriveSubsystem // Requires this drive subsystem
+    );
 
     return new SequentialCommandGroup(
         new InstantCommand(() -> {

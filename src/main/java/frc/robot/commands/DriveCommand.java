@@ -100,7 +100,8 @@ public class DriveCommand extends CommandBase {
 
         // Drive Non Field Oriented
         if (!xbox.getLeftBumper()) {
-            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, zSpeed, swerveSubsystem.getRotation2d());
+            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, zSpeed,
+                    swerveSubsystem.getRotation2d());
         } else {
             speeds = new ChassisSpeeds(xSpeed, ySpeed, zSpeed);
         }

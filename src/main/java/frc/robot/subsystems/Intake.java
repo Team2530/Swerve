@@ -31,7 +31,7 @@ public class Intake extends SubsystemBase {
 
     public static enum IntakeState {
         STOWED(-30),
-        PICKUP(120),
+        PICKUP(125),
         PLACE(60),
         HIGH(45);
 

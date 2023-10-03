@@ -108,8 +108,8 @@ public final class Constants {
     public static final int ACTUATOR_MOTOR_PORT = 11;
     public static final int ACTUATOR_ENCODER_PORT = 5;
     // CANcoder #5 reading when intake is vertical
-    public static final double OFFSET_RADIANS = Units.degreesToRadians(102.0);
-    public static final double ACTUATOR_GEAR_RATIO = (30.f/28.f);
+    public static final double OFFSET_RADIANS = Units.degreesToRadians(60.0);
+    public static final double ACTUATOR_GEAR_RATIO = (30.f / 28.f);
 
     public static final double MAX_SPEED = 0.50;
   }

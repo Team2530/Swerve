@@ -54,7 +54,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        double rads = getPose().getRotation().getRadians(); 
+        double rads = getPose().getRotation().getRadians();
         odometry.update(geRotation2dOdometry(), getModulePositions());
         field.setRobotPose(getPose());
         SmartDashboard.putData("Field", field);
@@ -119,6 +119,7 @@ public class SwerveSubsystem extends SubsystemBase {
         speeds.vyMetersPerSecond = tmp; // FORWARDS
         // SmartDashboard.putNumber("Radians Chassis CMD",
         // speeds.omegaRadiansPerSecond);
+        speeds.omegaRadiansPerSecond *= -1;
         SwerveModuleState[] states = DriveConstants.KINEMATICS.toSwerveModuleStates(speeds);
         setModules(states);
     }
