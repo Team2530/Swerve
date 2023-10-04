@@ -27,9 +27,10 @@ public class OperatorCommand extends CommandBase {
         if (DriverStation.isTeleop()) {
 
             // Constantly be intakin'
+            // TODO: Change to have a button control intaking - more operator controls
             boolean intakeIn = (intake.getIntakeState() == IntakeState.STOWED) || (intake
                     .getIntakeState() == IntakeState.PICKUP);
-            intake.setIntakeSpeed(xbox.getLeftTriggerAxis() * (intakeIn ? -1 : 1) - 0.2);
+            intake.setIntakeSpeed(xbox.getRightTriggerAxis() * (intakeIn ? -1 : 1) - 0.2);
             System.out.println("OPcmd working");
 
             // Set intake state based on the xbox POV

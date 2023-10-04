@@ -60,7 +60,7 @@ public class RobotContainer {
   private final Intake intake = new Intake(driverXbox);
 
   private final DriveCommand normalDrive = new DriveCommand(swerveDriveSubsystem, driverXbox);
-  private final OperatorCommand normalOperator = new OperatorCommand(intake, driverXbox);
+  private final OperatorCommand normalOperator = new OperatorCommand(intake, operatorXbox);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
