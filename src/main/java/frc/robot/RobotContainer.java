@@ -10,6 +10,7 @@ import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.SwerveModuleConstants;
 import frc.robot.commands.DriveCommand;
 import frc.robot.commands.OperatorCommand;
+import frc.robot.commands.ResetIntakeCommand;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.Intake.IntakeState;
@@ -18,12 +19,15 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.constraint.MecanumDriveKinematicsConstraint;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -54,13 +58,15 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
  */
 public class RobotContainer {
   private final XboxController driverXbox = new XboxController(ControllerConstants.DRIVER_CONTROLLER_PORT);
-  private final XboxController operatorXbox = new XboxController(ControllerConstants.OPERATOR_CONTROLLER_PORT);
+  private final CommandXboxController operatorXbox = new CommandXboxController(ControllerConstants.OPERATOR_CONTROLLER_PORT);
 
   private final SwerveSubsystem swerveDriveSubsystem = new SwerveSubsystem();
   private final Intake intake = new Intake(driverXbox);
 
   private final DriveCommand normalDrive = new DriveCommand(swerveDriveSubsystem, driverXbox);
-  private final OperatorCommand normalOperator = new OperatorCommand(intake, operatorXbox);
+  private final OperatorCommand normalOperator = new OperatorCommand(intake, operatorXbox.getHID());
+
+  DigitalInput intakeLimitSw = new DigitalInput(IntakeConstants.LIMIT_PORT);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -87,8 +93,19 @@ public class RobotContainer {
    * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
+  private Command resetCommand = new ResetIntakeCommand(intake, intakeLimitSw);
+  PathPlannerTrajectory hometraj = PathPlanner.generatePath(
+    new PathConstraints(Constants.DriveConstants.MAX_ROBOT_VELOCITY/8.0, Constants.DriveConstants.MAX_ROBOT_VELOCITY/16.0),
+    new PathPoint(swerveDriveSubsystem.getPose().getTranslation(), swerveDriveSubsystem.getPose().getRotation()), //
+    new PathPoint(new Translation2d(0.0, 0), Rotation2d.fromDegrees(0)) //
+    );
+    
   private void configureBindings() {
-
+    // Needs to be held for 1/2 second!
+    // Automatically aborted if the intake takes longer than 10 seconds to zero (probably jammed in that case)
+    operatorXbox.y().debounce(0.5).onTrue(new ParallelRaceGroup(new WaitCommand(10.0), resetCommand));
+    // operatorXbox.leftBumper().onTrue(followTrajectoryCommand(
+    //   hometraj, false, new HashMap<>()));
   }
 
   /**
@@ -125,15 +142,17 @@ public class RobotContainer {
     CommandBase shootcommand = new SequentialCommandGroup(
         new InstantCommand(() -> {
           System.out.println("Starting Shooting");
-          intake.setIntakeState(IntakeState.PLACE);
+          intake.setIntakeState(IntakeState.HIGH);
         }),
         new WaitCommand(0.5),
         new InstantCommand(() -> {
+          intake.enableCurrentControl(false);
           intake.setIntakeSpeed(1.0);
         }),
         new WaitCommand(1.0),
         new InstantCommand(() -> {
           intake.setIntakeSpeed(0.0);
+          intake.enableCurrentControl(true);
           intake.setIntakeState(IntakeState.STOWED);
           System.out.println("Done Shooting");
         }));

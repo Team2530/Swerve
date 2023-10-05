@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.io.File;
+
 import com.ctre.phoenix.Util;
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
@@ -27,12 +29,14 @@ public class Intake extends SubsystemBase {
 
     private CANCoder actuatorEncoder = new CANCoder(IntakeConstants.ACTUATOR_ENCODER_PORT);
 
-    private final PIDController actuatorPID = new PIDController(1.5, 0.0, 0.0);
+    private final PIDController actuatorPID = new PIDController(1.25, 0.0, 0.0);
+
+    private double ANGLE_OFFSET = IntakeConstants.OFFSET_RADIANS;
 
     public static enum IntakeState {
         STOWED(-30),
-        PICKUP(125),
-        PLACE(60),
+        PICKUP(120),
+        LOW(70),
         HIGH(45);
 
         private double angleDegrees;
@@ -43,8 +47,11 @@ public class Intake extends SubsystemBase {
     }
 
     private IntakeState intakeState = IntakeState.STOWED;
+    private boolean statectl_enabled = true;
 
     private final XboxController xbox;
+
+    private double stateDegrees;
 
     public Intake(XboxController xbox) {
         this.xbox = xbox;
@@ -55,23 +62,58 @@ public class Intake extends SubsystemBase {
         leftIntake.setIdleMode(IdleMode.kBrake);
         rightIntake.setIdleMode(IdleMode.kBrake);
 
-        leftIntake.setSmartCurrentLimit(IntakeConstants.INTAKE_CURRENT_LIMIT);
-        rightIntake.setSmartCurrentLimit(IntakeConstants.INTAKE_CURRENT_LIMIT);
+        enableCurrentControl(true);
+        enableStateControl(true);
+        ANGLE_OFFSET = IntakeConstants.OFFSET_RADIANS;
+    }
+
+    public void enableCurrentControl(boolean currentcontrol) {
+        if (currentcontrol) {
+            leftIntake.setSmartCurrentLimit(IntakeConstants.INTAKE_CURRENT_LIMIT);
+            rightIntake.setSmartCurrentLimit(IntakeConstants.INTAKE_CURRENT_LIMIT);
+        } else {
+            leftIntake.setSmartCurrentLimit(80);
+            rightIntake.setSmartCurrentLimit(80);
+        }
     }
 
     public IntakeState getIntakeState() {
         return this.intakeState;
     }
 
+    public void addIntakeState(double degreesmove) {
+        this.stateDegrees = Math.min(Math.max(stateDegrees+degreesmove, IntakeState.STOWED.angleDegrees),IntakeState.PICKUP.angleDegrees);
+    }
+
     @Override
     public void periodic() {
-        double currentAngle = (Units.degreesToRadians(actuatorEncoder.getAbsolutePosition())
-                - IntakeConstants.OFFSET_RADIANS) * IntakeConstants.ACTUATOR_GEAR_RATIO;
+        double currentAngle = (Units.degreesToRadians(actuatorEncoder.getPosition())
+                - ANGLE_OFFSET) * IntakeConstants.ACTUATOR_GEAR_RATIO;
 
-        actuatorMotor
-                .set(Util.cap(actuatorPID.calculate(currentAngle, Units.degreesToRadians(intakeState.angleDegrees)),
-                        IntakeConstants.MAX_SPEED));
+        if (this.statectl_enabled) {
+            actuatorMotor
+            .set(Util.cap(actuatorPID.calculate(currentAngle, Units.degreesToRadians(stateDegrees)),
+                    IntakeConstants.MAX_SPEED));
+        }
+        
         SmartDashboard.putNumber("Intake Current (A)", leftIntake.getOutputCurrent());
+    }
+
+    public void setActuatorRaw(double speed) {
+        this.actuatorMotor.set(speed);
+    }
+
+    public void enableStateControl(boolean enabled) {
+        this.statectl_enabled = enabled;
+    }
+
+    // Returns Radians
+    public double getEncoderAngleRaw() {
+        return Units.degreesToRadians(actuatorEncoder.getPosition());
+    }
+
+    public void setZeroAngleRaw(double radians_at_zero) {
+        this.ANGLE_OFFSET = radians_at_zero;
     }
 
     public void setIntakeSpeed(double speed) {
@@ -87,5 +129,6 @@ public class Intake extends SubsystemBase {
 
     public void setIntakeState(IntakeState state) {
         this.intakeState = state;
+        this.stateDegrees = state.angleDegrees;
     }
 }

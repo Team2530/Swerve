@@ -25,31 +25,42 @@ public class OperatorCommand extends CommandBase {
     @Override
     public void execute() {
         if (DriverStation.isTeleop()) {
+            boolean intakeIn = ((intake.getIntakeState() == IntakeState.STOWED) || (intake
+                    .getIntakeState() == IntakeState.PICKUP)) && !xbox.getBButton();
 
-            // Constantly be intakin'
-            // TODO: Change to have a button control intaking - more operator controls
-            boolean intakeIn = (intake.getIntakeState() == IntakeState.STOWED) || (intake
-                    .getIntakeState() == IntakeState.PICKUP);
-            intake.setIntakeSpeed(xbox.getRightTriggerAxis() * (intakeIn ? -1 : 1) - 0.2);
-            System.out.println("OPcmd working");
+            if (xbox.getRightBumper()) {
+                    if (intakeIn) 
+                        intake.setIntakeSpeed(-0.7);
+                    else {
+                        intake.setIntakeSpeed(1.0);
+                        intake.enableCurrentControl(false);
+                    }
+            } else {
+                intake.enableCurrentControl(true);
+                intake.setIntakeSpeed(xbox.getRightTriggerAxis() * (intakeIn ? -1 : 1) - 0.2); // Max 80% output!
+            }
 
+            intake.enableStateControl(true);
+            
             // Set intake state based on the xbox POV
             switch (xbox.getPOV()) {
                 case -1:
                     break;
                 case 0:
-                    intake.setIntakeState(IntakeState.STOWED);
+                    intake.setIntakeState(IntakeState.HIGH);
                     break;
                 case 90:
-                    intake.setIntakeState(IntakeState.HIGH);
+                    intake.setIntakeState(IntakeState.STOWED);
                     break;
                 case 180:
                     intake.setIntakeState(IntakeState.PICKUP);
                     break;
                 case 270:
-                    intake.setIntakeState(IntakeState.PLACE);
+                    intake.setIntakeState(IntakeState.LOW);
                     break;
             }
+
+            intake.addIntakeState((0.02 * DeadBand(xbox.getLeftY(), 0.1)) * 60.0);
         } else {
             // Auton
             intake.setIntakeSpeed(0.0);
