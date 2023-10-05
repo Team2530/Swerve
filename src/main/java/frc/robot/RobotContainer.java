@@ -121,9 +121,10 @@ public class RobotContainer {
     // new PathPoint(new Translation2d(10.0, 0), Rotation2d.fromDegrees(0)) //
     // position, heading
     // );
+    intake.setIntakeState(IntakeState.PICKUP);
     List<PathPlannerTrajectory> traj = PathPlanner.loadPathGroup("TestPath",
-        new PathConstraints(Constants.DriveConstants.MAX_ROBOT_VELOCITY / 2.0,
-            Constants.DriveConstants.MAX_ROBOT_VELOCITY / 2.0));
+        new PathConstraints(Constants.DriveConstants.MAX_ROBOT_VELOCITY / 1.5,
+            Constants.DriveConstants.MAX_ROBOT_VELOCITY / 1.5));
 
     return getAutoCommand(traj);
   }
@@ -132,6 +133,7 @@ public class RobotContainer {
     CommandBase intakecommand = new InstantCommand(() -> {
       System.out.println("Starting intake!");
       intake.setIntakeState(IntakeState.PICKUP);
+      intake.addIntakeState(-10.0);
       intake.setIntakeSpeed(-0.2);
     });
     CommandBase stowcommand = new InstantCommand(() -> {
@@ -144,12 +146,12 @@ public class RobotContainer {
           System.out.println("Starting Shooting");
           intake.setIntakeState(IntakeState.HIGH);
         }),
-        new WaitCommand(0.5),
+        new WaitCommand(0.75),
         new InstantCommand(() -> {
           intake.enableCurrentControl(false);
           intake.setIntakeSpeed(1.0);
         }),
-        new WaitCommand(1.0),
+        new WaitCommand(0.5),
         new InstantCommand(() -> {
           intake.setIntakeSpeed(0.0);
           intake.enableCurrentControl(true);
