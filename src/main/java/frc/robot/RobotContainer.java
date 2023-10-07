@@ -11,6 +11,7 @@ import frc.robot.Constants.SwerveModuleConstants;
 import frc.robot.commands.DriveCommand;
 import frc.robot.commands.OperatorCommand;
 import frc.robot.commands.ResetIntakeCommand;
+import frc.robot.commands.TagFollowCommand;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.Intake.IntakeState;
@@ -57,14 +58,18 @@ import com.pathplanner.lib.controllers.PPHolonomicDriveController;
  * subsystems, commands, and trigger mappings) should be declared here.
  */
 public class RobotContainer {
-  private final XboxController driverXbox = new XboxController(ControllerConstants.DRIVER_CONTROLLER_PORT);
-  private final CommandXboxController operatorXbox = new CommandXboxController(ControllerConstants.OPERATOR_CONTROLLER_PORT);
+  private final CommandXboxController driverXbox = new CommandXboxController(
+      ControllerConstants.DRIVER_CONTROLLER_PORT);
+  private final CommandXboxController operatorXbox = new CommandXboxController(
+      ControllerConstants.OPERATOR_CONTROLLER_PORT);
 
   private final SwerveSubsystem swerveDriveSubsystem = new SwerveSubsystem();
-  private final Intake intake = new Intake(driverXbox);
+  private final Intake intake = new Intake(driverXbox.getHID());
 
-  private final DriveCommand normalDrive = new DriveCommand(swerveDriveSubsystem, driverXbox);
+  private final DriveCommand normalDrive = new DriveCommand(swerveDriveSubsystem, driverXbox.getHID());
   private final OperatorCommand normalOperator = new OperatorCommand(intake, operatorXbox.getHID());
+
+  private final TagFollowCommand tagFollow = new TagFollowCommand(swerveDriveSubsystem, driverXbox.getHID());
 
   DigitalInput intakeLimitSw = new DigitalInput(IntakeConstants.LIMIT_PORT);
 
@@ -93,19 +98,25 @@ public class RobotContainer {
    * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
-  private Command resetCommand = new ResetIntakeCommand(intake, intakeLimitSw);
+  private Command resetCommand = new ParallelRaceGroup(new WaitCommand(10.0),
+      new ResetIntakeCommand(intake, intakeLimitSw));
+
   PathPlannerTrajectory hometraj = PathPlanner.generatePath(
-    new PathConstraints(Constants.DriveConstants.MAX_ROBOT_VELOCITY/8.0, Constants.DriveConstants.MAX_ROBOT_VELOCITY/16.0),
-    new PathPoint(swerveDriveSubsystem.getPose().getTranslation(), swerveDriveSubsystem.getPose().getRotation()), //
-    new PathPoint(new Translation2d(0.0, 0), Rotation2d.fromDegrees(0)) //
-    );
-    
+      new PathConstraints(Constants.DriveConstants.MAX_ROBOT_VELOCITY / 8.0,
+          Constants.DriveConstants.MAX_ROBOT_VELOCITY / 16.0),
+      new PathPoint(swerveDriveSubsystem.getPose().getTranslation(), swerveDriveSubsystem.getPose().getRotation()), //
+      new PathPoint(new Translation2d(0.0, 0), Rotation2d.fromDegrees(0)) //
+  );
+
   private void configureBindings() {
     // Needs to be held for 1/2 second!
-    // Automatically aborted if the intake takes longer than 10 seconds to zero (probably jammed in that case)
-    operatorXbox.y().debounce(0.5).onTrue(new ParallelRaceGroup(new WaitCommand(10.0), resetCommand));
-    // operatorXbox.leftBumper().onTrue(followTrajectoryCommand(
-    //   hometraj, false, new HashMap<>()));
+    // Automatically aborted if the intake takes longer than 10 seconds to zero
+    // (probably jammed in that case)
+    operatorXbox.y().debounce(0.5).onTrue(resetCommand);
+    operatorXbox.a().onTrue(new InstantCommand(() -> resetCommand.cancel()));
+
+    // Use Y to enable tag following!
+    driverXbox.y().onTrue(tagFollow).onFalse(new InstantCommand(() -> tagFollow.cancel()));
   }
 
   /**
@@ -176,6 +187,14 @@ public class RobotContainer {
     eventMap.put("shoot", shootcommand);
 
     SequentialCommandGroup auton = new SequentialCommandGroup();
+
+    // Pre-drive commands
+    if (path.size() > 0 && path.get(0).getStartStopEvent().names.size() > 0) {
+      for (String name : path.get(0).getStartStopEvent().names) {
+        if (eventMap.containsKey(name))
+          auton.addCommands(eventMap.get(name));
+      }
+    }
 
     for (int i = 0; i < path.size(); ++i) {
       // if (i != 0) {

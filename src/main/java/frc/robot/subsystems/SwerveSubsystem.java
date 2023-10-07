@@ -2,14 +2,17 @@ package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.*;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.LimelightHelpers;
 import frc.robot.Constants.*;
 
 public class SwerveSubsystem extends SubsystemBase {
@@ -37,8 +40,10 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private Field2d field = new Field2d();
 
-    private final SwerveDriveOdometry odometry = new SwerveDriveOdometry(DriveConstants.KINEMATICS, getRotation2d(),
-            getModulePositions());
+    // TODO: Properly set starting pose
+    private final SwerveDrivePoseEstimator odometry = new SwerveDrivePoseEstimator(DriveConstants.KINEMATICS,
+            getRotation2d(),
+            getModulePositions(), new Pose2d());
 
     public SwerveSubsystem() {
         zeroHeading();
@@ -56,6 +61,12 @@ public class SwerveSubsystem extends SubsystemBase {
     public void periodic() {
         double rads = getPose().getRotation().getRadians();
         odometry.update(geRotation2dOdometry(), getModulePositions());
+
+        // TODO: Test
+        // WARNING: REMOVE IF USING TAG FOLLOW!!!
+        // odometry.addVisionMeasurement(LimelightHelpers.getBotPose2d(null),
+
+        // Timer.getFPGATimestamp());
         field.setRobotPose(getPose());
         SmartDashboard.putData("Field", field);
 
@@ -75,7 +86,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public Pose2d getPose() {
-        Pose2d p = odometry.getPoseMeters();
+        Pose2d p = odometry.getEstimatedPosition();
         // - Y!!!
         p = new Pose2d(p.getX(), -p.getY(), p.getRotation().div(-1).rotateBy(new Rotation2d(Math.PI / 2.0)));
         return p;
@@ -147,5 +158,18 @@ public class SwerveSubsystem extends SubsystemBase {
         states[0] = backRight.getModulePosition();
 
         return states;
+    }
+
+    public void drive(double strafeX, double strafeY, double rotate, boolean fieldOrientated) {
+        ChassisSpeeds chassisSpeed;
+
+        if (fieldOrientated) {
+            chassisSpeed = ChassisSpeeds.fromFieldRelativeSpeeds(strafeX, strafeY, rotate,
+                    getRotation2d());
+        } else {
+            chassisSpeed = new ChassisSpeeds(strafeX, strafeY, rotate);
+        }
+
+        setChassisSpeedsAUTO(chassisSpeed);
     }
 }

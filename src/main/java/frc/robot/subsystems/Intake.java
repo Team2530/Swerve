@@ -15,6 +15,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -64,7 +65,10 @@ public class Intake extends SubsystemBase {
 
         enableCurrentControl(true);
         enableStateControl(true);
-        ANGLE_OFFSET = IntakeConstants.OFFSET_RADIANS;
+
+        Preferences.initDouble("ANGLE_OFFSET", IntakeConstants.OFFSET_RADIANS);
+        ANGLE_OFFSET = Preferences.getDouble("ANGLE_OFFSET", IntakeConstants.OFFSET_RADIANS);
+        System.out.printf("Angle offset is %f\n", ANGLE_OFFSET);
     }
 
     public void enableCurrentControl(boolean currentcontrol) {
@@ -82,7 +86,8 @@ public class Intake extends SubsystemBase {
     }
 
     public void addIntakeState(double degreesmove) {
-        this.stateDegrees = Math.min(Math.max(stateDegrees+degreesmove, IntakeState.STOWED.angleDegrees),IntakeState.PICKUP.angleDegrees);
+        this.stateDegrees = Math.min(Math.max(stateDegrees + degreesmove, IntakeState.STOWED.angleDegrees),
+                IntakeState.PICKUP.angleDegrees);
     }
 
     @Override
@@ -90,12 +95,14 @@ public class Intake extends SubsystemBase {
         double currentAngle = (Units.degreesToRadians(actuatorEncoder.getPosition())
                 - ANGLE_OFFSET) * IntakeConstants.ACTUATOR_GEAR_RATIO;
 
+        SmartDashboard.putNumber("Intake current angle", Units.degreesToRadians(actuatorEncoder.getPosition()));
+        SmartDashboard.putNumber("Intake zeroed angle", currentAngle);
         if (this.statectl_enabled) {
             actuatorMotor
-            .set(Util.cap(actuatorPID.calculate(currentAngle, Units.degreesToRadians(stateDegrees)),
-                    IntakeConstants.MAX_SPEED));
+                    .set(Util.cap(actuatorPID.calculate(currentAngle, Units.degreesToRadians(stateDegrees)),
+                            IntakeConstants.MAX_SPEED));
         }
-        
+
         SmartDashboard.putNumber("Intake Current (A)", leftIntake.getOutputCurrent());
     }
 
@@ -114,6 +121,7 @@ public class Intake extends SubsystemBase {
 
     public void setZeroAngleRaw(double radians_at_zero) {
         this.ANGLE_OFFSET = radians_at_zero;
+        Preferences.setDouble("ANGLE_OFFSET", this.ANGLE_OFFSET);
     }
 
     public void setIntakeSpeed(double speed) {

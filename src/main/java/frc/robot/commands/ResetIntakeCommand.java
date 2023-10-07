@@ -22,7 +22,7 @@ public class ResetIntakeCommand extends CommandBase {
         done = false;
 
         addRequirements(intake);
-    }    
+    }
 
     @Override
     public void initialize() {
@@ -36,7 +36,7 @@ public class ResetIntakeCommand extends CommandBase {
         intake.enableStateControl(false);
         intake.setActuatorRaw(-0.1);
 
-        System.out.println("Starting");
+        System.out.println("Starting Intake Homing");
     }
 
     @Override
@@ -45,7 +45,7 @@ public class ResetIntakeCommand extends CommandBase {
             // Switch is NORMALLY CLOSED
             if (limitsw.get()) {
                 // Done
-                
+
                 intake.setActuatorRaw(0.0);
                 double zeroangle = intake.getEncoderAngleRaw() - IntakeConstants.SWITCH_OFFSET_RADIANS;
                 intake.setZeroAngleRaw(zeroangle);

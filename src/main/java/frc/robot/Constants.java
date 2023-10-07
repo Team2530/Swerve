@@ -109,7 +109,7 @@ public final class Constants {
     public static final int ACTUATOR_MOTOR_PORT = 11;
     public static final int ACTUATOR_ENCODER_PORT = 5;
     // CANcoder #5 reading when intake is vertical
-    public static final double OFFSET_RADIANS = -0.641;
+    public static final double OFFSET_RADIANS = 2.549476069465936;
     public static final double ACTUATOR_GEAR_RATIO = (30.f / 28.f);
 
     public static final double SWITCH_OFFSET_RADIANS = Units.degreesToRadians(-42.0);
