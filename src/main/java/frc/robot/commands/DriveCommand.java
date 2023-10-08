@@ -69,7 +69,7 @@ public class DriveCommand extends CommandBase {
         double xSpeed = xySpeed.getX(); // xbox.getLeftX();
         double ySpeed = xySpeed.getY(); // xbox.getLeftY();
 
-        // System.out.println(xySpeed.getNorm());
+        // System.out.println("DRIVE!!");
 
         // double mag_xy = Math.sqrt(xSpeed*xSpeed + ySpeed*ySpeed);
 
@@ -90,11 +90,11 @@ public class DriveCommand extends CommandBase {
         ySpeed *= dmult;
         zSpeed *= dmult;
 
-        if (xbox.getXButton())
+        if (xbox.getXButton()) {
             swerveSubsystem.zeroHeading();
-
-        if (xbox.getAButton())
             swerveSubsystem.resetOdometry(new Pose2d());
+            swerveSubsystem.zeroHeading();
+        }
 
         ChassisSpeeds speeds;
 

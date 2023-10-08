@@ -31,9 +31,9 @@ public class TagFollowCommand extends CommandBase {
     private final SwerveSubsystem swerveSubsystem;
     private final XboxController xbox;
 
-    private final ProfiledPIDController xController = new ProfiledPIDController(3, 0, 0, X_CONSTRAINTS);
-    private final ProfiledPIDController yController = new ProfiledPIDController(3, 0, 0, Y_CONSTRAINTS);
-    private final ProfiledPIDController omegaController = new ProfiledPIDController(2, 0, 0, OMEGA_CONSTRAINTS);
+    private final ProfiledPIDController xController = new ProfiledPIDController(.75, 0, 0, X_CONSTRAINTS);
+    private final ProfiledPIDController yController = new ProfiledPIDController(0.75, 0, 0, Y_CONSTRAINTS);
+    private final ProfiledPIDController omegaController = new ProfiledPIDController(.0, 0, 0, OMEGA_CONSTRAINTS);
 
     public TagFollowCommand(
             SwerveSubsystem swerveSubsystem,
@@ -77,10 +77,11 @@ public class TagFollowCommand extends CommandBase {
             } else {
                 // Tag in bot space
                 Pose3d targetPose = target.getTargetPose_RobotSpace();
-                Pose2d targetPose2d = new Pose2d(new Translation2d(targetPose.getZ(), -targetPose.getX()),
+                Pose2d targetPose2d = new Pose2d(new Translation2d(targetPose.getZ(), targetPose.getX()),
                         targetPose.getRotation().toRotation2d());
 
-                // Tag and offset in field space
+                
+                        // Tag and offset in field space
                 var goalPose = new Pose3d(targetPose2d).relativeTo(robotPose).transformBy(TAG_TO_GOAL).toPose2d();
 
                 // Drive
@@ -105,7 +106,7 @@ public class TagFollowCommand extends CommandBase {
                 }
 
                 System.out.println(goalPose.getTranslation().toString());
-                // swerveSubsystem.drive(xSpeed, ySpeed, omegaSpeed, true);
+                swerveSubsystem.drive(xSpeed, ySpeed, omegaSpeed, true);
             }
         }
     }

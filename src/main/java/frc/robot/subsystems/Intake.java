@@ -36,9 +36,11 @@ public class Intake extends SubsystemBase {
 
     public static enum IntakeState {
         STOWED(-30),
+        // STOWED(-),
         PICKUP(120),
         LOW(70),
-        HIGH(45);
+        HIGH(45),
+        TIPPEDCONE_CUBE(110);
 
         private double angleDegrees;
 

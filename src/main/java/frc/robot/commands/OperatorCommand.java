@@ -25,7 +25,7 @@ public class OperatorCommand extends CommandBase {
     @Override
     public void execute() {
         if (DriverStation.isTeleop()) {
-            boolean intakeIn = ((intake.getIntakeState() == IntakeState.STOWED) || (intake
+            boolean intakeIn = ((intake.getIntakeState() == IntakeState.TIPPEDCONE_CUBE) || (intake.getIntakeState() == IntakeState.STOWED) || (intake
                     .getIntakeState() == IntakeState.PICKUP)) && !xbox.getBButton();
 
             if (xbox.getRightBumper()) {
@@ -58,6 +58,10 @@ public class OperatorCommand extends CommandBase {
                 case 270:
                     intake.setIntakeState(IntakeState.LOW);
                     break;
+            }
+
+            if (xbox.getLeftBumper()) {
+                intake.setIntakeState(IntakeState.TIPPEDCONE_CUBE);
             }
 
             intake.addIntakeState((0.02 * DeadBand(xbox.getLeftY(), 0.1)) * 60.0);

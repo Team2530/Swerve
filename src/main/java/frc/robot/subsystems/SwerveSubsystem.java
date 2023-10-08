@@ -6,9 +6,11 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.*;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -36,6 +38,15 @@ public class SwerveSubsystem extends SubsystemBase {
             SwerveModuleConstants.BL_ABSOLUTE_ENCODER_REVERSED,
             SwerveModuleConstants.BL_MOTOR_REVERSED);
 
+
+    PowerDistribution pdh = new PowerDistribution(1,ModuleType.kRev);
+    int[] pdh_channels = {
+        18,19,
+        0,1,
+        16,17,
+        2,3
+    };
+
     private final AHRS navX = new AHRS(SPI.Port.kMXP);
 
     private Field2d field = new Field2d();
@@ -59,21 +70,27 @@ public class SwerveSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        double rads = getPose().getRotation().getRadians();
+        // double rads = getPose().getRotation().getRadians();
         odometry.update(geRotation2dOdometry(), getModulePositions());
 
         // TODO: Test
         // WARNING: REMOVE IF USING TAG FOLLOW!!!
         // odometry.addVisionMeasurement(LimelightHelpers.getBotPose2d(null),
-
         // Timer.getFPGATimestamp());
+
         field.setRobotPose(getPose());
         SmartDashboard.putData("Field", field);
 
         SmartDashboard.putString("Robot Pose",
                 getPose().toString());
 
-        SmartDashboard.putNumber("Spin Velocity", (getPose().getRotation().getRadians() - rads) / 0.02);
+        // SmartDashboard.putNumber("Spin Velocity", (getPose().getRotation().getRadians() - rads) / 0.02);
+    
+        double swerveCurrent = 0;
+        for (int chan : pdh_channels)
+            swerveCurrent += pdh.getCurrent(chan);
+        SmartDashboard.putNumber("SwerveSubsystem Amps", swerveCurrent);
+        SmartDashboard.putNumber("PDH Amps", pdh.getTotalCurrent());
     }
 
     public void zeroHeading() {
