@@ -200,7 +200,7 @@ public class RobotContainer {
             true, // Should the path be automatically mirrored depending on alliance color.
                   // Optional, defaults to true
             swerveDriveSubsystem // Requires this drive subsystem
-        ));
+        );
 
     return new SequentialCommandGroup(
         new InstantCommand(() -> {
