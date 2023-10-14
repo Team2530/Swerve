@@ -156,7 +156,7 @@ public class RobotContainer {
         // position, heading
         // );
         intake.setIntakeState(IntakeState.PICKUP);
-        List<PathPlannerTrajectory> traj = PathPlanner.loadPathGroup("Circle",
+        List<PathPlannerTrajectory> traj = PathPlanner.loadPathGroup("TestPath",
                 new PathConstraints(Constants.DriveConstants.MAX_ROBOT_VELOCITY / 1.5,
                         Constants.DriveConstants.MAX_ROBOT_VELOCITY / 1.5));
 

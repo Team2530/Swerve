@@ -39,7 +39,7 @@ public class Intake extends SubsystemBase {
         // STOWED(-),
         PICKUP(120),
         LOW(70),
-        HIGH(45),
+        HIGH(35),
         TIPPEDCONE_CUBE(110);
 
         private double angleDegrees;
@@ -89,7 +89,7 @@ public class Intake extends SubsystemBase {
 
     public void addIntakeState(double degreesmove) {
         this.stateDegrees = Math.min(Math.max(stateDegrees + degreesmove, IntakeState.STOWED.angleDegrees),
-                IntakeState.PICKUP.angleDegrees);
+                IntakeState.PICKUP.angleDegrees +10);
     }
 
     @Override
