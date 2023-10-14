@@ -97,8 +97,8 @@ public class Intake extends SubsystemBase {
         double currentAngle = (Units.degreesToRadians(actuatorEncoder.getPosition())
                 - ANGLE_OFFSET) * IntakeConstants.ACTUATOR_GEAR_RATIO;
 
-        SmartDashboard.putNumber("Intake current angle", Units.degreesToRadians(actuatorEncoder.getPosition()));
-        SmartDashboard.putNumber("Intake zeroed angle", currentAngle);
+        // SmartDashboard.putNumber("Intake current angle", Units.degreesToRadians(actuatorEncoder.getPosition()));
+        // SmartDashboard.putNumber("Intake zeroed angle", currentAngle);
         if (this.statectl_enabled) {
             actuatorMotor
                     .set(Util.cap(actuatorPID.calculate(currentAngle, Units.degreesToRadians(stateDegrees)),
@@ -106,6 +106,7 @@ public class Intake extends SubsystemBase {
         }
 
         SmartDashboard.putNumber("Intake Current (A)", leftIntake.getOutputCurrent());
+        SmartDashboard.putString("Intake State", getIntakeState().toString());
     }
 
     public void setActuatorRaw(double speed) {

@@ -177,6 +177,14 @@ public class SwerveSubsystem extends SubsystemBase {
         return states;
     }
 
+    @Override
+    public void simulationPeriodic() {
+        frontLeft.simulate_step();
+        frontRight.simulate_step();
+        backLeft.simulate_step();
+        backRight.simulate_step();
+    }
+
     public void drive(double strafeX, double strafeY, double rotate, boolean fieldOrientated) {
         ChassisSpeeds chassisSpeed;
 

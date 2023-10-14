@@ -40,7 +40,7 @@
               "_showGlyph": false
             }
           },
-          "7,4": {
+          "1,4": {
             "size": [
               1,
               1
@@ -172,7 +172,7 @@
               }
             }
           },
-          "4,4": {
+          "0,4": {
             "size": [
               1,
               1
@@ -185,32 +185,6 @@
               "_showGlyph": false
             }
           },
-          "0,4": {
-            "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/Intake current angle",
-              "_title": "Intake current angle",
-              "_glyph": 148,
-              "_showGlyph": false
-            }
-          },
-          "1,4": {
-            "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/Intake zeroed angle",
-              "_title": "Intake zeroed angle",
-              "_glyph": 148,
-              "_showGlyph": false
-            }
-          },
           "2,4": {
             "size": [
               1,
@@ -218,47 +192,8 @@
             ],
             "content": {
               "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/limelight_PipelineName",
-              "_title": "limelight_PipelineName",
-              "_glyph": 148,
-              "_showGlyph": false
-            }
-          },
-          "3,4": {
-            "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/limelight_Stream",
-              "_title": "limelight_Stream",
-              "_glyph": 148,
-              "_showGlyph": false
-            }
-          },
-          "5,4": {
-            "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/limelight_Interface",
-              "_title": "limelight_Interface",
-              "_glyph": 148,
-              "_showGlyph": false
-            }
-          },
-          "6,4": {
-            "size": [
-              1,
-              1
-            ],
-            "content": {
-              "_type": "Text View",
-              "_source0": "network_table:///SmartDashboard/SwerveSubsystem Amps",
-              "_title": "SwerveSubsystem Amps",
+              "_source0": "network_table:///SmartDashboard/DSA",
+              "_title": "DSA",
               "_glyph": 148,
               "_showGlyph": false
             }

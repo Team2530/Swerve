@@ -70,8 +70,6 @@ public class OperatorCommand extends CommandBase {
             intake.setIntakeSpeed(0.0);
             intake.setIntakeState(IntakeState.STOWED);
         }
-
-        SmartDashboard.putString("Intake State", intake.getIntakeState().toString());
     }
 
     @Override

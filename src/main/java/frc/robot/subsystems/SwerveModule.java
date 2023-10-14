@@ -5,14 +5,19 @@ import com.revrobotics.*;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
+import edu.wpi.first.hal.SimDouble;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.*;
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.simulation.EncoderSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
+import frc.robot.Robot;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.SwerveModuleConstants;
 
@@ -22,6 +27,9 @@ public class SwerveModule {
 
     private final RelativeEncoder driveMotorEncoder;
     private final RelativeEncoder steerMotorEncoder;
+
+    private  double driveEncSim = 0;
+    private  double steerEncSim = 0;
 
     private final CANCoder absoluteEncoder;
 
@@ -69,7 +77,13 @@ public class SwerveModule {
         resetEncoders();
     }
 
+    public void simulate_step() {
+        driveEncSim += 0.02 * driveMotor.get() * (DriveConstants.MAX_MODULE_VELOCITY);
+        steerEncSim += 0.02 * steerMotor.get() * (10.0);
+    }
+
     public double getDrivePosition() {
+        if (Robot.isSimulation()) return driveEncSim;
         return driveMotorEncoder.getPosition();
     }
 
@@ -78,6 +92,7 @@ public class SwerveModule {
     }
 
     public double getSteerPosition() {
+        if (Robot.isSimulation()) return steerEncSim;
         return steerMotorEncoder.getPosition();
     }
 

@@ -253,15 +253,6 @@ public class RobotContainer {
         }
 
         for (int i = 0; i < path.size(); ++i) {
-            // if (i != 0) {
-            // auton.addCommands(new SequentialCommandGroup(
-            // new WaitCommand(1.0),
-            // new InstantCommand(() -> {
-            // System.out.println("Between paths");
-            // }),
-            // new WaitCommand(1.0)));
-            // }
-
             CommandBase intakecommand = new InstantCommand(() -> {
                 System.out.println("Starting intake!");
                 intake.setIntakeState(IntakeState.PICKUP);
@@ -319,7 +310,8 @@ public class RobotContainer {
         }
 
         auton.addCommands(new InstantCommand(() -> {
-            swerveDriveSubsystem.setHeading(180);
+            // swerveDriveSubsystem.setHeading(180);
+            swerveDriveSubsystem.setHeading(path.get(path.size()-1).getEndState().holonomicRotation.getDegrees());
         }));
 
         return auton;
