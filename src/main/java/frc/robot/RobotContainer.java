@@ -17,6 +17,7 @@ import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.Intake.IntakeState;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -25,6 +26,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.constraint.MecanumDriveKinematicsConstraint;
 import edu.wpi.first.wpilibj.*;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -155,64 +157,95 @@ public class RobotContainer {
         // new PathPoint(new Translation2d(10.0, 0), Rotation2d.fromDegrees(0)) //
         // position, heading
         // );
-        intake.setIntakeState(IntakeState.PICKUP);
-        List<PathPlannerTrajectory> traj = PathPlanner.loadPathGroup("TestPath",
+
+        // TODO: FIX AUTO!
+
+
+        // CommandBase shootcommand = new SequentialCommandGroup(
+        //             new InstantCommand(() -> {
+        //                 System.out.println("Starting Shooting");
+        //                 intake.setIntakeState(IntakeState.HIGH);
+        //             }),
+        //             new WaitCommand(0.75),
+        //             new InstantCommand(() -> {
+        //                 intake.enableCurrentControl(false);
+        //                 intake.setIntakeSpeed(1.0);
+        //             }),
+        //             new WaitCommand(0.5),
+        //             new InstantCommand(() -> {
+        //                 intake.setIntakeSpeed(0.0);
+        //                 intake.enableCurrentControl(true);
+        //                 intake.setIntakeState(IntakeState.STOWED);
+        //                 System.out.println("Done Shooting");
+        //             }));
+
+        // shootcommand.addRequirements(intake);
+
+        // return shootcommand;
+
+        intake.setIntakeState(IntakeState.STOWED);
+        List<PathPlannerTrajectory> traj = PathPlanner.loadPathGroup("2PieceAuto RED",
                 new PathConstraints(Constants.DriveConstants.MAX_ROBOT_VELOCITY / 1.5,
                         Constants.DriveConstants.MAX_ROBOT_VELOCITY / 1.5));
+
+                        /*
+                         * new PathConstraints(Constants.DriveConstants.MAX_ROBOT_VELOCITY / 1.5,
+                        Constants.DriveConstants.MAX_ROBOT_VELOCITY / 1.5)
+                         */
 
         return getAutoCommand(traj);
     }
 
     public Command getAutoCommand(List<PathPlannerTrajectory> path) {
-        CommandBase intakecommand = new InstantCommand(() -> {
-            System.out.println("Starting intake!");
-            intake.setIntakeState(IntakeState.PICKUP);
-            intake.addIntakeState(-10.0);
-            intake.setIntakeSpeed(-0.2);
-        });
-        CommandBase stowcommand = new InstantCommand(() -> {
-            System.out.println("Stowing intake!");
-            intake.setIntakeState(IntakeState.STOWED);
-            intake.setIntakeSpeed(-0.2);
-        });
-        CommandBase shootcommand = new SequentialCommandGroup(
-                new InstantCommand(() -> {
-                    System.out.println("Starting Shooting");
-                    intake.setIntakeState(IntakeState.HIGH);
-                }),
-                new WaitCommand(0.75),
-                new InstantCommand(() -> {
-                    intake.enableCurrentControl(false);
-                    intake.setIntakeSpeed(1.0);
-                }),
-                new WaitCommand(0.5),
-                new InstantCommand(() -> {
-                    intake.setIntakeSpeed(0.0);
-                    intake.enableCurrentControl(true);
-                    intake.setIntakeState(IntakeState.STOWED);
-                    System.out.println("Done Shooting");
-                }));
-        intakecommand.addRequirements(intake);
-        stowcommand.addRequirements(intake);
-        shootcommand.addRequirements(intake);
-
-        CommandBase stopcommand = new InstantCommand(() -> {
-            swerveDriveSubsystem.stopDrive();
-        });
-        stopcommand.addRequirements(swerveDriveSubsystem);
-
-        HashMap<String, Command> eventMap = new HashMap<>();
-        // Make the intake intake
-        eventMap.put("intake", intakecommand);
-        // Stow the intake, hold game object
-        eventMap.put("stow", stowcommand);
-        // Rotate to shoot, shoot at max power
-        eventMap.put("shoot", shootcommand);
 
         SequentialCommandGroup auton = new SequentialCommandGroup();
 
         // Pre-drive commands
         if (path.size() > 0 && path.get(0).getStartStopEvent().names.size() > 0) {
+            CommandBase intakecommand = new InstantCommand(() -> {
+                System.out.println("Starting intake!");
+                intake.setIntakeState(IntakeState.PICKUP);
+                intake.addIntakeState(-10.0);
+                intake.setIntakeSpeed(-0.2);
+            });
+            CommandBase stowcommand = new InstantCommand(() -> {
+                System.out.println("Stowing intake!");
+                intake.setIntakeState(IntakeState.STOWED);
+                intake.setIntakeSpeed(-0.2);
+            });
+            CommandBase shootcommand = new SequentialCommandGroup(
+                    new InstantCommand(() -> {
+                        System.out.println("Starting Shooting");
+                        intake.setIntakeState(IntakeState.HIGH);
+                    }),
+                    new WaitCommand(0.75),
+                    new InstantCommand(() -> {
+                        intake.enableCurrentControl(false);
+                        intake.setIntakeSpeed(1.0);
+                    }),
+                    new WaitCommand(0.5),
+                    new InstantCommand(() -> {
+                        intake.setIntakeSpeed(0.0);
+                        intake.enableCurrentControl(true);
+                        intake.setIntakeState(IntakeState.STOWED);
+                        System.out.println("Done Shooting");
+                    }));
+            intakecommand.addRequirements(intake);
+            stowcommand.addRequirements(intake);
+            shootcommand.addRequirements(intake);
+    
+            CommandBase stopcommand = new InstantCommand(() -> {
+                swerveDriveSubsystem.stopDrive();
+            });
+            stopcommand.addRequirements(swerveDriveSubsystem);
+    
+            HashMap<String, Command> eventMap = new HashMap<>();
+            // Make the intake intake
+            eventMap.put("intake", intakecommand);
+            // Stow the intake, hold game object
+            eventMap.put("stow", stowcommand);
+            // Rotate to shoot, shoot at max power
+            eventMap.put("shoot", shootcommand);
             for (String name : path.get(0).getStartStopEvent().names) {
                 if (eventMap.containsKey(name))
                     auton.addCommands(eventMap.get(name));
@@ -228,6 +261,51 @@ public class RobotContainer {
             // }),
             // new WaitCommand(1.0)));
             // }
+
+            CommandBase intakecommand = new InstantCommand(() -> {
+                System.out.println("Starting intake!");
+                intake.setIntakeState(IntakeState.PICKUP);
+                intake.addIntakeState(-10.0);
+                intake.setIntakeSpeed(-0.2);
+            });
+            CommandBase stowcommand = new InstantCommand(() -> {
+                System.out.println("Stowing intake!");
+                intake.setIntakeState(IntakeState.STOWED);
+                intake.setIntakeSpeed(-0.2);
+            });
+            CommandBase shootcommand = new SequentialCommandGroup(
+                    new InstantCommand(() -> {
+                        System.out.println("Starting Shooting");
+                        intake.setIntakeState(IntakeState.HIGH);
+                    }),
+                    new WaitCommand(0.75),
+                    new InstantCommand(() -> {
+                        intake.enableCurrentControl(false);
+                        intake.setIntakeSpeed(1.0);
+                    }),
+                    new WaitCommand(0.5),
+                    new InstantCommand(() -> {
+                        intake.setIntakeSpeed(0.0);
+                        intake.enableCurrentControl(true);
+                        intake.setIntakeState(IntakeState.STOWED);
+                        System.out.println("Done Shooting");
+                    }));
+            intakecommand.addRequirements(intake);
+            stowcommand.addRequirements(intake);
+            shootcommand.addRequirements(intake);
+    
+            CommandBase stopcommand = new InstantCommand(() -> {
+                swerveDriveSubsystem.stopDrive();
+            });
+            stopcommand.addRequirements(swerveDriveSubsystem);
+    
+            HashMap<String, Command> eventMap = new HashMap<>();
+            // Make the intake intake
+            eventMap.put("intake", intakecommand);
+            // Stow the intake, hold game object
+            eventMap.put("stow", stowcommand);
+            // Rotate to shoot, shoot at max power
+            eventMap.put("shoot", shootcommand);
             auton.addCommands(followTrajectoryCommand(path.get(i), i == 0, eventMap));
             List<String> names = path.get(i).getEndStopEvent().names;
 
@@ -240,6 +318,10 @@ public class RobotContainer {
             }
         }
 
+        auton.addCommands(new InstantCommand(() -> {
+            swerveDriveSubsystem.setHeading(180);
+        }));
+
         return auton;
     }
 
@@ -247,8 +329,11 @@ public class RobotContainer {
     // necessary methods
     public Command followTrajectoryCommand(PathPlannerTrajectory traj, boolean isFirstPath,
             HashMap<String, Command> eventMap) {
+
+        PathPlannerTrajectory t_transformed = traj;// PathPlannerTrajectory.transformTrajectoryForAlliance(traj, DriverStation.getAlliance());
+
         Command swerveController = new PPSwerveControllerCommand(
-                traj,
+            t_transformed,
                 swerveDriveSubsystem::getPose, // Pose supplier
                 new PIDController(
                         3.0,
@@ -260,7 +345,7 @@ public class RobotContainer {
                         0), // Y controller
                 new PIDController(0.4, 0, 0.0), // Rotation controller
                 swerveDriveSubsystem::setChassisSpeedsAUTO, // Chassis speeds states consumer
-                true, // Should the path be automatically mirrored depending on alliance color.
+                false, // Should the path be automatically mirrored depending on alliance color.
                       // Optional, defaults to true
                 swerveDriveSubsystem // Requires this drive subsystem
         );
@@ -269,14 +354,16 @@ public class RobotContainer {
                 new InstantCommand(() -> {
                     // Reset odometry for the first path you run during auto
                     if (isFirstPath) {
+                        SmartDashboard.putString("DSA",DriverStation.getAlliance().toString());
                         swerveDriveSubsystem.zeroHeading();
-                        Pose2d initpose = traj.getInitialHolonomicPose();
+                        Pose2d initpose = t_transformed.getInitialHolonomicPose();
+                        // swerveDriveSubsystem.setHeading(initpose.getRotation().getDegrees());
                         swerveDriveSubsystem.resetOdometry(
                                 new Pose2d(new Translation2d(initpose.getX(), -initpose.getY()),
                                         initpose.getRotation()));
                     }
                 }),
-                new FollowPathWithEvents(swerveController, traj.getMarkers(), eventMap));
+                new FollowPathWithEvents(swerveController, t_transformed.getMarkers(), eventMap));
     }
 
     public Command genOTFDriveCommand(boolean useRotation, Pose2d... points) {

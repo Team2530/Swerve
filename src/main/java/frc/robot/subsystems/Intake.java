@@ -40,7 +40,7 @@ public class Intake extends SubsystemBase {
         PICKUP(120),
         LOW(70),
         HIGH(35),
-        TIPPEDCONE_CUBE(110);
+        TIPPEDCONE_CUBE(95);
 
         private double angleDegrees;
 
