@@ -11,7 +11,6 @@ import frc.robot.Constants.SwerveModuleConstants;
 import frc.robot.commands.DriveCommand;
 import frc.robot.commands.OperatorCommand;
 import frc.robot.commands.ResetIntakeCommand;
-import frc.robot.commands.TagFollowCommand;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.Intake.IntakeState;
@@ -75,7 +74,7 @@ public class RobotContainer {
     private final SwerveSubsystem swerveDriveSubsystem = new SwerveSubsystem();
     private final Intake intake = new Intake(driverXbox.getHID());
 
-    // private final UsbCamera driverCamera = CameraServer.startAutomaticCapture();
+    private final UsbCamera intakeCam = CameraServer.startAutomaticCapture();
 
     private final DriveCommand normalDrive = new DriveCommand(swerveDriveSubsystem, driverXbox.getHID());
     private final OperatorCommand normalOperator = new OperatorCommand(intake, operatorXbox.getHID());

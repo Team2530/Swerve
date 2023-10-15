@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -100,10 +101,10 @@ public class DriveCommand extends CommandBase {
 
         // Drive Non Field Oriented
         if (!xbox.getLeftBumper()) {
-            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, zSpeed,
-                    swerveSubsystem.getRotation2d());
+            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(ySpeed, -xSpeed, -zSpeed,
+                   new Rotation2d(-swerveSubsystem.getRotation2d().rotateBy(DriveConstants.NAVX_ANGLE_OFFSET).getRadians()));
         } else {
-            speeds = new ChassisSpeeds(xSpeed, ySpeed, zSpeed);
+            speeds = new ChassisSpeeds(xSpeed, ySpeed, -zSpeed);
         }
 
         // State transition logic

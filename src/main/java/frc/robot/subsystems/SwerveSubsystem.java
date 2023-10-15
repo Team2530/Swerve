@@ -6,14 +6,17 @@ import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.*;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.LimelightHelpers;
 import frc.robot.Constants.*;
 
@@ -58,27 +61,20 @@ public class SwerveSubsystem extends SubsystemBase {
 
     public SwerveSubsystem() {
         zeroHeading();
-        // new Thread(() -> {
-        // try {
-        // Thread.sleep(1000);
-        // zeroHeading();
-        // } catch (Exception e) {
-        // // TODO: handle exception
-        // }
-        // }).start();
     }
 
     @Override
     public void periodic() {
         // double rads = getPose().getRotation().getRadians();
-        odometry.update(geRotation2dOdometry(), getModulePositions());
+        odometry.update(getRotation2d(), getModulePositions());
 
         // TODO: Test
         // WARNING: REMOVE IF USING TAG FOLLOW!!!
         // odometry.addVisionMeasurement(LimelightHelpers.getBotPose2d(null),
         // Timer.getFPGATimestamp());
 
-        field.setRobotPose(getPose());
+        // field.setRobotPose(getPose());
+        field.setRobotPose((DriverStation.getAlliance() == Alliance.Red) ? new Pose2d(new Translation2d(16.5-getPose().getX(), 8.02- getPose().getY()), getPose().getRotation().rotateBy(Rotation2d.fromDegrees(180))): getPose());
         SmartDashboard.putData("Field", field);
 
         SmartDashboard.putString("Robot Pose",
@@ -94,18 +90,16 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public void zeroHeading() {
-        navX.reset();
+        setHeading(0);
     }
 
     public void setHeading(double deg) {
-        zeroHeading();
+        navX.reset();
         navX.setAngleAdjustment(deg);
     }
 
     public Pose2d getPose() {
         Pose2d p = odometry.getEstimatedPosition();
-        // - Y!!!
-        p = new Pose2d(p.getX(), -p.getY(), p.getRotation().div(-1).rotateBy(new Rotation2d(Math.PI / 2.0)));
         return p;
     }
 
@@ -114,15 +108,13 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public double getHeading() {
-        return Units.degreesToRadians(Math.IEEEremainder(navX.getAngle(), 360));
+        double rot = Units.degreesToRadians(Math.IEEEremainder(-navX.getAngle(), 360));
+        SmartDashboard.putNumber("HEADING", Units.radiansToDegrees(rot));
+        return rot;
     }
 
     public Rotation2d getRotation2d() {
         return new Rotation2d(getHeading());
-    }
-
-    public Rotation2d geRotation2dOdometry() {
-        return new Rotation2d(getHeading() + Math.PI / 2);
     }
 
     public void stopDrive() {
@@ -135,19 +127,16 @@ public class SwerveSubsystem extends SubsystemBase {
     public void setModules(SwerveModuleState[] states) {
         // Normalize speeds so they are all obtainable
         SwerveDriveKinematics.desaturateWheelSpeeds(states, DriveConstants.MAX_MODULE_VELOCITY);
-        frontLeft.setModuleState(states[3]);
-        frontRight.setModuleState(states[1]);
-        backLeft.setModuleState(states[2]);
-        backRight.setModuleState(states[0]);
+        frontLeft.setModuleState(states[Constants.DriveConstants.ModuleIndices.FRONT_LEFT]);
+        frontRight.setModuleState(states[Constants.DriveConstants.ModuleIndices.FRONT_RIGHT]);
+        backRight.setModuleState(states[Constants.DriveConstants.ModuleIndices.REAR_RIGHT]);
+        backLeft.setModuleState(states[Constants.DriveConstants.ModuleIndices.REAR_LEFT]);
     }
-
+    
     public void setChassisSpeedsAUTO(ChassisSpeeds speeds) {
         double tmp = -speeds.vxMetersPerSecond;
         speeds.vxMetersPerSecond = -speeds.vyMetersPerSecond;
-        speeds.vyMetersPerSecond = tmp; // FORWARDS
-        // SmartDashboard.putNumber("Radians Chassis CMD",
-        // speeds.omegaRadiansPerSecond);
-        speeds.omegaRadiansPerSecond *= -1;
+        speeds.vyMetersPerSecond = tmp;
         SwerveModuleState[] states = DriveConstants.KINEMATICS.toSwerveModuleStates(speeds);
         setModules(states);
     }
@@ -160,19 +149,23 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public ChassisSpeeds getChassisSpeeds() {
-        ChassisSpeeds speeds = DriveConstants.KINEMATICS.toChassisSpeeds(frontLeft.getModuleState(),
-                frontRight.getModuleState(),
-                backLeft.getModuleState(), backRight.getModuleState());
+        ChassisSpeeds speeds = DriveConstants.KINEMATICS.toChassisSpeeds(
+            frontLeft.getModuleState(),
+            frontRight.getModuleState(),
+            backLeft.getModuleState(), 
+            backRight.getModuleState()
+        );
 
         return speeds;
     }
 
     public SwerveModulePosition[] getModulePositions() {
-        SwerveModulePosition[] states = new SwerveModulePosition[4];
-        states[3] = frontLeft.getModulePosition();
-        states[1] = frontRight.getModulePosition();
-        states[2] = backLeft.getModulePosition();
-        states[0] = backRight.getModulePosition();
+        SwerveModulePosition[] states = {
+            frontLeft.getModulePosition(),
+            frontRight.getModulePosition(),
+            backLeft.getModulePosition(),
+            backRight.getModulePosition()
+        };
 
         return states;
     }
@@ -183,18 +176,5 @@ public class SwerveSubsystem extends SubsystemBase {
         frontRight.simulate_step();
         backLeft.simulate_step();
         backRight.simulate_step();
-    }
-
-    public void drive(double strafeX, double strafeY, double rotate, boolean fieldOrientated) {
-        ChassisSpeeds chassisSpeed;
-
-        if (fieldOrientated) {
-            chassisSpeed = ChassisSpeeds.fromFieldRelativeSpeeds(strafeX, strafeY, rotate,
-                    getRotation2d());
-        } else {
-            chassisSpeed = new ChassisSpeeds(strafeX, strafeY, rotate);
-        }
-
-        setChassisSpeedsAUTO(chassisSpeed);
     }
 }

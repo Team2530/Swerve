@@ -6,6 +6,7 @@ package frc.robot;
 
 import org.opencv.core.Mat;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
@@ -88,6 +89,14 @@ public final class Constants {
     // TODO: Change based on actual robot!
     public static final double TRACK_WIDTH = Units.inchesToMeters(18.75);
     public static final double WHEEL_BASE = Units.inchesToMeters(18.75);
+    public static final Rotation2d NAVX_ANGLE_OFFSET = Rotation2d.fromDegrees(90);
+
+    public static final class ModuleIndices {
+      public static final int FRONT_LEFT = 0;
+      public static final int REAR_LEFT = 1;
+      public static final int FRONT_RIGHT = 2;
+      public static final int REAR_RIGHT = 3;
+    }
 
     public static final SwerveDriveKinematics KINEMATICS = new SwerveDriveKinematics(
         new Translation2d(TRACK_WIDTH / 2.0, WHEEL_BASE / 2.0),

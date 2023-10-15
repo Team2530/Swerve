@@ -112,11 +112,11 @@ public class SwerveModule {
     }
 
     public SwerveModuleState getModuleState() {
-        return new SwerveModuleState(getDriveVelocity(), new Rotation2d(getSteerPosition()));
+        return new SwerveModuleState(getDriveVelocity(), new Rotation2d(-getSteerPosition()));
     }
 
     public SwerveModulePosition getModulePosition() {
-        return new SwerveModulePosition(getDrivePosition(), new Rotation2d(getSteerPosition()));
+        return new SwerveModulePosition(getDrivePosition(), new Rotation2d(-getSteerPosition()).rotateBy(DriveConstants.NAVX_ANGLE_OFFSET.times(-1)));
     }
 
     public void setModuleStateRaw(SwerveModuleState state) {
