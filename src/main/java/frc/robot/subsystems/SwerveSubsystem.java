@@ -87,6 +87,13 @@ public class SwerveSubsystem extends SubsystemBase {
             swerveCurrent += pdh.getCurrent(chan);
         SmartDashboard.putNumber("SwerveSubsystem Amps", swerveCurrent);
         SmartDashboard.putNumber("PDH Amps", pdh.getTotalCurrent());
+
+        SmartDashboard.putNumberArray("SwerveStates", new double[] {
+            frontLeft.getModuleState().angle.getDegrees()+90, -frontLeft.getModuleState().speedMetersPerSecond,
+            frontRight.getModuleState().angle.getDegrees()+90,-frontRight.getModuleState().speedMetersPerSecond,
+            backLeft.getModuleState().angle.getDegrees()+90,-backLeft.getModuleState().speedMetersPerSecond,
+            backRight.getModuleState().angle.getDegrees()+90, -backRight.getModuleState().speedMetersPerSecond
+        });
     }
 
     public void zeroHeading() {
@@ -142,10 +149,14 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public void setXstance() {
-        frontLeft.setModuleStateRaw(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
-        frontRight.setModuleStateRaw(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
-        backLeft.setModuleStateRaw(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
-        backRight.setModuleStateRaw(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
+        // frontLeft.setModuleStateRaw(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
+        // frontRight.setModuleStateRaw(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
+        // backLeft.setModuleStateRaw(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
+        // backRight.setModuleStateRaw(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
+        frontLeft.setModuleStateRaw(new SwerveModuleState(0.1, Rotation2d.fromDegrees(0)));
+        frontRight.setModuleStateRaw(new SwerveModuleState(0.1, Rotation2d.fromDegrees(0)));
+        backLeft.setModuleStateRaw(new SwerveModuleState(0.1, Rotation2d.fromDegrees(0)));
+        backRight.setModuleStateRaw(new SwerveModuleState(0.1, Rotation2d.fromDegrees(0)));
     }
 
     public ChassisSpeeds getChassisSpeeds() {

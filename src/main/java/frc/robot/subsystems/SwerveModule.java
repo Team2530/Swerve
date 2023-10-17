@@ -127,7 +127,7 @@ public class SwerveModule {
         // This is stupid
         // steerPID.setP(Constants.SwerveModuleConstants.MODULE_KP *
         // Math.abs(drive_command));
-        steerMotor.set(steerPID.calculate(getSteerPosition(), state.angle.getRadians()));
+        steerMotor.setVoltage(12*steerPID.calculate(getSteerPosition(), state.angle.getRadians()));
         // SmartDashboard.putNumber("Abs" + thisModuleNumber,
         // getAbsoluteEncoderPosition());
         SmartDashboard.putNumber("Drive" + thisModuleNumber, drive_command);

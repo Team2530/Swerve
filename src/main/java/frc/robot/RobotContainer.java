@@ -296,7 +296,7 @@ public class RobotContainer {
             eventMap.put("stow", stowcommand);
             // Rotate to shoot, shoot at max power
             eventMap.put("shoot", shootcommand);
-            auton.addCommands(followTrajectoryCommand(path.get(i), i == 0, eventMap));
+            auton.addCommands(followTrajectoryCommand(path.get(i), i == 0, eventMap, true));
             List<String> names = path.get(i).getEndStopEvent().names;
 
             // if (names.size() > 0)
@@ -319,22 +319,22 @@ public class RobotContainer {
     // Assuming this method is part of a drivetrain subsystem that provides the
     // necessary methods
     public Command followTrajectoryCommand(PathPlannerTrajectory traj, boolean isFirstPath,
-            HashMap<String, Command> eventMap) {
+            HashMap<String, Command> eventMap, boolean mirror) {
 
-        PathPlannerTrajectory t_transformed = traj;// PathPlannerTrajectory.transformTrajectoryForAlliance(traj, DriverStation.getAlliance());
+        PathPlannerTrajectory t_transformed = PathPlannerTrajectory.transformTrajectoryForAlliance(traj, mirror ? DriverStation.getAlliance() : Alliance.Blue);
 
         Command swerveController = new PPSwerveControllerCommand(
             t_transformed,
                 swerveDriveSubsystem::getPose, // Pose supplier
                 new PIDController(
-                        3.0,
+                        5.0,
                         0,
                         0), // X controller
                 new PIDController(
-                        3.0,
+                        5.0,
                         0,
                         0), // Y controller
-                new PIDController(0.4, 0, 0.0), // Rotation controller
+                new PIDController(2.0, 0, 0.0), // Rotation controller
                 swerveDriveSubsystem::setChassisSpeedsAUTO, // Chassis speeds states consumer
                 false, // Should the path be automatically mirrored depending on alliance color.
                       // Optional, defaults to true
@@ -383,8 +383,10 @@ public class RobotContainer {
         }
 
         PathPlannerTrajectory hometraj = PathPlanner.generatePath(
-            new PathConstraints(Constants.DriveConstants.MAX_ROBOT_VELOCITY,
-            Constants.DriveConstants.MAX_ROBOT_VELOCITY/1.5),
+            // new PathConstraints(Constants.DriveConstants.MAX_ROBOT_VELOCITY,
+            // Constants.DriveConstants.MAX_ROBOT_VELOCITY/1.5),
+            new PathConstraints(Constants.DriveConstants.MAX_ROBOT_VELOCITY/2.0,
+            Constants.DriveConstants.MAX_ROBOT_VELOCITY/3.0),
                 pp,
                 evts
         );
@@ -394,7 +396,7 @@ public class RobotContainer {
                 "start", ((Command) new PrintCommand("############# Starting OTF path!")),
                 "end", ((Command) new PrintCommand("///////////// Finished OTF path!")));
 
-        CommandBase followcmd = (CommandBase) followTrajectoryCommand(hometraj, false, new HashMap<>(evtmap));
+        CommandBase followcmd = (CommandBase) followTrajectoryCommand(hometraj, false, new HashMap<>(evtmap), false);
         return followcmd;
     }
 }
