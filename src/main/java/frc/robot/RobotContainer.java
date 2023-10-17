@@ -183,7 +183,7 @@ public class RobotContainer {
         // return shootcommand;
 
         intake.setIntakeState(IntakeState.STOWED);
-        List<PathPlannerTrajectory> traj = PathPlanner.loadPathGroup("2PieceAuto RED",
+        List<PathPlannerTrajectory> traj = PathPlanner.loadPathGroup("2PieceAuto",
                 new PathConstraints(Constants.DriveConstants.MAX_ROBOT_VELOCITY / 1.5,
                         Constants.DriveConstants.MAX_ROBOT_VELOCITY / 1.5));
 
@@ -310,7 +310,7 @@ public class RobotContainer {
 
         auton.addCommands(new InstantCommand(() -> {
             // swerveDriveSubsystem.setHeading(180);
-            swerveDriveSubsystem.setHeading(path.get(path.size()-1).getEndState().holonomicRotation.getDegrees());
+            // swerveDriveSubsystem.setHeading(path.get(path.size()-1).getEndState().holonomicRotation.getDegrees());
         }));
 
         return auton;
@@ -348,10 +348,8 @@ public class RobotContainer {
                         SmartDashboard.putString("DSA",DriverStation.getAlliance().toString());
                         swerveDriveSubsystem.zeroHeading();
                         Pose2d initpose = t_transformed.getInitialHolonomicPose();
-                        // swerveDriveSubsystem.setHeading(initpose.getRotation().getDegrees());
-                        swerveDriveSubsystem.resetOdometry(
-                                new Pose2d(new Translation2d(initpose.getX(), -initpose.getY()),
-                                        initpose.getRotation()));
+                        swerveDriveSubsystem.setHeading(initpose.getRotation().getDegrees());
+                        swerveDriveSubsystem.resetOdometry(initpose);
                     }
                 }),
                 new FollowPathWithEvents(swerveController, t_transformed.getMarkers(), eventMap));
@@ -383,10 +381,10 @@ public class RobotContainer {
         }
 
         PathPlannerTrajectory hometraj = PathPlanner.generatePath(
-            // new PathConstraints(Constants.DriveConstants.MAX_ROBOT_VELOCITY,
-            // Constants.DriveConstants.MAX_ROBOT_VELOCITY/1.5),
-            new PathConstraints(Constants.DriveConstants.MAX_ROBOT_VELOCITY/2.0,
-            Constants.DriveConstants.MAX_ROBOT_VELOCITY/3.0),
+            new PathConstraints(Constants.DriveConstants.MAX_ROBOT_VELOCITY,
+            Constants.DriveConstants.MAX_ROBOT_VELOCITY/1.5),
+            // new PathConstraints(Constants.DriveConstants.MAX_ROBOT_VELOCITY/2.0,
+            // Constants.DriveConstants.MAX_ROBOT_VELOCITY/3.0),
                 pp,
                 evts
         );

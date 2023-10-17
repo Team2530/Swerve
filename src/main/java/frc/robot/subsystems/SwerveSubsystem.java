@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.LimelightHelpers;
+import frc.robot.Robot;
 import frc.robot.Constants.*;
 
 public class SwerveSubsystem extends SubsystemBase {
@@ -51,6 +52,9 @@ public class SwerveSubsystem extends SubsystemBase {
     };
 
     private final AHRS navX = new AHRS(SPI.Port.kMXP);
+    private double navxSim;
+
+    private ChassisSpeeds lastChassisSpeeds = new ChassisSpeeds();
 
     private Field2d field = new Field2d();
 
@@ -65,7 +69,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // double rads = getPose().getRotation().getRadians();
         odometry.update(getRotation2d(), getModulePositions());
 
         // TODO: Test
@@ -73,14 +76,11 @@ public class SwerveSubsystem extends SubsystemBase {
         // odometry.addVisionMeasurement(LimelightHelpers.getBotPose2d(null),
         // Timer.getFPGATimestamp());
 
-        // field.setRobotPose(getPose());
         field.setRobotPose((DriverStation.getAlliance() == Alliance.Red) ? new Pose2d(new Translation2d(16.5-getPose().getX(), 8.02- getPose().getY()), getPose().getRotation().rotateBy(Rotation2d.fromDegrees(180))): getPose());
         SmartDashboard.putData("Field", field);
 
         SmartDashboard.putString("Robot Pose",
                 getPose().toString());
-
-        // SmartDashboard.putNumber("Spin Velocity", (getPose().getRotation().getRadians() - rads) / 0.02);
     
         double swerveCurrent = 0;
         for (int chan : pdh_channels)
@@ -101,6 +101,9 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public void setHeading(double deg) {
+        if (Robot.isSimulation()) {
+            navxSim = Units.degreesToRadians(deg);
+        }
         navX.reset();
         navX.setAngleAdjustment(deg);
     }
@@ -115,9 +118,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public double getHeading() {
-        double rot = Units.degreesToRadians(Math.IEEEremainder(-navX.getAngle(), 360));
-        SmartDashboard.putNumber("HEADING", Units.radiansToDegrees(rot));
-        return rot;
+        return Robot.isSimulation() ? navxSim : Units.degreesToRadians(Math.IEEEremainder(-navX.getAngle(), 360));
     }
 
     public Rotation2d getRotation2d() {
@@ -132,6 +133,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public void setModules(SwerveModuleState[] states) {
+        lastChassisSpeeds = DriveConstants.KINEMATICS.toChassisSpeeds(states);
         // Normalize speeds so they are all obtainable
         SwerveDriveKinematics.desaturateWheelSpeeds(states, DriveConstants.MAX_MODULE_VELOCITY);
         frontLeft.setModuleState(states[Constants.DriveConstants.ModuleIndices.FRONT_LEFT]);
@@ -187,5 +189,6 @@ public class SwerveSubsystem extends SubsystemBase {
         frontRight.simulate_step();
         backLeft.simulate_step();
         backRight.simulate_step();
+        navxSim += 0.02 * lastChassisSpeeds.omegaRadiansPerSecond;
     }
 }
