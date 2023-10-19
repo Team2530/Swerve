@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.RobotContainer;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Intake.IntakeState;
-import frc.robot.subsystems.Lights.States;
+import frc.robot.subsystems.Lights.LightState;
 
 public class OperatorCommand extends CommandBase {
     private final XboxController xbox;
@@ -29,23 +29,25 @@ public class OperatorCommand extends CommandBase {
     @Override
     public void execute() {
         if (DriverStation.isTeleop()) {
-            boolean intakeIn = ((intake.getIntakeState() == IntakeState.TIPPEDCONE_CUBE) || (intake.getIntakeState() == IntakeState.STOWED) || (intake
-                    .getIntakeState() == IntakeState.PICKUP)) && !xbox.getBButton();
+            boolean intakeIn = ((intake.getIntakeState() == IntakeState.TIPPEDCONE_CUBE)
+                    || (intake.getIntakeState() == IntakeState.STOWED) || (intake
+                            .getIntakeState() == IntakeState.PICKUP))
+                    && !xbox.getBButton();
 
             if (xbox.getRightBumper()) {
-                    if (intakeIn) 
-                        intake.setIntakeSpeed(-0.7);
-                    else {
-                        intake.setIntakeSpeed(1.0);
-                        intake.enableCurrentControl(false);
-                    }
+                if (intakeIn)
+                    intake.setIntakeSpeed(-0.7);
+                else {
+                    intake.setIntakeSpeed(1.0);
+                    intake.enableCurrentControl(false);
+                }
             } else {
                 intake.enableCurrentControl(true);
                 intake.setIntakeSpeed(xbox.getRightTriggerAxis() * (intakeIn ? -1 : 1) - 0.2); // Max 80% output!
             }
 
             intake.enableStateControl(true);
-            
+
             // Set intake state based on the xbox POV
             switch (xbox.getPOV()) {
                 case -1:
@@ -58,7 +60,6 @@ public class OperatorCommand extends CommandBase {
                     break;
                 case 180:
                     intake.setIntakeState(IntakeState.PICKUP);
-                    RobotContainer.lights.setState(States.CONE);
                     break;
                 case 270:
                     intake.setIntakeState(IntakeState.LOW);
@@ -66,7 +67,6 @@ public class OperatorCommand extends CommandBase {
             }
 
             if (xbox.getLeftBumper()) {
-                RobotContainer.lights.setState(States.CUBE);
                 intake.setIntakeState(IntakeState.TIPPEDCONE_CUBE);
             }
 

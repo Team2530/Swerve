@@ -15,6 +15,7 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Lights;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.Intake.IntakeState;
+import frc.robot.subsystems.Lights.LightState;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.math.MathUtil;
@@ -83,7 +84,8 @@ public class RobotContainer {
     private final DriveCommand normalDrive = new DriveCommand(swerveDriveSubsystem, driverXbox.getHID());
     private final OperatorCommand normalOperator = new OperatorCommand(intake, operatorXbox.getHID());
 
-    // private final TagFollowCommand tagFollow = new TagFollowCommand(swerveDriveSubsystem, driverXbox.getHID());
+    // private final TagFollowCommand tagFollow = new
+    // TagFollowCommand(swerveDriveSubsystem, driverXbox.getHID());
 
     DigitalInput intakeLimitSw = new DigitalInput(IntakeConstants.LIMIT_PORT);
 
@@ -126,7 +128,8 @@ public class RobotContainer {
         operatorXbox.a().onTrue(new InstantCommand(() -> resetCommand.cancel()));
 
         // Use Y to enable tag following!
-        // driverXbox.y().onTrue(tagFollow).onFalse(new InstantCommand(() -> tagFollow.cancel()));
+        // driverXbox.y().onTrue(tagFollow).onFalse(new InstantCommand(() ->
+        // tagFollow.cancel()));
 
         // Drive with a on-the-fly generated path to (0,0) WHILE right bumper is held
         driverXbox.rightBumper().and(new BooleanSupplier() {
@@ -149,7 +152,10 @@ public class RobotContainer {
         }).onTrue(new InstantCommand(() -> {
             // Instant command so path is generated at the time the trigger is pressed
             // (dynamically)
-            otfCommandRunning = genOTFDriveCommand(true, new Pose2d(target.getTranslation().plus(new Translation2d(-1.5, target.getRotation())), target.getRotation()), target);
+            otfCommandRunning = genOTFDriveCommand(true,
+                    new Pose2d(target.getTranslation().plus(new Translation2d(-1.5, target.getRotation())),
+                            target.getRotation()),
+                    target);
             otfCommandRunning.schedule();
         })).onFalse(new InstantCommand(() -> {
             otfCommandRunning.cancel();
@@ -184,24 +190,23 @@ public class RobotContainer {
 
         // TODO: FIX AUTO!
 
-
         // CommandBase shootcommand = new SequentialCommandGroup(
-        //             new InstantCommand(() -> {
-        //                 System.out.println("Starting Shooting");
-        //                 intake.setIntakeState(IntakeState.HIGH);
-        //             }),
-        //             new WaitCommand(0.75),
-        //             new InstantCommand(() -> {
-        //                 intake.enableCurrentControl(false);
-        //                 intake.setIntakeSpeed(1.0);
-        //             }),
-        //             new WaitCommand(0.5),
-        //             new InstantCommand(() -> {
-        //                 intake.setIntakeSpeed(0.0);
-        //                 intake.enableCurrentControl(true);
-        //                 intake.setIntakeState(IntakeState.STOWED);
-        //                 System.out.println("Done Shooting");
-        //             }));
+        // new InstantCommand(() -> {
+        // System.out.println("Starting Shooting");
+        // intake.setIntakeState(IntakeState.HIGH);
+        // }),
+        // new WaitCommand(0.75),
+        // new InstantCommand(() -> {
+        // intake.enableCurrentControl(false);
+        // intake.setIntakeSpeed(1.0);
+        // }),
+        // new WaitCommand(0.5),
+        // new InstantCommand(() -> {
+        // intake.setIntakeSpeed(0.0);
+        // intake.enableCurrentControl(true);
+        // intake.setIntakeState(IntakeState.STOWED);
+        // System.out.println("Done Shooting");
+        // }));
 
         // shootcommand.addRequirements(intake);
 
@@ -212,10 +217,10 @@ public class RobotContainer {
                 new PathConstraints(Constants.DriveConstants.MAX_ROBOT_VELOCITY / 1.5,
                         Constants.DriveConstants.MAX_ROBOT_VELOCITY / 1.5));
 
-                        /*
-                         * new PathConstraints(Constants.DriveConstants.MAX_ROBOT_VELOCITY / 1.5,
-                        Constants.DriveConstants.MAX_ROBOT_VELOCITY / 1.5)
-                         */
+        /*
+         * new PathConstraints(Constants.DriveConstants.MAX_ROBOT_VELOCITY / 1.5,
+         * Constants.DriveConstants.MAX_ROBOT_VELOCITY / 1.5)
+         */
 
         return getAutoCommand(traj);
     }
@@ -223,6 +228,8 @@ public class RobotContainer {
     public Command getAutoCommand(List<PathPlannerTrajectory> path) {
 
         SequentialCommandGroup auton = new SequentialCommandGroup();
+
+        auton.addCommands(new InstantCommand(() -> lights.setState(LightState.LOGO)));
 
         // Pre-drive commands
         if (path.size() > 0 && path.get(0).getStartStopEvent().names.size() > 0) {
@@ -257,12 +264,12 @@ public class RobotContainer {
             intakecommand.addRequirements(intake);
             stowcommand.addRequirements(intake);
             shootcommand.addRequirements(intake);
-    
+
             CommandBase stopcommand = new InstantCommand(() -> {
                 swerveDriveSubsystem.stopDrive();
             });
             stopcommand.addRequirements(swerveDriveSubsystem);
-    
+
             HashMap<String, Command> eventMap = new HashMap<>();
             // Make the intake intake
             eventMap.put("intake", intakecommand);
@@ -308,12 +315,12 @@ public class RobotContainer {
             intakecommand.addRequirements(intake);
             stowcommand.addRequirements(intake);
             shootcommand.addRequirements(intake);
-    
+
             CommandBase stopcommand = new InstantCommand(() -> {
                 swerveDriveSubsystem.stopDrive();
             });
             stopcommand.addRequirements(swerveDriveSubsystem);
-    
+
             HashMap<String, Command> eventMap = new HashMap<>();
             // Make the intake intake
             eventMap.put("intake", intakecommand);
@@ -346,10 +353,11 @@ public class RobotContainer {
     public Command followTrajectoryCommand(PathPlannerTrajectory traj, boolean isFirstPath,
             HashMap<String, Command> eventMap, boolean mirror) {
 
-        PathPlannerTrajectory t_transformed = PathPlannerTrajectory.transformTrajectoryForAlliance(traj, mirror ? DriverStation.getAlliance() : Alliance.Blue);
+        PathPlannerTrajectory t_transformed = PathPlannerTrajectory.transformTrajectoryForAlliance(traj,
+                mirror ? DriverStation.getAlliance() : Alliance.Blue);
 
         Command swerveController = new PPSwerveControllerCommand(
-            t_transformed,
+                t_transformed,
                 swerveDriveSubsystem::getPose, // Pose supplier
                 new PIDController(
                         5.0,
@@ -362,7 +370,7 @@ public class RobotContainer {
                 new PIDController(2.0, 0, 0.0), // Rotation controller
                 swerveDriveSubsystem::setChassisSpeedsAUTO, // Chassis speeds states consumer
                 false, // Should the path be automatically mirrored depending on alliance color.
-                      // Optional, defaults to true
+                       // Optional, defaults to true
                 swerveDriveSubsystem // Requires this drive subsystem
         );
 
@@ -370,7 +378,7 @@ public class RobotContainer {
                 new InstantCommand(() -> {
                     // Reset odometry for the first path you run during auto
                     if (isFirstPath) {
-                        SmartDashboard.putString("DSA",DriverStation.getAlliance().toString());
+                        SmartDashboard.putString("DSA", DriverStation.getAlliance().toString());
                         swerveDriveSubsystem.zeroHeading();
                         Pose2d initpose = t_transformed.getInitialHolonomicPose();
                         swerveDriveSubsystem.setHeading(initpose.getRotation().getDegrees());
@@ -387,33 +395,37 @@ public class RobotContainer {
         }
         return genOTFDriveCommand(useRotation, poses);
     }
+
     public Command genOTFDriveCommand(boolean useRotation, List<Pose2d> points) {
         List<PathPlannerTrajectory.EventMarker> evts = new ArrayList<>();
         PathPlannerTrajectory.EventMarker startmarker = new PathPlannerTrajectory.EventMarker(List.of("start"), 0.0);
-        PathPlannerTrajectory.EventMarker endmarker = new PathPlannerTrajectory.EventMarker(List.of("end"), points.size()*1.0);
+        PathPlannerTrajectory.EventMarker endmarker = new PathPlannerTrajectory.EventMarker(List.of("end"),
+                points.size() * 1.0);
         evts.add(endmarker);
         evts.add(startmarker);
-        Rotation2d driveangle_init = points.get(0).getTranslation().minus(swerveDriveSubsystem.getPose().getTranslation()).getAngle();
+        Rotation2d driveangle_init = points.get(0).getTranslation()
+                .minus(swerveDriveSubsystem.getPose().getTranslation()).getAngle();
 
         List<PathPoint> pp = new ArrayList<>();
-        double speed = new Translation2d(swerveDriveSubsystem.getChassisSpeeds().vxMetersPerSecond,swerveDriveSubsystem.getChassisSpeeds().vyMetersPerSecond).getNorm();
-        pp.add(new PathPoint(swerveDriveSubsystem.getPose().getTranslation(), driveangle_init, swerveDriveSubsystem.getPose().getRotation(), speed));
+        double speed = new Translation2d(swerveDriveSubsystem.getChassisSpeeds().vxMetersPerSecond,
+                swerveDriveSubsystem.getChassisSpeeds().vyMetersPerSecond).getNorm();
+        pp.add(new PathPoint(swerveDriveSubsystem.getPose().getTranslation(), driveangle_init,
+                swerveDriveSubsystem.getPose().getRotation(), speed));
 
         for (int i = 0; i < points.size(); i++) {
             Rotation2d driveangle = points.get(i).getTranslation().minus(pp.get(i).position).getAngle();
-            pp.add(new PathPoint(points.get(i).getTranslation(), driveangle, useRotation ? points.get(i).getRotation() : swerveDriveSubsystem.getPose().getRotation()));
+            pp.add(new PathPoint(points.get(i).getTranslation(), driveangle,
+                    useRotation ? points.get(i).getRotation() : swerveDriveSubsystem.getPose().getRotation()));
             System.out.println(points.get(i).getRotation().toString());
         }
 
         PathPlannerTrajectory hometraj = PathPlanner.generatePath(
-            new PathConstraints(Constants.DriveConstants.MAX_ROBOT_VELOCITY/1.5,
-            Constants.DriveConstants.MAX_ROBOT_VELOCITY/1.5),
-            // new PathConstraints(Constants.DriveConstants.MAX_ROBOT_VELOCITY/2.0,
-            // Constants.DriveConstants.MAX_ROBOT_VELOCITY/3.0),
+                new PathConstraints(Constants.DriveConstants.MAX_ROBOT_VELOCITY / 1.5,
+                        Constants.DriveConstants.MAX_ROBOT_VELOCITY / 1.5),
+                // new PathConstraints(Constants.DriveConstants.MAX_ROBOT_VELOCITY/2.0,
+                // Constants.DriveConstants.MAX_ROBOT_VELOCITY/3.0),
                 pp,
-                evts
-        );
-
+                evts);
 
         Map<String, Command> evtmap = Map.of(
                 "start", ((Command) new PrintCommand("############# Starting OTF path!")),

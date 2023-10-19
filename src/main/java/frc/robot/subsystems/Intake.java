@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import java.io.File;
+import java.util.Map;
 import java.util.function.BooleanSupplier;
 
 import com.ctre.phoenix.Util;
@@ -17,13 +18,16 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.concurrent.Event;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.RobotContainer;
 import frc.robot.Constants.IntakeConstants;
+import frc.robot.subsystems.Lights.LightState;
 
 public class Intake extends SubsystemBase {
 
@@ -87,7 +91,7 @@ public class Intake extends SubsystemBase {
     }
 
     public double getIntakeSpeed() {
-        return (leftIntake.getEncoder().getVelocity() -rightIntake.getEncoder().getVelocity())*0.5;
+        return (leftIntake.getEncoder().getVelocity() - rightIntake.getEncoder().getVelocity()) * 0.5;
     }
 
     public Trigger intakeStallTrigger() {
@@ -100,7 +104,7 @@ public class Intake extends SubsystemBase {
     }
 
     public boolean isStalled() {
-        return (Math.abs(getIntakeSpeed()) < (0.1*6000*Math.abs(leftIntake.get())));
+        return (Math.abs(getIntakeSpeed()) < (0.1 * 6000 * Math.abs(leftIntake.get())));
     }
 
     public IntakeState getIntakeState() {
@@ -109,7 +113,7 @@ public class Intake extends SubsystemBase {
 
     public void addIntakeState(double degreesmove) {
         this.stateDegrees = Math.min(Math.max(stateDegrees + degreesmove, IntakeState.STOWED.angleDegrees),
-                IntakeState.PICKUP.angleDegrees +10);
+                IntakeState.PICKUP.angleDegrees + 10);
     }
 
     @Override
@@ -117,7 +121,8 @@ public class Intake extends SubsystemBase {
         double currentAngle = (Units.degreesToRadians(actuatorEncoder.getPosition())
                 - ANGLE_OFFSET) * IntakeConstants.ACTUATOR_GEAR_RATIO;
 
-        // SmartDashboard.putNumber("Intake current angle", Units.degreesToRadians(actuatorEncoder.getPosition()));
+        // SmartDashboard.putNumber("Intake current angle",
+        // Units.degreesToRadians(actuatorEncoder.getPosition()));
         // SmartDashboard.putNumber("Intake zeroed angle", currentAngle);
         if (this.statectl_enabled) {
             actuatorMotor
@@ -160,6 +165,15 @@ public class Intake extends SubsystemBase {
     }
 
     public void setIntakeState(IntakeState state) {
+        if (DriverStation.isTeleop()) {
+            RobotContainer.lights.setState(Map.of(
+                    IntakeState.STOWED, LightState.RAINBOW,
+                    IntakeState.PICKUP, LightState.CONE,
+                    IntakeState.TIPPEDCONE_CUBE, LightState.CUBE,
+                    IntakeState.HIGH, LightState.RAINBOW,
+                    IntakeState.LOW, LightState.RAINBOW).getOrDefault(state, LightState.BLANK));
+        }
+
         this.intakeState = state;
         this.stateDegrees = state.angleDegrees;
     }
