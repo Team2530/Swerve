@@ -125,4 +125,11 @@ public final class Constants {
 
     public static final double MAX_SPEED = 0.50;
   }
+
+  public static class MiscConstants {
+    public static final int LED_PORT = 0;
+    public static final int STRIP_W = 9;
+    public static final int STRIP_H = 8;
+    public static final int NUM_LEDS = STRIP_H*STRIP_W;
+  }
 }

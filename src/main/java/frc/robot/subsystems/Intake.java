@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import java.io.File;
+import java.util.function.BooleanSupplier;
 
 import com.ctre.phoenix.Util;
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
@@ -15,11 +16,13 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.util.concurrent.Event;
 import edu.wpi.first.wpilibj.Preferences;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.IntakeConstants;
 
 public class Intake extends SubsystemBase {
@@ -83,6 +86,23 @@ public class Intake extends SubsystemBase {
         }
     }
 
+    public double getIntakeSpeed() {
+        return (leftIntake.getEncoder().getVelocity() -rightIntake.getEncoder().getVelocity())*0.5;
+    }
+
+    public Trigger intakeStallTrigger() {
+        return new Trigger(new BooleanSupplier() {
+            @Override
+            public boolean getAsBoolean() {
+                return isStalled();
+            }
+        });
+    }
+
+    public boolean isStalled() {
+        return (Math.abs(getIntakeSpeed()) < (0.1*6000*Math.abs(leftIntake.get())));
+    }
+
     public IntakeState getIntakeState() {
         return this.intakeState;
     }
@@ -107,6 +127,7 @@ public class Intake extends SubsystemBase {
 
         SmartDashboard.putNumber("Intake Current (A)", leftIntake.getOutputCurrent());
         SmartDashboard.putString("Intake State", getIntakeState().toString());
+        SmartDashboard.putBoolean("Stalled", isStalled());
     }
 
     public void setActuatorRaw(double speed) {

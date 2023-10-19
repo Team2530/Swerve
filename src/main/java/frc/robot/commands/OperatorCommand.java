@@ -1,11 +1,15 @@
 package frc.robot.commands;
 
+import java.lang.Thread.State;
+
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Intake.IntakeState;
+import frc.robot.subsystems.Lights.States;
 
 public class OperatorCommand extends CommandBase {
     private final XboxController xbox;
@@ -54,6 +58,7 @@ public class OperatorCommand extends CommandBase {
                     break;
                 case 180:
                     intake.setIntakeState(IntakeState.PICKUP);
+                    RobotContainer.lights.setState(States.CONE);
                     break;
                 case 270:
                     intake.setIntakeState(IntakeState.LOW);
@@ -61,6 +66,7 @@ public class OperatorCommand extends CommandBase {
             }
 
             if (xbox.getLeftBumper()) {
+                RobotContainer.lights.setState(States.CUBE);
                 intake.setIntakeState(IntakeState.TIPPEDCONE_CUBE);
             }
 

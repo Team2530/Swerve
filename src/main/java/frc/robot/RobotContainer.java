@@ -12,6 +12,7 @@ import frc.robot.commands.DriveCommand;
 import frc.robot.commands.OperatorCommand;
 import frc.robot.commands.ResetIntakeCommand;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Lights;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.Intake.IntakeState;
 import edu.wpi.first.cameraserver.CameraServer;
@@ -26,6 +27,7 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.constraint.MecanumDriveKinematicsConstraint;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -34,6 +36,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
+import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -73,6 +76,7 @@ public class RobotContainer {
 
     private final SwerveSubsystem swerveDriveSubsystem = new SwerveSubsystem();
     private final Intake intake = new Intake(driverXbox.getHID());
+    public static final Lights lights = new Lights();
 
     private final UsbCamera intakeCam = CameraServer.startAutomaticCapture();
 
@@ -112,7 +116,7 @@ public class RobotContainer {
             new ResetIntakeCommand(intake, intakeLimitSw));
 
     private Command otfCommandRunning = null;
-    private Pose2d target = new Pose2d(new Translation2d(6.1, 2.3), new Rotation2d());
+    private Pose2d target = null;
 
     private void configureBindings() {
         // Needs to be held for 1/2 second!
@@ -138,8 +142,29 @@ public class RobotContainer {
             otfCommandRunning.cancel();
         }));
 
+        driverXbox.y().and(new BooleanSupplier() {
+            public boolean getAsBoolean() {
+                return target != null;
+            };
+        }).onTrue(new InstantCommand(() -> {
+            // Instant command so path is generated at the time the trigger is pressed
+            // (dynamically)
+            otfCommandRunning = genOTFDriveCommand(true, new Pose2d(target.getTranslation().plus(new Translation2d(-1.5, target.getRotation())), target.getRotation()), target);
+            otfCommandRunning.schedule();
+        })).onFalse(new InstantCommand(() -> {
+            otfCommandRunning.cancel();
+        }));
+
         driverXbox.a().onTrue(new InstantCommand(() -> {
             target = swerveDriveSubsystem.getPose();
+        }));
+
+        intake.intakeStallTrigger().whileTrue(new RepeatCommand(new InstantCommand(() -> {
+            driverXbox.getHID().setRumble(RumbleType.kBothRumble, 1);
+            operatorXbox.getHID().setRumble(RumbleType.kBothRumble, 1);
+        }))).onFalse(new InstantCommand(() -> {
+            driverXbox.getHID().setRumble(RumbleType.kBothRumble, 0);
+            operatorXbox.getHID().setRumble(RumbleType.kBothRumble, 0);
         }));
     }
 
@@ -381,7 +406,7 @@ public class RobotContainer {
         }
 
         PathPlannerTrajectory hometraj = PathPlanner.generatePath(
-            new PathConstraints(Constants.DriveConstants.MAX_ROBOT_VELOCITY,
+            new PathConstraints(Constants.DriveConstants.MAX_ROBOT_VELOCITY/1.5,
             Constants.DriveConstants.MAX_ROBOT_VELOCITY/1.5),
             // new PathConstraints(Constants.DriveConstants.MAX_ROBOT_VELOCITY/2.0,
             // Constants.DriveConstants.MAX_ROBOT_VELOCITY/3.0),
