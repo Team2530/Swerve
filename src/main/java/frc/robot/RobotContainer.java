@@ -44,7 +44,10 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.*;
 
+import java.io.File;
 import java.lang.reflect.Field;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -95,6 +98,19 @@ public class RobotContainer {
     public RobotContainer() {
         // Configure the trigger bindings
         configureBindings();
+
+        File ppdir = Paths.get(Filesystem.getDeployDirectory().getAbsolutePath(), "pathplanner").toFile();
+        int i = 0;
+        for (String file : ppdir.list()) {
+            if (file.endsWith(".path")) {
+                System.out.println(file);
+                String fname = file.replace(".path", "");
+                if (i == 0)
+                    Robot.autoChooser.setDefaultOption(fname, fname);
+                Robot.autoChooser.addOption(fname, fname);
+                i++;
+            }
+        }
 
         swerveDriveSubsystem.setDefaultCommand(normalDrive);
         intake.setDefaultCommand(normalOperator);
@@ -213,7 +229,7 @@ public class RobotContainer {
         // return shootcommand;
 
         intake.setIntakeState(IntakeState.STOWED);
-        List<PathPlannerTrajectory> traj = PathPlanner.loadPathGroup("2PieceAuto",
+        List<PathPlannerTrajectory> traj = PathPlanner.loadPathGroup(Robot.autoChooser.getSelected(),
                 new PathConstraints(Constants.DriveConstants.MAX_ROBOT_VELOCITY / 1.5,
                         Constants.DriveConstants.MAX_ROBOT_VELOCITY / 1.5));
 
