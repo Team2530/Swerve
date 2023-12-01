@@ -135,7 +135,7 @@ public class RobotContainer {
         new InstantCommand(() -> {
           intake.setIntakeSpeed(0.0);
           intake.setIntakeState(IntakeState.STOWED);
-          System.out.println("Done Shooting");
+          //System.out.println("Done Shooting");
         }));
     intakecommand.addRequirements(intake);
     stowcommand.addRequirements(intake);

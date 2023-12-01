@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import static edu.wpi.first.math.MathUtil.applyDeadband;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -8,6 +9,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.SwerveModuleConstants;
@@ -63,13 +65,13 @@ public class DriveCommand extends CommandBase {
 
     @Override
     public void execute() {
-        Translation2d xyRaw = new Translation2d(xbox.getLeftX(), xbox.getLeftY());
+        Translation2d xyRaw = new Translation2d(-xbox.getLeftY(), -xbox.getLeftX());
         Translation2d xySpeed = DeadBand(xyRaw, 0.15);
-        double zSpeed = DeadBand(xbox.getRightX(), 0.1);
+        double zSpeed = applyDeadband(-xbox.getRightX(), 0.1);
         double xSpeed = xySpeed.getX(); // xbox.getLeftX();
         double ySpeed = xySpeed.getY(); // xbox.getLeftY();
 
-        System.out.println(xySpeed.getNorm());
+        SmartDashboard.putNumber("xySpeed norm", xySpeed.getNorm());
 
         // double mag_xy = Math.sqrt(xSpeed*xSpeed + ySpeed*ySpeed);
 
