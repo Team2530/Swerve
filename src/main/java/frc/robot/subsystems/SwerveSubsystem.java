@@ -22,25 +22,25 @@ import frc.robot.Robot;
 import frc.robot.Constants.*;
 
 public class SwerveSubsystem extends SubsystemBase {
-    SwerveModule frontLeft = new SwerveModule(SwerveModuleConstants.FL_STEER_ID, SwerveModuleConstants.FL_DRIVE_ID,
-            SwerveModuleConstants.FL_ABSOLUTE_ENCODER_PORT, SwerveModuleConstants.FL_OFFSET_RADIANS,
-            SwerveModuleConstants.FL_ABSOLUTE_ENCODER_REVERSED,
-            SwerveModuleConstants.FL_MOTOR_REVERSED);
+    private final SwerveModule frontLeft = new SwerveModule(SwerveModuleConstants.FL_STEER_ID, SwerveModuleConstants.FL_DRIVE_ID,
+    SwerveModuleConstants.FL_ABSOLUTE_ENCODER_PORT, SwerveModuleConstants.FL_OFFSET_ROTATIONS,
+    SwerveModuleConstants.FL_ABSOLUTE_ENCODER_REVERSED,
+    SwerveModuleConstants.FL_DRIVE_MOTOR_REVERSED, SwerveModuleConstants.FL_STEER_MOTOR_REVERSED);
 
-    SwerveModule frontRight = new SwerveModule(SwerveModuleConstants.FR_STEER_ID, SwerveModuleConstants.FR_DRIVE_ID,
-            SwerveModuleConstants.FR_ABSOLUTE_ENCODER_PORT, SwerveModuleConstants.FR_OFFSET_RADIANS,
-            SwerveModuleConstants.FR_ABSOLUTE_ENCODER_REVERSED,
-            SwerveModuleConstants.FR_MOTOR_REVERSED);
+    private final SwerveModule frontRight = new SwerveModule(SwerveModuleConstants.FR_STEER_ID, SwerveModuleConstants.FR_DRIVE_ID,
+        SwerveModuleConstants.FR_ABSOLUTE_ENCODER_PORT, SwerveModuleConstants.FR_OFFSET_ROTATIONS,
+        SwerveModuleConstants.FR_ABSOLUTE_ENCODER_REVERSED,
+        SwerveModuleConstants.FR_DRIVE_MOTOR_REVERSED, SwerveModuleConstants.FR_STEER_MOTOR_REVERSED);
 
-    SwerveModule backRight = new SwerveModule(SwerveModuleConstants.BR_STEER_ID, SwerveModuleConstants.BR_DRIVE_ID,
-            SwerveModuleConstants.BR_ABSOLUTE_ENCODER_PORT, SwerveModuleConstants.BR_OFFSET_RADIANS,
-            SwerveModuleConstants.BR_ABSOLUTE_ENCODER_REVERSED,
-            SwerveModuleConstants.BR_MOTOR_REVERSED);
+    private final SwerveModule backRight = new SwerveModule(SwerveModuleConstants.BR_STEER_ID, SwerveModuleConstants.BR_DRIVE_ID,
+        SwerveModuleConstants.BR_ABSOLUTE_ENCODER_PORT, SwerveModuleConstants.BR_OFFSET_ROTATIONS,
+        SwerveModuleConstants.BR_ABSOLUTE_ENCODER_REVERSED,
+        SwerveModuleConstants.BR_DRIVE_MOTOR_REVERSED, SwerveModuleConstants.BR_STEER_MOTOR_REVERSED);
 
-    SwerveModule backLeft = new SwerveModule(SwerveModuleConstants.BL_STEER_ID, SwerveModuleConstants.BL_DRIVE_ID,
-            SwerveModuleConstants.BL_ABSOLUTE_ENCODER_PORT, SwerveModuleConstants.BL_OFFSET_RADIANS,
-            SwerveModuleConstants.BL_ABSOLUTE_ENCODER_REVERSED,
-            SwerveModuleConstants.BL_MOTOR_REVERSED);
+    private final SwerveModule backLeft = new SwerveModule(SwerveModuleConstants.BL_STEER_ID, SwerveModuleConstants.BL_DRIVE_ID,
+        SwerveModuleConstants.BL_ABSOLUTE_ENCODER_PORT, SwerveModuleConstants.BL_OFFSET_ROTATIONS,
+        SwerveModuleConstants.BL_ABSOLUTE_ENCODER_REVERSED,
+        SwerveModuleConstants.BL_DRIVE_MOTOR_REVERSED, SwerveModuleConstants.BL_STEER_MOTOR_REVERSED);
 
 
     PowerDistribution pdh = new PowerDistribution(1,ModuleType.kRev);
@@ -56,7 +56,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     private ChassisSpeeds lastChassisSpeeds = new ChassisSpeeds();
 
-    private Field2d field = new Field2d();
+    private final Field2d field = new Field2d();
 
     // TODO: Properly set starting pose
     private final SwerveDrivePoseEstimator odometry = new SwerveDrivePoseEstimator(DriveConstants.KINEMATICS,
@@ -69,6 +69,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
+
         odometry.update(getRotation2d(), getModulePositions());
 
         // TODO: Test
@@ -77,6 +78,7 @@ public class SwerveSubsystem extends SubsystemBase {
         // Timer.getFPGATimestamp());
 
         field.setRobotPose((DriverStation.getAlliance() == Alliance.Red) ? new Pose2d(new Translation2d(16.5-getPose().getX(), 8.02- getPose().getY()), getPose().getRotation().rotateBy(Rotation2d.fromDegrees(180))): getPose());
+
         SmartDashboard.putData("Field", field);
 
         SmartDashboard.putString("Robot Pose",
@@ -97,6 +99,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public void zeroHeading() {
+
         setHeading(0);
     }
 
@@ -117,10 +120,18 @@ public class SwerveSubsystem extends SubsystemBase {
         odometry.resetPosition(getRotation2d(), getModulePositions(), pose);
     }
 
+    /**
+     * Gets the robot heading.
+     * @return robot heading in radians [-Pi, Pi) with counter-clockwise positive
+     */
     public double getHeading() {
         return Robot.isSimulation() ? navxSim : Units.degreesToRadians(Math.IEEEremainder(-navX.getAngle(), 360));
     }
 
+    /**
+     * Gets the robot heading.
+     * @return robot heading in radians [-Pi, Pi) with counter-clockwise positive
+     */
     public Rotation2d getRotation2d() {
         return new Rotation2d(getHeading());
     }
@@ -136,6 +147,7 @@ public class SwerveSubsystem extends SubsystemBase {
         lastChassisSpeeds = DriveConstants.KINEMATICS.toChassisSpeeds(states);
         // Normalize speeds so they are all obtainable
         SwerveDriveKinematics.desaturateWheelSpeeds(states, DriveConstants.MAX_MODULE_VELOCITY);
+
         frontLeft.setModuleState(states[Constants.DriveConstants.ModuleIndices.FRONT_LEFT]);
         frontRight.setModuleState(states[Constants.DriveConstants.ModuleIndices.FRONT_RIGHT]);
         backRight.setModuleState(states[Constants.DriveConstants.ModuleIndices.REAR_RIGHT]);
@@ -151,6 +163,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public void setXstance() {
+
         // frontLeft.setModuleStateRaw(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
         // frontRight.setModuleStateRaw(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
         // backLeft.setModuleStateRaw(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));

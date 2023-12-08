@@ -25,19 +25,17 @@ import edu.wpi.first.math.util.Units;
  */
 public final class Constants {
   public static class ControllerConstants {
-    public static final int DRIVER_CONTROLLER_PORT = 1;
+    public static final int DRIVER_CONTROLLER_PORT = 0;
     public static final int OPERATOR_CONTROLLER_PORT = 2;
   }
 
   public static class SwerveModuleConstants {
     public static final double WHEEL_DIAMETER = Units.inchesToMeters(4);
-    public static final double STEERING_GEAR_RATIO = 1.d / (150d / 7d);
+    public static final double STEERING_GEAR_RATIO = (14.0 / 50.0) * (10.0 / 60.0);
     public static final double DRIVE_GEAR_RATIO = 1.d / 6.75d;
 
     public static final double DRIVE_ROTATION_TO_METER = DRIVE_GEAR_RATIO * Math.PI * WHEEL_DIAMETER;
-    public static final double STEER_ROTATION_TO_RADIANS = STEERING_GEAR_RATIO * Math.PI * 2d;
-    public static final double DRIVE_METERS_PER_MINUTE = DRIVE_ROTATION_TO_METER / 60d;
-    public static final double STEER_RADIANS_PER_MINUTE = STEER_ROTATION_TO_RADIANS / 60d;
+    public static final double DRIVE_METERS_PER_SECOND = DRIVE_ROTATION_TO_METER / 60d / 60d;
 
     // Actual drive gains
     // public static final double MODULE_KP = 0.5;
@@ -99,10 +97,10 @@ public final class Constants {
     }
 
     public static final SwerveDriveKinematics KINEMATICS = new SwerveDriveKinematics(
-        new Translation2d(TRACK_WIDTH / 2.0, WHEEL_BASE / 2.0),
-        new Translation2d(TRACK_WIDTH / 2.0, -WHEEL_BASE / 2.0),
-        new Translation2d(-TRACK_WIDTH / 2.0, WHEEL_BASE / 2.0),
-        new Translation2d(-TRACK_WIDTH / 2.0, -WHEEL_BASE / 2.0));
+        new Translation2d(-TRACK_WIDTH / 2.0, -WHEEL_BASE / 2.0), // Back Right
+        new Translation2d(TRACK_WIDTH / 2.0, -WHEEL_BASE / 2.0), // Front Right
+        new Translation2d(-TRACK_WIDTH / 2.0, WHEEL_BASE / 2.0), // Back Left
+        new Translation2d(TRACK_WIDTH / 2.0, WHEEL_BASE / 2.0)); // Front Left
 
     public static final double XY_SPEED_LIMIT = 1.0;
     public static final double Z_SPEED_LIMIT = 1.0;
