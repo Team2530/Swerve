@@ -6,6 +6,7 @@ package frc.robot;
 
 import org.opencv.core.Mat;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
@@ -41,44 +42,40 @@ public final class Constants {
     // public static final double MODULE_KD = 0.03;
 
     // NOTE: This may need additional tuning!
-    public static final double MODULE_KP = 1.7; //.756 // 0.7491;  //0.56368;
+    public static final double MODULE_KP = 0.5;//0.75628;// 0.7491; //0.56368;
     public static final double MODULE_KD = 0.0066806;// 0.0057682; //0.0076954;
 
     // --------- Front Left Module --------- \\
     public static final int FL_DRIVE_ID = 2;
     public static final int FL_STEER_ID = 1;
     public static final int FL_ABSOLUTE_ENCODER_PORT = 1;
-    public static final double FL_OFFSET_ROTATIONS = -0.073730;
-    public static final boolean FL_ABSOLUTE_ENCODER_REVERSED = false;
-    public static final boolean FL_DRIVE_MOTOR_REVERSED = true;
-    public static final boolean FL_STEER_MOTOR_REVERSED = true;
+    public static final double FL_OFFSET_RADIANS = Units.degreesToRadians(26.543) + Math.PI*0.5;
+    public static final boolean FL_ABSOLUTE_ENCODER_REVERSED = true;
+    public static final boolean FL_MOTOR_REVERSED = false;
 
     // --------- Front Right Module --------- \\
     public static final int FR_DRIVE_ID = 4;
     public static final int FR_STEER_ID = 3;
     public static final int FR_ABSOLUTE_ENCODER_PORT = 4;
-    public static final double FR_OFFSET_ROTATIONS = -0.935547;
-    public static final boolean FR_ABSOLUTE_ENCODER_REVERSED = false;
-    public static final boolean FR_DRIVE_MOTOR_REVERSED = true;
-    public static final boolean FR_STEER_MOTOR_REVERSED = true;
+    public static final double FR_OFFSET_RADIANS = Units.degreesToRadians(336.621)+ Math.PI*0.5;
+    public static final boolean FR_ABSOLUTE_ENCODER_REVERSED = true;
+    public static final boolean FR_MOTOR_REVERSED = false;
 
     // --------- Back Right Module --------- \\
     public static final int BR_DRIVE_ID = 6;
     public static final int BR_STEER_ID = 5;
     public static final int BR_ABSOLUTE_ENCODER_PORT = 2;
-    public static final double BR_OFFSET_ROTATIONS = -0.150879;
-    public static final boolean BR_ABSOLUTE_ENCODER_REVERSED = false;
-    public static final boolean BR_DRIVE_MOTOR_REVERSED = true;
-    public static final boolean BR_STEER_MOTOR_REVERSED = true;
+    public static final double BR_OFFSET_RADIANS = Units.degreesToRadians(54.404)+ Math.PI*0.5;
+    public static final boolean BR_ABSOLUTE_ENCODER_REVERSED = true;
+    public static final boolean BR_MOTOR_REVERSED = false;
 
     // --------- Back Left Module --------- \\
     public static final int BL_DRIVE_ID = 8;
     public static final int BL_STEER_ID = 7;
     public static final int BL_ABSOLUTE_ENCODER_PORT = 3;
-    public static final double BL_OFFSET_ROTATIONS = -0.888916;
-    public static final boolean BL_ABSOLUTE_ENCODER_REVERSED = false;
-    public static final boolean BL_DRIVE_MOTOR_REVERSED = true;
-    public static final boolean BL_STEER_MOTOR_REVERSED = true;
+    public static final double BL_OFFSET_RADIANS = Units.degreesToRadians(320.801)+ Math.PI*0.5;
+    public static final boolean BL_ABSOLUTE_ENCODER_REVERSED = true;
+    public static final boolean BL_MOTOR_REVERSED = false;
 
   }
 
@@ -90,6 +87,14 @@ public final class Constants {
     // TODO: Change based on actual robot!
     public static final double TRACK_WIDTH = Units.inchesToMeters(18.75);
     public static final double WHEEL_BASE = Units.inchesToMeters(18.75);
+    public static final Rotation2d NAVX_ANGLE_OFFSET = Rotation2d.fromDegrees(90);
+
+    public static final class ModuleIndices {
+      public static final int FRONT_LEFT = 0;
+      public static final int FRONT_RIGHT = 2;
+      public static final int REAR_LEFT = 1;
+      public static final int REAR_RIGHT = 3;
+    }
 
     public static final SwerveDriveKinematics KINEMATICS = new SwerveDriveKinematics(
         new Translation2d(-TRACK_WIDTH / 2.0, -WHEEL_BASE / 2.0), // Back Right
@@ -97,7 +102,7 @@ public final class Constants {
         new Translation2d(-TRACK_WIDTH / 2.0, WHEEL_BASE / 2.0), // Back Left
         new Translation2d(TRACK_WIDTH / 2.0, WHEEL_BASE / 2.0)); // Front Left
 
-    public static final double XY_SPEED_LIMIT = 0.8;
+    public static final double XY_SPEED_LIMIT = 1.0;
     public static final double Z_SPEED_LIMIT = 1.0;
   }
 
@@ -106,13 +111,23 @@ public final class Constants {
     public static final int WHEEL_LEFT_PORT = 9;
     public static final int WHEEL_RIGHT_PORT = 10;
     public static final int INTAKE_CURRENT_LIMIT = 40;
+    public static final int LIMIT_PORT = 0;
 
     public static final int ACTUATOR_MOTOR_PORT = 11;
     public static final int ACTUATOR_ENCODER_PORT = 5;
     // CANcoder #5 reading when intake is vertical
-    public static final double OFFSET_RADIANS = Units.degreesToRadians(102.0);
-    public static final double ACTUATOR_GEAR_RATIO = (30.f/28.f);
+    public static final double OFFSET_RADIANS = Units.degreesToRadians(136.582);
+    public static final double ACTUATOR_GEAR_RATIO = (30.f / 28.f);
+
+    public static final double SWITCH_OFFSET_RADIANS = Units.degreesToRadians(-42.0);
 
     public static final double MAX_SPEED = 0.50;
+  }
+
+  public static class MiscConstants {
+    public static final int LED_PORT = 0;
+    public static final int STRIP_W = 9;
+    public static final int STRIP_H = 8;
+    public static final int NUM_LEDS = STRIP_H*STRIP_W;
   }
 }

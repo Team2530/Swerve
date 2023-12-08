@@ -3,6 +3,7 @@ package frc.robot.commands;
 import static edu.wpi.first.math.MathUtil.applyDeadband;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -71,8 +72,6 @@ public class DriveCommand extends CommandBase {
         double xSpeed = xySpeed.getX(); // xbox.getLeftX();
         double ySpeed = xySpeed.getY(); // xbox.getLeftY();
 
-        SmartDashboard.putNumber("xySpeed norm", xySpeed.getNorm());
-
         // double mag_xy = Math.sqrt(xSpeed*xSpeed + ySpeed*ySpeed);
 
         // xSpeed = mag_xy > 0.15 ? xSpeed : 0.0;
@@ -92,19 +91,20 @@ public class DriveCommand extends CommandBase {
         ySpeed *= dmult;
         zSpeed *= dmult;
 
-        if (xbox.getXButton())
+        if (xbox.getXButton()) {
             swerveSubsystem.zeroHeading();
-
-        if (xbox.getAButton())
             swerveSubsystem.resetOdometry(new Pose2d());
+            swerveSubsystem.zeroHeading();
+        }
 
         ChassisSpeeds speeds;
 
         // Drive Non Field Oriented
         if (!xbox.getLeftBumper()) {
-            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, zSpeed, swerveSubsystem.getRotation2d());
+            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(ySpeed, -xSpeed, -zSpeed,
+                   new Rotation2d(-swerveSubsystem.getRotation2d().rotateBy(DriveConstants.NAVX_ANGLE_OFFSET).getRadians()));
         } else {
-            speeds = new ChassisSpeeds(xSpeed, ySpeed, zSpeed);
+            speeds = new ChassisSpeeds(xSpeed, ySpeed, -zSpeed);
         }
 
         // State transition logic

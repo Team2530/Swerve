@@ -2,14 +2,23 @@ package frc.robot.subsystems;
 
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.*;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.PowerDistribution;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+import frc.robot.LimelightHelpers;
+import frc.robot.Robot;
 import frc.robot.Constants.*;
 
 public class SwerveSubsystem extends SubsystemBase {
@@ -33,48 +42,78 @@ public class SwerveSubsystem extends SubsystemBase {
         SwerveModuleConstants.BL_ABSOLUTE_ENCODER_REVERSED,
         SwerveModuleConstants.BL_DRIVE_MOTOR_REVERSED, SwerveModuleConstants.BL_STEER_MOTOR_REVERSED);
 
+
+    PowerDistribution pdh = new PowerDistribution(1,ModuleType.kRev);
+    int[] pdh_channels = {
+        18,19,
+        0,1,
+        16,17,
+        2,3
+    };
+
     private final AHRS navX = new AHRS(SPI.Port.kMXP);
+    private double navxSim;
+
+    private ChassisSpeeds lastChassisSpeeds = new ChassisSpeeds();
 
     private final Field2d field = new Field2d();
 
-    private final SwerveDriveOdometry odometry = new SwerveDriveOdometry(DriveConstants.KINEMATICS, getRotation2d(),
-            getModulePositions());
+    // TODO: Properly set starting pose
+    private final SwerveDrivePoseEstimator odometry = new SwerveDrivePoseEstimator(DriveConstants.KINEMATICS,
+            getRotation2d(),
+            getModulePositions(), new Pose2d());
 
     public SwerveSubsystem() {
         zeroHeading();
-        // new Thread(() -> {
-        // try {
-        // Thread.sleep(1000);
-        // zeroHeading();
-        // } catch (Exception e) {
-        // // TODO: handle exception
-        // }
-        // }).start();
     }
 
     @Override
     public void periodic() {
-        double rads = getPose().getRotation().getRadians(); 
+
         odometry.update(getRotation2d(), getModulePositions());
-        field.setRobotPose(getPose());
+
+        // TODO: Test
+        // WARNING: REMOVE IF USING TAG FOLLOW!!!
+        // odometry.addVisionMeasurement(LimelightHelpers.getBotPose2d(null),
+        // Timer.getFPGATimestamp());
+
+        field.setRobotPose((DriverStation.getAlliance() == Alliance.Red) ? new Pose2d(new Translation2d(16.5-getPose().getX(), 8.02- getPose().getY()), getPose().getRotation().rotateBy(Rotation2d.fromDegrees(180))): getPose());
+
         SmartDashboard.putData("Field", field);
 
         SmartDashboard.putString("Robot Pose",
                 getPose().toString());
+    
+        double swerveCurrent = 0;
+        for (int chan : pdh_channels)
+            swerveCurrent += pdh.getCurrent(chan);
+        SmartDashboard.putNumber("SwerveSubsystem Amps", swerveCurrent);
+        SmartDashboard.putNumber("PDH Amps", pdh.getTotalCurrent());
 
-        SmartDashboard.putNumber("Spin Velocity", (getPose().getRotation().getRadians() - rads) / 0.02);
+        SmartDashboard.putNumberArray("SwerveStates", new double[] {
+            frontLeft.getModuleState().angle.getDegrees()+90, -frontLeft.getModuleState().speedMetersPerSecond,
+            frontRight.getModuleState().angle.getDegrees()+90,-frontRight.getModuleState().speedMetersPerSecond,
+            backLeft.getModuleState().angle.getDegrees()+90,-backLeft.getModuleState().speedMetersPerSecond,
+            backRight.getModuleState().angle.getDegrees()+90, -backRight.getModuleState().speedMetersPerSecond
+        });
     }
 
     public void zeroHeading() {
-        // Reset pose to the same translation but rotation of 0
-        var pose = odometry.getPoseMeters();
-        var newPose = new Pose2d(pose.getTranslation(), new Rotation2d());
+
+        setHeading(0);
+    }
+
+    public void setHeading(double deg) {
+        if (Robot.isSimulation()) {
+            navxSim = Units.degreesToRadians(deg);
+        }
         navX.reset();
-        resetOdometry(newPose);
+        navX.setAngleAdjustment(deg);
     }
 
     public Pose2d getPose() {
-        return odometry.getPoseMeters();
+        Pose2d p = odometry.getEstimatedPosition();
+        return p;
     }
 
     public void resetOdometry(Pose2d pose) {
@@ -86,7 +125,7 @@ public class SwerveSubsystem extends SubsystemBase {
      * @return robot heading in radians [-Pi, Pi) with counter-clockwise positive
      */
     public double getHeading() {
-        return -Units.degreesToRadians(Math.IEEEremainder(navX.getAngle(), 360d));
+        return Robot.isSimulation() ? navxSim : Units.degreesToRadians(Math.IEEEremainder(-navX.getAngle(), 360));
     }
 
     /**
@@ -105,48 +144,64 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public void setModules(SwerveModuleState[] states) {
+        lastChassisSpeeds = DriveConstants.KINEMATICS.toChassisSpeeds(states);
         // Normalize speeds so they are all obtainable
         SwerveDriveKinematics.desaturateWheelSpeeds(states, DriveConstants.MAX_MODULE_VELOCITY);
-        backRight.setModuleState(states[0]);
-        frontRight.setModuleState(states[1]);
-        backLeft.setModuleState(states[2]);
-        frontLeft.setModuleState(states[3]);
-    }
 
+        frontLeft.setModuleState(states[Constants.DriveConstants.ModuleIndices.FRONT_LEFT]);
+        frontRight.setModuleState(states[Constants.DriveConstants.ModuleIndices.FRONT_RIGHT]);
+        backRight.setModuleState(states[Constants.DriveConstants.ModuleIndices.REAR_RIGHT]);
+        backLeft.setModuleState(states[Constants.DriveConstants.ModuleIndices.REAR_LEFT]);
+    }
+    
     public void setChassisSpeedsAUTO(ChassisSpeeds speeds) {
         double tmp = -speeds.vxMetersPerSecond;
         speeds.vxMetersPerSecond = -speeds.vyMetersPerSecond;
-        speeds.vyMetersPerSecond = tmp; // FORWARDS
-        // SmartDashboard.putNumber("Radians Chassis CMD",
-        // speeds.omegaRadiansPerSecond);
+        speeds.vyMetersPerSecond = tmp;
         SwerveModuleState[] states = DriveConstants.KINEMATICS.toSwerveModuleStates(speeds);
         setModules(states);
     }
 
     public void setXstance() {
-        frontLeft.setModuleStateRaw(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
-        frontRight.setModuleStateRaw(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
-        backLeft.setModuleStateRaw(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
-        backRight.setModuleStateRaw(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
+
+        // frontLeft.setModuleStateRaw(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
+        // frontRight.setModuleStateRaw(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
+        // backLeft.setModuleStateRaw(new SwerveModuleState(0, Rotation2d.fromDegrees(-45)));
+        // backRight.setModuleStateRaw(new SwerveModuleState(0, Rotation2d.fromDegrees(45)));
+        frontLeft.setModuleStateRaw(new SwerveModuleState(0.1, Rotation2d.fromDegrees(0)));
+        frontRight.setModuleStateRaw(new SwerveModuleState(0.1, Rotation2d.fromDegrees(0)));
+        backLeft.setModuleStateRaw(new SwerveModuleState(0.1, Rotation2d.fromDegrees(0)));
+        backRight.setModuleStateRaw(new SwerveModuleState(0.1, Rotation2d.fromDegrees(0)));
     }
 
     public ChassisSpeeds getChassisSpeeds() {
         ChassisSpeeds speeds = DriveConstants.KINEMATICS.toChassisSpeeds(
-            backRight.getModuleState(),
+            frontLeft.getModuleState(),
             frontRight.getModuleState(),
-            backLeft.getModuleState(),
-            frontLeft.getModuleState());
+            backLeft.getModuleState(), 
+            backRight.getModuleState()
+        );
 
         return speeds;
     }
 
     public SwerveModulePosition[] getModulePositions() {
-        SwerveModulePosition[] states = new SwerveModulePosition[4];
-        states[0] = backRight.getModulePosition();
-        states[1] = frontRight.getModulePosition();
-        states[2] = backLeft.getModulePosition();
-        states[3] = frontLeft.getModulePosition();
+        SwerveModulePosition[] states = {
+            frontLeft.getModulePosition(),
+            frontRight.getModulePosition(),
+            backLeft.getModulePosition(),
+            backRight.getModulePosition()
+        };
 
         return states;
+    }
+
+    @Override
+    public void simulationPeriodic() {
+        frontLeft.simulate_step();
+        frontRight.simulate_step();
+        backLeft.simulate_step();
+        backRight.simulate_step();
+        navxSim += 0.02 * lastChassisSpeeds.omegaRadiansPerSecond;
     }
 }

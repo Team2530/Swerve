@@ -10,11 +10,20 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkMaxPIDController;
-
+import edu.wpi.first.hal.SimDouble;
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.SwerveModulePosition;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.kinematics.*;
+import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.simulation.EncoderSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants;
+import frc.robot.Robot;
+
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.SwerveModuleConstants;;
 
@@ -27,7 +36,16 @@ public class SwerveModule {
     private final RelativeEncoder driveMotorEncoder;
     private final RelativeEncoder steerMotorEncoder;
 
-    private final CANcoder absoluteEncoder;
+    private  double driveEncSim = 0;
+    private  double steerEncSim = 0;
+
+    private final CANCoder absoluteEncoder;
+
+    private final double motorOffsetRadians;
+    private final boolean isAbsoluteEncoderReversed;
+    private final boolean motor_inv;
+
+    private final PIDController steerPID;
 
     private final SparkMaxPIDController steerPID;
 
@@ -83,7 +101,13 @@ public class SwerveModule {
         resetEncoders();
     }
 
+    public void simulate_step() {
+        driveEncSim += 0.02 * driveMotor.get() * (DriveConstants.MAX_MODULE_VELOCITY);
+        steerEncSim += 0.02 * steerMotor.get() * (10.0);
+    }
+
     public double getDrivePosition() {
+        if (Robot.isSimulation()) return driveEncSim;
         return driveMotorEncoder.getPosition();
     }
 
@@ -91,13 +115,9 @@ public class SwerveModule {
         return driveMotorEncoder.getVelocity();
     }
 
-    /**
-     * Get steer position
-     * @return steer position in range [-Pi, Pi) radians
-     */
-    public Rotation2d getSteerPosition() {
-        var rotations = steerMotorEncoder.getPosition();
-        return Rotation2d.fromRotations(rotations);
+    public double getSteerPosition() {
+        if (Robot.isSimulation()) return steerEncSim;
+        return steerMotorEncoder.getPosition();
     }
 
     public double getSteerVelocity() {
@@ -118,19 +138,31 @@ public class SwerveModule {
     }
 
     public SwerveModuleState getModuleState() {
-        return new SwerveModuleState(getDriveVelocity(), getSteerPosition());
+
+        return new SwerveModuleState(getDriveVelocity(), new Rotation2d(-getSteerPosition()));
     }
 
     public SwerveModulePosition getModulePosition() {
-        return new SwerveModulePosition(getDrivePosition(), getSteerPosition());
+        return new SwerveModulePosition(getDrivePosition(), new Rotation2d(-getSteerPosition()).rotateBy(DriveConstants.NAVX_ANGLE_OFFSET.times(-1)));
     }
 
     public void setModuleStateRaw(SwerveModuleState state) {
         state = SwerveModuleState.optimize(state, getSteerPosition());
         double drive_command = state.speedMetersPerSecond / DriveConstants.MAX_MODULE_VELOCITY;
-        driveMotor.set(drive_command);
-        steerPID.setReference(state.angle.getRotations(), ControlType.kPosition);
 
+        driveMotor.set(drive_command * (motor_inv ? -1.0 : 1.0));
+
+        // This is stupid
+        // steerPID.setP(Constants.SwerveModuleConstants.MODULE_KP *
+        // Math.abs(drive_command));
+        double steercmd = steerPID.calculate(getSteerPosition(), state.angle.getRadians());
+        if (Robot.isSimulation()) {
+            steerMotor.set(steercmd);
+        } else {
+            steerMotor.setVoltage(12*steercmd);
+        }
+        // SmartDashboard.putNumber("Abs" + thisModuleNumber,
+        // getAbsoluteEncoderPosition());
         SmartDashboard.putNumber("Drive" + thisModuleNumber, drive_command);
     }
 
