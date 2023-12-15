@@ -5,12 +5,7 @@ import java.util.Map;
 import java.util.function.BooleanSupplier;
 
 import com.ctre.phoenix.Util;
-import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
-import com.ctre.phoenix.motorcontrol.can.VictorSPX;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
-import com.ctre.phoenix.sensors.CANCoder;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -35,7 +30,8 @@ public class Intake extends SubsystemBase {
     private CANSparkMax leftIntake;
     private CANSparkMax rightIntake;
 
-    private CANCoder actuatorEncoder = new CANCoder(IntakeConstants.ACTUATOR_ENCODER_PORT);
+    private com.ctre.phoenix6.hardware.CANcoder actuatorEncoder = new com.ctre.phoenix6.hardware.CANcoder(
+            IntakeConstants.ACTUATOR_ENCODER_PORT);
 
     private final PIDController actuatorPID = new PIDController(1.25, 0.0, 0.0);
 
@@ -118,11 +114,10 @@ public class Intake extends SubsystemBase {
 
     @Override
     public void periodic() {
-        double currentAngle = (Units.degreesToRadians(actuatorEncoder.getPosition())
+        double currentAngle = (getEncoderAngleRaw()
                 - ANGLE_OFFSET) * IntakeConstants.ACTUATOR_GEAR_RATIO;
 
-        // SmartDashboard.putNumber("Intake current angle",
-        // Units.degreesToRadians(actuatorEncoder.getPosition()));
+        SmartDashboard.putNumber("Intake current angle", getEncoderAngleRaw());
         // SmartDashboard.putNumber("Intake zeroed angle", currentAngle);
         if (this.statectl_enabled) {
             actuatorMotor
@@ -145,7 +140,7 @@ public class Intake extends SubsystemBase {
 
     // Returns Radians
     public double getEncoderAngleRaw() {
-        return Units.degreesToRadians(actuatorEncoder.getPosition());
+        return Units.rotationsToRadians(actuatorEncoder.getPosition().getValue());
     }
 
     public void setZeroAngleRaw(double radians_at_zero) {

@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.sensors.CANCoder;
 import com.revrobotics.*;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -10,6 +9,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.*;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
@@ -28,10 +28,10 @@ public class SwerveModule {
     private final RelativeEncoder driveMotorEncoder;
     private final RelativeEncoder steerMotorEncoder;
 
-    private  double driveEncSim = 0;
-    private  double steerEncSim = 0;
+    private double driveEncSim = 0;
+    private double steerEncSim = 0;
 
-    private final CANCoder absoluteEncoder;
+    private final com.ctre.phoenix6.hardware.CANcoder absoluteEncoder;
 
     private final double motorOffsetRadians;
     private final boolean isAbsoluteEncoderReversed;
@@ -57,7 +57,7 @@ public class SwerveModule {
         driveMotorEncoder = driveMotor.getEncoder();
         steerMotorEncoder = steerMotor.getEncoder();
 
-        absoluteEncoder = new CANCoder(absoluteEncoderPort);
+        absoluteEncoder = new com.ctre.phoenix6.hardware.CANcoder(absoluteEncoderPort);
 
         this.motorOffsetRadians = motorOffsetRadians;
         this.isAbsoluteEncoderReversed = isAbsoluteEncoderReversed;
@@ -83,7 +83,8 @@ public class SwerveModule {
     }
 
     public double getDrivePosition() {
-        if (Robot.isSimulation()) return driveEncSim;
+        if (Robot.isSimulation())
+            return driveEncSim;
         return driveMotorEncoder.getPosition();
     }
 
@@ -92,7 +93,8 @@ public class SwerveModule {
     }
 
     public double getSteerPosition() {
-        if (Robot.isSimulation()) return steerEncSim;
+        if (Robot.isSimulation())
+            return steerEncSim;
         return steerMotorEncoder.getPosition();
     }
 
@@ -101,7 +103,8 @@ public class SwerveModule {
     }
 
     public double getAbsoluteEncoderPosition() {
-        double angle = absoluteEncoder.getAbsolutePosition() * (Math.PI / 180.d);
+        double angle = Units.rotationsToRadians(absoluteEncoder.getPosition().getValue());// * (Math.PI /
+        // 180.d);
         angle -= motorOffsetRadians;
         return angle * (isAbsoluteEncoderReversed ? -1.0 : 1.0);
     }
@@ -116,7 +119,8 @@ public class SwerveModule {
     }
 
     public SwerveModulePosition getModulePosition() {
-        return new SwerveModulePosition(getDrivePosition(), new Rotation2d(-getSteerPosition()).rotateBy(DriveConstants.NAVX_ANGLE_OFFSET.times(-1)));
+        return new SwerveModulePosition(getDrivePosition(),
+                new Rotation2d(-getSteerPosition()).rotateBy(DriveConstants.NAVX_ANGLE_OFFSET.times(-1)));
     }
 
     public void setModuleStateRaw(SwerveModuleState state) {
@@ -131,7 +135,7 @@ public class SwerveModule {
         if (Robot.isSimulation()) {
             steerMotor.set(steercmd);
         } else {
-            steerMotor.setVoltage(12*steercmd);
+            steerMotor.setVoltage(12 * steercmd);
         }
         // SmartDashboard.putNumber("Abs" + thisModuleNumber,
         // getAbsoluteEncoderPosition());
