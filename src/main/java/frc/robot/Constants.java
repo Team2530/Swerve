@@ -138,7 +138,7 @@ public final class Constants {
   }
 
   public static class CommonConstants {
-    public static final boolean LOG_INTO_FILE_ENABLED = true;
+    public static final boolean LOG_INTO_FILE_ENABLED = false;
   }
 
   public static class AutoConstants {

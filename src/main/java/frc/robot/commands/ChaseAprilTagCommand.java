@@ -183,7 +183,7 @@ public class ChaseAprilTagCommand extends CommandBase {
             log.append(logMessage);
           }          
           //speeds = ChassisSpeeds.fromFieldRelativeSpeeds(-xSpeed, -ySpeed, -zSpeed, swerveSubsystem.getRotation2d());
-            speeds = new ChassisSpeeds(-xSpeed, ySpeed, -omegaSpeed);
+            speeds = new ChassisSpeeds(-xSpeed, -ySpeed, -omegaSpeed);
 
             SwerveModuleState[] calculatedModuleStates = DriveConstants.KINEMATICS.toSwerveModuleStates(speeds);
             swerveSubsystem.setModules(calculatedModuleStates);
