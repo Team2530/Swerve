@@ -4,10 +4,10 @@
 
 package frc.robot;
 
+import static edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts.kGrid;
 import frc.robot.Constants.ControllerConstants;
-import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.IntakeConstants;
-import frc.robot.Constants.SwerveModuleConstants;
+import frc.robot.commands.ChaseAprilTagCommand;
 import frc.robot.commands.DriveCommand;
 import frc.robot.commands.OperatorCommand;
 import frc.robot.commands.ResetIntakeCommand;
@@ -18,41 +18,34 @@ import frc.robot.subsystems.Intake.IntakeState;
 import frc.robot.subsystems.Lights.LightState;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.constraint.MecanumDriveKinematicsConstraint;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ParallelDeadlineGroup;
 import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import edu.wpi.first.wpilibj2.command.button.*;
 
 import java.io.File;
-import java.lang.reflect.Field;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.BooleanSupplier;
 
 import com.pathplanner.lib.PathConstraints;
@@ -87,6 +80,17 @@ public class RobotContainer {
     private final DriveCommand normalDrive = new DriveCommand(swerveDriveSubsystem, driverXbox.getHID());
     private final OperatorCommand normalOperator = new OperatorCommand(intake, operatorXbox.getHID());
 
+    private final  ShuffleboardTab visionTab = Shuffleboard.getTab("Vision");
+    private final  ShuffleboardLayout visionLayout = visionTab.getLayout("Target", kGrid).withPosition(6, 0).withSize(1, 2);
+
+    private final  SimpleWidget targetX = visionLayout.add("Target X",0);;
+    private final SimpleWidget targetY = visionLayout.add("Target Y",0);;
+    private final SimpleWidget targetAngle = visionLayout.add("Target Z",0);;
+    private final SimpleWidget xSpeedWidget = visionLayout.add("X Speed",0);;
+    private final SimpleWidget ySpeedWidget =visionLayout.add("Y Speed",0);;
+    private final SimpleWidget omegaSpeedWidget = visionLayout.add("Omega Speed",0);
+    private final SimpleWidget tagErrorWidget = visionLayout.add("Tag Error : ", "");
+    
     // private final TagFollowCommand tagFollow = new
     // TagFollowCommand(swerveDriveSubsystem, driverXbox.getHID());
 
@@ -144,8 +148,11 @@ public class RobotContainer {
         operatorXbox.a().onTrue(new InstantCommand(() -> resetCommand.cancel()));
 
         // Use Y to enable tag following!
-        // driverXbox.y().onTrue(tagFollow).onFalse(new InstantCommand(() ->
+        //driverXbox.y().onTrue(tagFollow).onFalse(new InstantCommand(() ->
         // tagFollow.cancel()));
+
+        // use b to chase April tag
+        driverXbox.b().whileTrue(new ChaseAprilTagCommand(swerveDriveSubsystem, targetX, targetY, targetAngle, xSpeedWidget, ySpeedWidget, omegaSpeedWidget, tagErrorWidget));
 
         // Drive with a on-the-fly generated path to (0,0) WHILE right bumper is held
         driverXbox.rightBumper().and(new BooleanSupplier() {
@@ -239,12 +246,12 @@ public class RobotContainer {
          */
 
         return getAutoCommand(traj);
+        //return new ChaseAprilTagCommand(swerveDriveSubsystem, targetX, targetY, targetAngle, xSpeedWidget, ySpeedWidget, omegaSpeedWidget, tagErrorWidget);
     }
 
     public Command getAutoCommand(List<PathPlannerTrajectory> path) {
 
         SequentialCommandGroup auton = new SequentialCommandGroup();
-
         auton.addCommands(new InstantCommand(() -> lights.setState(LightState.LOGO)));
 
         // Pre-drive commands

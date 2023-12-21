@@ -7,8 +7,12 @@ package frc.robot;
 import org.opencv.core.Mat;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 
 /**
@@ -131,5 +135,35 @@ public final class Constants {
     public static final int STRIP_W = 9;
     public static final int STRIP_H = 8;
     public static final int NUM_LEDS = STRIP_H * STRIP_W;
+  }
+
+  public static class CommonConstants {
+    public static final boolean LOG_INTO_FILE_ENABLED = true;
+  }
+
+  public static class AutoConstants {
+    public static final double PATH_THETA_kP = 2.6;
+    public static final double PATH_THETA_kI = 0.001;
+    public static final double PATH_THETA_kD = 0.0;
+
+    public static final TrapezoidProfile.Constraints THETA_CONSTRAINTS = new TrapezoidProfile.Constraints(Math.PI, 2 / Math.PI);
+    public static final double THETA_kP = 0.5;
+    public static final double THETA_kI = 0.0;
+    public static final double THETA_kD = 0.0;
+
+    public static final double X_kP = 1.0;
+    public static final double X_kI = 0.0;
+    public static final double X_kD = 0.0;
+
+    public static final double Y_kP = 1.5;
+    public static final double Y_kI = 0.0;
+    public static final double Y_kD = 0.0;
+  }
+
+  public static class LimelightConstants {
+    public static final String limeLightName = "limelight";
+    public static final Transform3d robotToCamera = new Transform3d(
+    new Translation3d(0.06, -0.2, 0.2127),
+    new Rotation3d(0.0, Units.degreesToRadians(-15.0), Units.degreesToRadians(3.0)));
   }
 }

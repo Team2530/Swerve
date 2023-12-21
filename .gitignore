@@ -139,6 +139,10 @@ $RECYCLE.BIN/
 .gradle
 /build/
 
+### Logs ###
+*.wpilog
+*.csv
+
 # Ignore Gradle GUI config
 gradle-app.setting
 
