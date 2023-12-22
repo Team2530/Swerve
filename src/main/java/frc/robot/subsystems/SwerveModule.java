@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.configs.CANcoderConfigurator;
 import com.revrobotics.*;
 import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
@@ -58,6 +59,11 @@ public class SwerveModule {
         steerMotorEncoder = steerMotor.getEncoder();
 
         absoluteEncoder = new com.ctre.phoenix6.hardware.CANcoder(absoluteEncoderPort);
+        com.ctre.phoenix6.configs.CANcoderConfiguration cfg = new com.ctre.phoenix6.configs.CANcoderConfiguration();
+        cfg.MagnetSensor = new com.ctre.phoenix6.configs.MagnetSensorConfigs();
+        cfg.MagnetSensor.MagnetOffset = 0.0f;
+        absoluteEncoder.getConfigurator().apply(cfg);
+        // CANcoderConfigurator configurator = absoluteEncoder.getConfigurator();
 
         this.motorOffsetRadians = motorOffsetRadians;
         this.isAbsoluteEncoderReversed = isAbsoluteEncoderReversed;
