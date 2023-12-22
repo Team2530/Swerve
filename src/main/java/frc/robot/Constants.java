@@ -147,17 +147,17 @@ public final class Constants {
     public static final double PATH_THETA_kD = 0.0;
 
     public static final TrapezoidProfile.Constraints THETA_CONSTRAINTS = new TrapezoidProfile.Constraints(Math.PI, 2 / Math.PI);
-    public static final double THETA_kP = 0.5;
+    public static final double THETA_kP = .9;
     public static final double THETA_kI = 0.0;
-    public static final double THETA_kD = 0.0;
+    public static final double THETA_kD = 0.08;
 
     public static final double X_kP = 1.0;
     public static final double X_kI = 0.0;
-    public static final double X_kD = 0.0;
+    public static final double X_kD = 0.02;
 
     public static final double Y_kP = 1.5;
     public static final double Y_kI = 0.0;
-    public static final double Y_kD = 0.0;
+    public static final double Y_kD = 0.02;
   }
 
   public static class LimelightConstants {

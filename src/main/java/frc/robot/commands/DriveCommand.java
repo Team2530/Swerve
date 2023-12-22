@@ -107,26 +107,23 @@ public class DriveCommand extends CommandBase {
         } else {
             speeds = new ChassisSpeeds(xSpeed, ySpeed, -zSpeed);
         }
-
-        // State transition logic
-        switch (state) {
-            case Free:
-                state = xbox.getBButton() ? DriveState.Locked : DriveState.Free;
-                break;
-            case Locked:
-                state = ((xyRaw.getNorm() > 0.15) && !xbox.getBButton()) ? DriveState.Free : DriveState.Locked;
-                break;
-        }
-
         // Drive execution logic
         switch (state) {
             case Free:
                 SwerveModuleState[] calculatedModuleStates = DriveConstants.KINEMATICS.toSwerveModuleStates(speeds);
                 swerveSubsystem.setModules(calculatedModuleStates);
                 break;
+
+            default:
+                calculatedModuleStates = DriveConstants.KINEMATICS.toSwerveModuleStates(speeds);
+                swerveSubsystem.setModules(calculatedModuleStates);
+                break;
+            /*
             case Locked:
                 swerveSubsystem.setXstance();
                 break;
+
+            */
         }
     }
 

@@ -33,7 +33,7 @@ public class ChaseAprilTagCommand extends CommandBase {
     private final  SimpleWidget targetX;
     private final SimpleWidget targetY;
     private final SimpleWidget targetZ;
-    private final SimpleWidget xSpeedWidget;
+    private final SimpleWidget xspeedWidget;
     private final SimpleWidget ySpeedWidget;
     private final SimpleWidget omegaSpeedWidget;
     private final SimpleWidget tagErrorWidget;
@@ -52,7 +52,7 @@ public class ChaseAprilTagCommand extends CommandBase {
         SimpleWidget targetX,
         SimpleWidget targetY,
         SimpleWidget targetZ,
-        SimpleWidget xSpeedWidget,
+        SimpleWidget xspeedWidget,
         SimpleWidget ySpeedWidget,
         SimpleWidget omegaSpeedWidget,
         SimpleWidget tagErrorWidget) 
@@ -61,7 +61,7 @@ public class ChaseAprilTagCommand extends CommandBase {
         this.targetX = targetX;
         this.targetY = targetY;
         this.targetZ= targetZ;
-        this.xSpeedWidget = xSpeedWidget;
+        this.xspeedWidget = xspeedWidget;
         this.ySpeedWidget = ySpeedWidget;
         this.omegaSpeedWidget = omegaSpeedWidget;
         this.tagErrorWidget = tagErrorWidget;
@@ -75,7 +75,7 @@ public class ChaseAprilTagCommand extends CommandBase {
     pidControllerY.reset();
     pidControllerOmega.reset();
 
-    pidControllerX.setSetpoint(Units.inchesToMeters(36)); // Move forward/backwork to keep 36 inches from the target
+    pidControllerX.setSetpoint(Units.inchesToMeters(120)); // Move forward/backwork to keep 36 inches from the target
     pidControllerX.setTolerance(Units.inchesToMeters(2.5));
 
     pidControllerY.setSetpoint(0); // Move side to side to keep target centered
@@ -146,21 +146,21 @@ public class ChaseAprilTagCommand extends CommandBase {
           targetY.getEntry().setValue(pose.getX());
           targetZ.getEntry().setValue(pose.getRotation().getY());
           
-          var xSpeed = pidControllerX.calculate(pose.getZ());          
+          var xspeed = pidControllerX.calculate(pose.getZ());          
           if (pidControllerX.atSetpoint()) {
-            xSpeed = 0;
+            xspeed = 0;
           }
-          xSpeedWidget.getEntry().setValue(xSpeed);
+          xspeedWidget.getEntry().setValue(xspeed);
     
             // Handle alignment side-to-side
-          var ySpeed = 0;//pidControllerY.calculate(pose.getX());
+          var ySpeed = pidControllerY.calculate(pose.getX());
           if (pidControllerY.atSetpoint()) {
             ySpeed = 0;
           }
           ySpeedWidget.getEntry().setValue(ySpeed);
 
           // Handle rotation using target Yaw/Z rotation
-          var omegaSpeed = 0;//pidControllerOmega.calculate(pose.getRotation().getY());
+          var omegaSpeed = pidControllerOmega.calculate(pose.getRotation().getY());
           if (pidControllerOmega.atSetpoint()) {
             omegaSpeed = 0;
           }
@@ -169,7 +169,7 @@ public class ChaseAprilTagCommand extends CommandBase {
           if(CommonConstants.LOG_INTO_FILE_ENABLED){
             String logMessage = "target X: " + pose.getX() + ": ";
             logMessage += "target X(inches): " + Units.metersToInches(pose.getX()) + ": ";
-            logMessage += "X speed : " + xSpeed + ": ";
+            logMessage += "X speed : " + xspeed + ": ";
             logMessage += "X SetPoint : " + pidControllerX.getSetpoint() + ": ";
             logMessage += "X is at SetPoint : " + pidControllerX.atSetpoint() + ": ";
             logMessage += "target Y: " + pose.getY() + ": ";
@@ -182,8 +182,8 @@ public class ChaseAprilTagCommand extends CommandBase {
             logMessage += "rotation is at SetPoint : " + pidControllerOmega.atSetpoint() + ": ";
             log.append(logMessage);
           }          
-          //speeds = ChassisSpeeds.fromFieldRelativeSpeeds(-xSpeed, -ySpeed, -zSpeed, swerveSubsystem.getRotation2d());
-            speeds = new ChassisSpeeds(-xSpeed, -ySpeed, -omegaSpeed);
+          //speeds = ChassisSpeeds.fromFieldRelativeSpeeds(-xspeed, -ySpeed, -zSpeed, swerveSubsystem.getRotation2d());
+            speeds = new ChassisSpeeds(-ySpeed, xspeed, omegaSpeed);
 
             SwerveModuleState[] calculatedModuleStates = DriveConstants.KINEMATICS.toSwerveModuleStates(speeds);
             swerveSubsystem.setModules(calculatedModuleStates);
