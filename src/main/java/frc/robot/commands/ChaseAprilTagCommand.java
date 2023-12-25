@@ -75,7 +75,7 @@ public class ChaseAprilTagCommand extends CommandBase {
     pidControllerY.reset();
     pidControllerOmega.reset();
 
-    pidControllerX.setSetpoint(Units.inchesToMeters(120)); // Move forward/backwork to keep 36 inches from the target
+    pidControllerX.setSetpoint(Units.inchesToMeters(36)); // Move forward/backwork to keep 36 inches from the target
     pidControllerX.setTolerance(Units.inchesToMeters(2.5));
 
     pidControllerY.setSetpoint(0); // Move side to side to keep target centered
