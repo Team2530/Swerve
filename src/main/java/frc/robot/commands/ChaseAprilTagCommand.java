@@ -43,9 +43,6 @@ public class ChaseAprilTagCommand extends CommandBase {
     private final PIDController pidControllerOmega = new PIDController(AutoConstants.THETA_kP, AutoConstants.THETA_kI, AutoConstants.THETA_kD);
     
     StringLogEntry log;
-    //double x = 50;
-    //double y = 50;
-    //double z = 1.00;
 
     public ChaseAprilTagCommand(
         SwerveSubsystem swerveSubsystem,
@@ -100,44 +97,14 @@ public class ChaseAprilTagCommand extends CommandBase {
 
   }
 
-  //Need help here does not know how to move robot using limelight co-ordinates
   @Override
   public void execute() {
-    if(CommonConstants.LOG_INTO_FILE_ENABLED){
-      String logMessage = "Chase April Tag Command execute";
-      logMessage += " test log again ";
-      log.append(logMessage);
-    }
-    
     try{
       ChassisSpeeds speeds;
       // If the target is visible, get the new translation. If the target isn't visible we'll use the last known translation.
       LimelightHelpers.LimelightResults results = LimelightHelpers.getLatestResults((LimelightConstants.limeLightName));
-     //System.out.println("I am inside april tag command execute");
       if(results.targetingResults.targets_Fiducials.length > 0){
-        Pose3d pose = results.targetingResults.targets_Fiducials[0].getTargetPose_RobotSpace();
-          // if(x > 0.8676){
-          //   x = x - 1;
-          // }
-          // else{
-          //   x = 0.8676;
-          // }
-
-          // if( y > 0){
-          //   y = y - 1;
-          // }
-          // else {
-          //   y = 0;
-          // }
-
-          // if(z < 3.14159){
-          //   z = z + 0.2;
-          // }
-          // else {
-          //   z = 3.14159;
-          // }
-          //Pose3d pose = new Pose3d(new Translation3d(x, y, 1), new Rotation3d(0, 0, z));
-          //var temp = pose.getX() + ": Set Point: " + pidControllerX.getSetpoint() + "; Is At Set Point: " + pidControllerX.atSetpoint();
+          Pose3d pose = results.targetingResults.targets_Fiducials[0].getTargetPose_RobotSpace();
 
           targetX.getEntry().setValue(pose.getZ());
           SmartDashboard.putNumber("x SetPoint", pidControllerX.getSetpoint());
