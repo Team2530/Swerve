@@ -1,21 +1,18 @@
 package frc.robot.commands;
-
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.datalog.StringLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.LimelightHelpers;
-import frc.robot.Constants.AutoConstants;
+import frc.robot.Constants.VisionContsants;
 import frc.robot.Constants.CommonConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.LimelightConstants;
@@ -30,55 +27,35 @@ import java.nio.file.Paths;
 public class ChaseAprilTagCommand extends CommandBase {
     
     private final SwerveSubsystem swerveSubsystem;
-    private final  SimpleWidget targetX;
-    private final SimpleWidget targetY;
-    private final SimpleWidget targetZ;
-    private final SimpleWidget xspeedWidget;
-    private final SimpleWidget ySpeedWidget;
-    private final SimpleWidget omegaSpeedWidget;
-    private final SimpleWidget tagErrorWidget;
 
-    private final PIDController pidControllerX = new PIDController(AutoConstants.X_kP, AutoConstants.X_kI, AutoConstants.X_kD);
-    private final PIDController pidControllerY = new PIDController(AutoConstants.Y_kP, AutoConstants.Y_kI, AutoConstants.Y_kD);
-    private final PIDController pidControllerOmega = new PIDController(AutoConstants.THETA_kP, AutoConstants.THETA_kI, AutoConstants.THETA_kD);
+    private final ProfiledPIDController pidControllerX = new ProfiledPIDController(VisionContsants.X_kP, VisionContsants.X_kI, VisionContsants.X_kD, new Constraints(DriveConstants.MAX_ROBOT_VELOCITY, DriveConstants.MAX_ROBOT_RAD_VELOCITY));
+    private final ProfiledPIDController pidControllerY = new ProfiledPIDController(VisionContsants.Y_kP, VisionContsants.Y_kI, VisionContsants.Y_kD, new Constraints(DriveConstants.MAX_ROBOT_VELOCITY, DriveConstants.MAX_ROBOT_RAD_VELOCITY));
+    private final ProfiledPIDController pidControllerOmega = new ProfiledPIDController(VisionContsants.THETA_kP, VisionContsants.THETA_kI, VisionContsants.THETA_kD, new Constraints(DriveConstants.MAX_ROBOT_VELOCITY, DriveConstants.MAX_ROBOT_RAD_VELOCITY));
     
     StringLogEntry log;
 
     public ChaseAprilTagCommand(
-        SwerveSubsystem swerveSubsystem,
-        SimpleWidget targetX,
-        SimpleWidget targetY,
-        SimpleWidget targetZ,
-        SimpleWidget xspeedWidget,
-        SimpleWidget ySpeedWidget,
-        SimpleWidget omegaSpeedWidget,
-        SimpleWidget tagErrorWidget) 
+        SwerveSubsystem swerveSubsystem) 
     {
         this.swerveSubsystem = swerveSubsystem;
-        this.targetX = targetX;
-        this.targetY = targetY;
-        this.targetZ= targetZ;
-        this.xspeedWidget = xspeedWidget;
-        this.ySpeedWidget = ySpeedWidget;
-        this.omegaSpeedWidget = omegaSpeedWidget;
-        this.tagErrorWidget = tagErrorWidget;
         addRequirements(swerveSubsystem);
   }
 
   @Override
   public void initialize() {
     super.initialize();
-    pidControllerX.reset();
-    pidControllerY.reset();
-    pidControllerOmega.reset();
+    //pidControllerX.reset(swerveSubsystem.getPose().getY());
+    //pidControllerY.reset(swerveSubsystem.getPose().getX());
+    //pidControllerOmega.reset(swerveSubsystem.getRotation2d().getRadians());
+    
 
-    pidControllerX.setSetpoint(Units.inchesToMeters(36)); // Move forward/backwork to keep 36 inches from the target
+    pidControllerX.setGoal(Units.inchesToMeters(36)); // Move forward/backwork to keep 36 inches from the target
     pidControllerX.setTolerance(Units.inchesToMeters(2.5));
 
-    pidControllerY.setSetpoint(0); // Move side to side to keep target centered
+    pidControllerY.setGoal(0); // Move side to side to keep target centered
     pidControllerY.setTolerance(Units.inchesToMeters(2.5));
 
-    pidControllerOmega.setSetpoint(Units.degreesToRadians(0)); // Rotate the keep perpendicular with the target
+    pidControllerOmega.setGoal(Units.degreesToRadians(0)); // Rotate the keep perpendicular with the target
     pidControllerOmega.setTolerance(Units.degreesToRadians(1));
 
     if(CommonConstants.LOG_INTO_FILE_ENABLED){
@@ -88,7 +65,7 @@ public class ChaseAprilTagCommand extends CommandBase {
         Files.createDirectories(Path.of(directory));
         DataLogManager.start(directory);
       } catch (IOException e) {
-        tagErrorWidget.getEntry().setValue(e.getMessage());
+        SmartDashboard.putString("AprilTag Log error", e.getMessage());
       }
       // Record both DS control and joystick data
       DriverStation.startDataLog(DataLogManager.getLog());
@@ -106,44 +83,38 @@ public class ChaseAprilTagCommand extends CommandBase {
       if(results.targetingResults.targets_Fiducials.length > 0){
           Pose3d pose = results.targetingResults.targets_Fiducials[0].getTargetPose_RobotSpace();
 
-          targetX.getEntry().setValue(pose.getZ());
-          SmartDashboard.putNumber("x SetPoint", pidControllerX.getSetpoint());
-          SmartDashboard.putBoolean("Is x At Set Point", pidControllerX.atSetpoint());
-
-          targetY.getEntry().setValue(pose.getX());
-          targetZ.getEntry().setValue(pose.getRotation().getY());
+          SmartDashboard.putNumber("AprilTag X", pose.getZ());
+          SmartDashboard.putNumber("AprilTag Y", pose.getX());
+          SmartDashboard.putNumber("AprilTag Roattaion", pose.getRotation().getY());
           
           var xspeed = pidControllerX.calculate(pose.getZ());          
           if (pidControllerX.atSetpoint()) {
             xspeed = 0;
           }
-          xspeedWidget.getEntry().setValue(xspeed);
     
             // Handle alignment side-to-side
           var ySpeed = pidControllerY.calculate(pose.getX());
           if (pidControllerY.atSetpoint()) {
             ySpeed = 0;
           }
-          ySpeedWidget.getEntry().setValue(ySpeed);
 
           // Handle rotation using target Yaw/Z rotation
           var omegaSpeed = pidControllerOmega.calculate(pose.getRotation().getY());
           if (pidControllerOmega.atSetpoint()) {
             omegaSpeed = 0;
           }
-          omegaSpeedWidget.getEntry().setValue(omegaSpeed);
     
           if(CommonConstants.LOG_INTO_FILE_ENABLED){
             String logMessage = "target X: " + pose.getX() + ": ";
-            logMessage += "target X(inches): " + Units.metersToInches(pose.getX()) + ": ";
+            logMessage += "target X(inches): " + Units.metersToInches(pose.getZ()) + ": ";
             logMessage += "X speed : " + xspeed + ": ";
             logMessage += "X SetPoint : " + pidControllerX.getSetpoint() + ": ";
             logMessage += "X is at SetPoint : " + pidControllerX.atSetpoint() + ": ";
-            logMessage += "target Y: " + pose.getY() + ": ";
+            logMessage += "target Y: " + pose.getX() + ": ";
             logMessage += "Y speed : " + ySpeed + ": ";
             logMessage += "Y SetPoint : " + pidControllerY.getSetpoint() + ": ";
             logMessage += "Y is at SetPoint : " + pidControllerY.atSetpoint() + ": ";
-            logMessage += "target rotation: " + pose.getRotation().getZ() + ": ";
+            logMessage += "target rotation: " + pose.getRotation().getY() + ": ";
             logMessage += "rotation speed : " + omegaSpeed + ": ";
             logMessage += "rotation SetPoint : " + pidControllerOmega.getSetpoint() + ": ";
             logMessage += "rotation is at SetPoint : " + pidControllerOmega.atSetpoint() + ": ";
@@ -160,7 +131,7 @@ public class ChaseAprilTagCommand extends CommandBase {
       }
     }
     catch(Exception e){
-      tagErrorWidget.getEntry().setValue(e.getMessage());
+      SmartDashboard.putString("AprilTag Read error", e.getMessage());
     }
   }
 
@@ -184,3 +155,4 @@ public class ChaseAprilTagCommand extends CommandBase {
     swerveSubsystem.stopDrive();
   }
 }
+

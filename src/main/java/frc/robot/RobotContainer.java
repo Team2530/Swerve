@@ -3,8 +3,6 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot;
-
-import static edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts.kGrid;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.commands.ChaseAprilTagCommand;
@@ -25,10 +23,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.shuffleboard.SimpleWidget;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandBase;
@@ -54,7 +48,6 @@ import com.pathplanner.lib.PathPlannerTrajectory;
 import com.pathplanner.lib.PathPoint;
 import com.pathplanner.lib.commands.FollowPathWithEvents;
 import com.pathplanner.lib.commands.PPSwerveControllerCommand;
-import com.pathplanner.lib.controllers.PPHolonomicDriveController;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -80,17 +73,6 @@ public class RobotContainer {
     private final DriveCommand normalDrive = new DriveCommand(swerveDriveSubsystem, driverXbox.getHID());
     private final OperatorCommand normalOperator = new OperatorCommand(intake, operatorXbox.getHID());
 
-    private final  ShuffleboardTab visionTab = Shuffleboard.getTab("Vision");
-    private final  ShuffleboardLayout visionLayout = visionTab.getLayout("Target", kGrid).withPosition(6, 0).withSize(1, 2);
-
-    private final  SimpleWidget targetX = visionLayout.add("Target X",0);;
-    private final SimpleWidget targetY = visionLayout.add("Target Y",0);;
-    private final SimpleWidget targetAngle = visionLayout.add("Target Z",0);;
-    private final SimpleWidget xSpeedWidget = visionLayout.add("X Speed",0);;
-    private final SimpleWidget ySpeedWidget =visionLayout.add("Y Speed",0);;
-    private final SimpleWidget omegaSpeedWidget = visionLayout.add("Omega Speed",0);
-    private final SimpleWidget tagErrorWidget = visionLayout.add("Tag Error : ", "");
-    
     // private final TagFollowCommand tagFollow = new
     // TagFollowCommand(swerveDriveSubsystem, driverXbox.getHID());
 
@@ -152,7 +134,7 @@ public class RobotContainer {
         // tagFollow.cancel()));
 
         // use b to chase April tag
-        driverXbox.b().whileTrue(new ChaseAprilTagCommand(swerveDriveSubsystem, targetX, targetY, targetAngle, xSpeedWidget, ySpeedWidget, omegaSpeedWidget, tagErrorWidget));
+        driverXbox.b().whileTrue(new ChaseAprilTagCommand(swerveDriveSubsystem));
 
         // Drive with a on-the-fly generated path to (0,0) WHILE right bumper is held
         driverXbox.rightBumper().and(new BooleanSupplier() {

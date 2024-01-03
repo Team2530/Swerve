@@ -141,12 +141,8 @@ public final class Constants {
     public static final boolean LOG_INTO_FILE_ENABLED = false;
   }
 
-  public static class AutoConstants {
-    public static final double PATH_THETA_kP = 2.6;
-    public static final double PATH_THETA_kI = 0.001;
-    public static final double PATH_THETA_kD = 0.0;
-
-    public static final TrapezoidProfile.Constraints THETA_CONSTRAINTS = new TrapezoidProfile.Constraints(Math.PI, 2 / Math.PI);
+  public static class VisionContsants {
+    
     public static final double THETA_kP = .9;
     public static final double THETA_kI = 0.0;
     public static final double THETA_kD = 0.08;
