@@ -1,3 +1,3 @@
-## Fwerb's Robot Code
+# RobotCode2024
 
-FWERB (FIRST Wobotics Engineering Research Bot) is a swerve drive test robot 2530 has been working on in the 2023 offseason.
+Team 2530's Robot Code for 2024
