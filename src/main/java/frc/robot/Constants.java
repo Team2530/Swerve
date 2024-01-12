@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import org.opencv.core.Mat;
-
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -106,30 +104,5 @@ public final class Constants {
 
     public static final double XY_SPEED_LIMIT = 1.0;
     public static final double Z_SPEED_LIMIT = 1.0;
-  }
-
-  public static class IntakeConstants {
-    // Intake ports
-    public static final int WHEEL_LEFT_PORT = 9;
-    public static final int WHEEL_RIGHT_PORT = 10;
-    public static final int INTAKE_CURRENT_LIMIT = 40;
-    public static final int LIMIT_PORT = 0;
-
-    public static final int ACTUATOR_MOTOR_PORT = 11;
-    public static final int ACTUATOR_ENCODER_PORT = 5;
-    // CANcoder #5 reading when intake is vertical
-    public static final double OFFSET_RADIANS = Units.degreesToRadians(136.582);
-    public static final double ACTUATOR_GEAR_RATIO = (30.f / 28.f);
-
-    public static final double SWITCH_OFFSET_RADIANS = Units.degreesToRadians(-42.0);
-
-    public static final double MAX_SPEED = 0.50;
-  }
-
-  public static class MiscConstants {
-    public static final int LED_PORT = 0;
-    public static final int STRIP_W = 9;
-    public static final int STRIP_H = 8;
-    public static final int NUM_LEDS = STRIP_H * STRIP_W;
   }
 }

@@ -8,16 +8,13 @@ import edu.wpi.first.math.kinematics.*;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.LimelightHelpers;
 import frc.robot.Robot;
 import frc.robot.Constants.*;
 
@@ -75,10 +72,22 @@ public class SwerveSubsystem extends SubsystemBase {
         // odometry.addVisionMeasurement(LimelightHelpers.getBotPose2d(null),
         // Timer.getFPGATimestamp());
 
-        field.setRobotPose((DriverStation.getAlliance() == Alliance.Red)
-                ? new Pose2d(new Translation2d(16.5 - getPose().getX(), 8.02 - getPose().getY()),
-                        getPose().getRotation().rotateBy(Rotation2d.fromDegrees(180)))
-                : getPose());
+        if(DriverStation.getAlliance().isPresent()) {
+            switch (DriverStation.getAlliance().get()) {
+                case Red:
+                    field.setRobotPose(new Pose2d(new Translation2d(16.5 - getPose().getX(), 8.02 - getPose().getY()),
+                        getPose().getRotation().rotateBy(Rotation2d.fromDegrees(180)))); 
+                    break;
+            
+                case Blue:
+                    field.setRobotPose(getPose());
+                    break;
+            }
+        } else {
+            // If no alliance provided, just go with blue
+            field.setRobotPose(getPose());
+        }
+
         SmartDashboard.putData("Field", field);
 
         SmartDashboard.putString("Robot Pose",
