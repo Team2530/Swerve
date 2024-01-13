@@ -30,9 +30,4 @@ public class OperatorCommand extends Command {
     public boolean isFinished() {
         return false;
     }
-
-    @Override
-    public Set<Subsystem> getRequirements() {
-        return requirements;
-    }
 }
