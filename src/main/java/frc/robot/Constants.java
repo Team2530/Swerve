@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.util.PIDConstants;
+
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -88,6 +91,7 @@ public final class Constants {
     public static final double TRACK_WIDTH = Units.inchesToMeters(18.75);
     public static final double WHEEL_BASE = Units.inchesToMeters(18.75);
     public static final Rotation2d NAVX_ANGLE_OFFSET = Rotation2d.fromDegrees(90);
+    public static final double DRIVE_BASE_RADIUS = Units.inchesToMeters(15);
 
     public static final class ModuleIndices {
       public static final int FRONT_LEFT = 0;
@@ -104,5 +108,12 @@ public final class Constants {
 
     public static final double XY_SPEED_LIMIT = 1.0;
     public static final double Z_SPEED_LIMIT = 1.0;
+  }
+
+  public static final class PathPlannerConstants {
+    public static final PIDConstants TRANSLATION_PID = new PIDConstants(5.0, 0, 0);    
+    public static final PIDConstants ROTATION_PID = new PIDConstants(5.0, 0, 0);
+
+    
   }
 }
