@@ -5,7 +5,10 @@
 package frc.robot;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 
@@ -104,5 +107,41 @@ public final class Constants {
 
     public static final double XY_SPEED_LIMIT = 1.0;
     public static final double Z_SPEED_LIMIT = 1.0;
+  }
+
+  public static class CommonConstants {
+    public static final boolean LOG_INTO_FILE_ENABLED = false;
+  }
+
+  public static class VisionContsants {
+    
+    public static final double THETA_kP = .9;
+    public static final double THETA_kI = 0.0;
+    public static final double THETA_kD = 0.08;
+
+    public static final double X_kP = 1.0;
+    public static final double X_kI = 0.0;
+    public static final double X_kD = 0.02;
+
+    public static final double Y_kP = 1.5;
+    public static final double Y_kI = 0.0;
+    public static final double Y_kD = 0.02;
+  }
+
+  public static class LimelightConstants {
+    public static final String limeLightName = "limelight";
+    public static final Transform3d robotToCamera = new Transform3d(
+    new Translation3d(0.06, -0.2, 0.2127),
+    new Rotation3d(0.0, Units.degreesToRadians(-15.0), Units.degreesToRadians(3.0)));
+  }
+
+  public static class AprilTags {
+    //Area left or single tags
+    public static final String[] BLUE_ALLIANCE_LEFT_OR_SINGLE_APRILTAGS = { "2", "8", "6", "14", "15", "16" };
+    //Area right tags
+    public static final String[] BLUE_ALLIANCE_RIGHT_APRILTAGS = { "1", "7" };
+    //Area left or single tags
+    public static final String[] RED_ALLIANCE_LEFT_OR_SINLGE_APRILTAGS = { "10", "4", "5", "11", "12", "13" };
+    public static final String[] RED_ALLIANCE_RIGHT_APRILTAGS = { "9", "3" };
   }
 }
