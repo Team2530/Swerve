@@ -4,7 +4,9 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
+import com.pathplanner.lib.util.ReplanningConfig;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -111,9 +113,15 @@ public final class Constants {
   }
 
   public static final class PathPlannerConstants {
-    public static final PIDConstants TRANSLATION_PID = new PIDConstants(5.0, 0, 0);    
+    public static final PIDConstants TRANSLATION_PID = new PIDConstants(5.0, 0, 0);
     public static final PIDConstants ROTATION_PID = new PIDConstants(5.0, 0, 0);
 
-    
+    public static final HolonomicPathFollowerConfig HOLONOMIC_FOLLOWER_CONFIG = new HolonomicPathFollowerConfig(
+        TRANSLATION_PID,
+        ROTATION_PID,
+        DriveConstants.MAX_MODULE_VELOCITY,
+        DriveConstants.DRIVE_BASE_RADIUS,
+        new ReplanningConfig());
+
   }
 }
