@@ -6,6 +6,7 @@ package frc.robot;
 
 import frc.robot.Constants.*;
 import frc.robot.commands.*;
+import frc.robot.subsystems.Shootake;
 import frc.robot.subsystems.SwerveSubsystem;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
@@ -30,6 +31,8 @@ public class RobotContainer {
     private final SwerveSubsystem swerveDriveSubsystem = new SwerveSubsystem();
 
     private final UsbCamera intakeCam = CameraServer.startAutomaticCapture();
+
+    private final Shootake shootake = new Shootake();
 
     private final DriveCommand normalDrive = new DriveCommand(swerveDriveSubsystem, driverXbox.getHID());
 

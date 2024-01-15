@@ -105,4 +105,24 @@ public final class Constants {
     public static final double XY_SPEED_LIMIT = 1.0;
     public static final double Z_SPEED_LIMIT = 1.0;
   }
+
+  public static final class ArmConstants {
+    // All arm constants to do with placement are refrenced from intake side and bottom plate.
+    // NOTE: All units are in inches
+    public static final Translation2d MAST_CENTER_OF_ROTATION = new Translation2d(-9.6, 22.780);
+    
+    // Refrenced from center of rotation
+    public static final double INNER_MAST_LENGTH = 15.07;
+
+    // Refrenced from axis of rotation to end of shooter
+    public static final double SHOOTER_LENGTH = 9.068;
+
+    // Refrenced from axis of rotation to end of intake
+    public static final double INTAKE_LENGTH = 15.041;
+
+    public static final int MAST_ARM_ENCODER_PORT = 5;
+
+    public static final int SHOOTAKE_ENCODER_PORT = 6;
+    
+  }
 }
