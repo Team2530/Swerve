@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.VisionContsants;
+import frc.robot.KnownAprilTag;
 import frc.robot.Constants.CommonConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.LimeLightSubsystem;
@@ -84,36 +85,39 @@ public class GoToAprilTagCommand extends Command {
     try{
       ChassisSpeeds speeds;
       if(limeLightSubsystem.isAprilTagFound()){
-        Pose3d pose = limeLightSubsystem.getKnownAprilTagPose3d(isItForRightSideAprilTag);
-        
-        var xspeed = pidControllerX.calculate(pose.getZ());          
+        KnownAprilTag aprilTag = limeLightSubsystem.getKnownAprilTag(isItForRightSideAprilTag);
+        Pose3d pose3d = aprilTag.GetTagPose3d();
+        SmartDashboard.putNumber("Current April Tag "+ aprilTag.GetTagId() + " X", pose3d.getZ());
+        SmartDashboard.putNumber("Current April Tag "+ aprilTag.GetTagId() + " Y", pose3d.getX());
+        SmartDashboard.putNumber("CurrentApril Tag "+ aprilTag.GetTagId() +" Rotation", pose3d.getRotation().getY());
+        var xspeed = pidControllerX.calculate(pose3d.getZ());          
         if (pidControllerX.atSetpoint()) {
           xspeed = 0;
         }
   
           // Handle alignment side-to-side
-        var ySpeed = pidControllerY.calculate(pose.getX());
+        var ySpeed = pidControllerY.calculate(pose3d.getX());
         if (pidControllerY.atSetpoint()) {
           ySpeed = 0;
         }
 
         // Handle rotation using target Yaw/Z rotation
-        var omegaSpeed = pidControllerOmega.calculate(pose.getRotation().getY());
+        var omegaSpeed = pidControllerOmega.calculate(pose3d.getRotation().getY());
         if (pidControllerOmega.atSetpoint()) {
           omegaSpeed = 0;
         }
   
         if(CommonConstants.LOG_INTO_FILE_ENABLED){
-          String logMessage = "target X: " + pose.getX() + ": ";
-          logMessage += "target X(inches): " + Units.metersToInches(pose.getZ()) + ": ";
+          String logMessage = "target X: " + pose3d.getX() + ": ";
+          logMessage += "target X(inches): " + Units.metersToInches(pose3d.getZ()) + ": ";
           logMessage += "X speed : " + xspeed + ": ";
           logMessage += "X SetPoint : " + pidControllerX.getSetpoint() + ": ";
           logMessage += "X is at SetPoint : " + pidControllerX.atSetpoint() + ": ";
-          logMessage += "target Y: " + pose.getX() + ": ";
+          logMessage += "target Y: " + pose3d.getX() + ": ";
           logMessage += "Y speed : " + ySpeed + ": ";
           logMessage += "Y SetPoint : " + pidControllerY.getSetpoint() + ": ";
           logMessage += "Y is at SetPoint : " + pidControllerY.atSetpoint() + ": ";
-          logMessage += "target rotation: " + pose.getRotation().getY() + ": ";
+          logMessage += "target rotation: " + pose3d.getRotation().getY() + ": ";
           logMessage += "rotation speed : " + omegaSpeed + ": ";
           logMessage += "rotation SetPoint : " + pidControllerOmega.getSetpoint() + ": ";
           logMessage += "rotation is at SetPoint : " + pidControllerOmega.atSetpoint() + ": ";

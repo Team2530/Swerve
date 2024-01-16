@@ -33,6 +33,7 @@ public class LimeLightSubsystem extends SubsystemBase {
             
             //If we see april tag(s), we update the dictionary if needed, with position, capture time, and tag ID
             if(results.targetingResults.targets_Fiducials.length > 0){
+                hasAprilTag = true;
                 for (LimelightTarget_Fiducial fd : results.targetingResults.targets_Fiducials){
                     aprilTag = lastKnownAprilTags.get(fd.fiducialID);
                     //If the april tag doesn't already exist in the dictionary, add it
@@ -50,7 +51,7 @@ public class LimeLightSubsystem extends SubsystemBase {
                 while(e.hasMoreElements()) {
                     String key = e.nextElement();
                     aprilTag = lastKnownAprilTags.get(key);
-                    if((LocalDateTime.now().getSecond() * 1000 - aprilTag.GetTagCaptureTime().getSecond() * 1000) >= 1000){
+                    if((LocalDateTime.now().getSecond() * 1000 - aprilTag.GetTagCaptureTime().getSecond() * 1000) >= 20){
                         lastKnownAprilTags.remove(key);
                     }
                 }
@@ -82,12 +83,11 @@ public class LimeLightSubsystem extends SubsystemBase {
         return hasRetroTape;
     }
 
-    public Pose3d getKnownAprilTagPose3d(boolean isItForRightSideAprilTag)
+    public KnownAprilTag getKnownAprilTag(boolean isItForRightSideAprilTag)
     {
-            Pose3d returnValue = null;
-            String[] tagIdsForThisAction = {};
+               String[] tagIdsForThisAction = {};
             Optional<Alliance> alliance = DriverStation.getAlliance();
-            KnownAprilTag aprilTag;
+            KnownAprilTag aprilTag = null;
             if(alliance.isPresent()){
                 if(alliance.get() == Alliance.Blue){
                     if(isItForRightSideAprilTag){
@@ -107,12 +107,13 @@ public class LimeLightSubsystem extends SubsystemBase {
             }
             for (String tagIdForThisAction : tagIdsForThisAction){
                 aprilTag = lastKnownAprilTags.get(tagIdForThisAction);
+                SmartDashboard.putString(getSubsystem(), "I am in inside" + tagIdForThisAction);
                 if(aprilTag != null){
-                    returnValue = aprilTag.GetTagPose3d();
                     break;
                 }
+                
             }
         }
-        return returnValue;
+        return aprilTag;
     }
 }
