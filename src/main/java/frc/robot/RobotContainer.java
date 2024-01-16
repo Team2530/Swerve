@@ -42,6 +42,8 @@ public class RobotContainer {
     public RobotContainer() {
         // Configure the trigger bindings
         configureBindings();
+
+        swerveDriveSubsystem.setDefaultCommand(normalDrive);
     }
 
     /**
@@ -67,7 +69,7 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        return new PathPlannerAuto("4-top");
+        return new PathPlannerAuto("Test Auto");
     }
 
     public SwerveSubsystem getSwerveSubsystem() {
