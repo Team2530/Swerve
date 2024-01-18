@@ -86,49 +86,50 @@ public class GoToAprilTagCommand extends Command {
       ChassisSpeeds speeds;
       if(limeLightSubsystem.isAprilTagFound()){
         KnownAprilTag aprilTag = limeLightSubsystem.getKnownAprilTag(isItForRightSideAprilTag);
-        Pose3d pose3d = aprilTag.GetTagPose3d();
-        SmartDashboard.putNumber("Current April Tag "+ aprilTag.GetTagId() + " X", pose3d.getZ());
-        SmartDashboard.putNumber("Current April Tag "+ aprilTag.GetTagId() + " Y", pose3d.getX());
-        SmartDashboard.putNumber("CurrentApril Tag "+ aprilTag.GetTagId() +" Rotation", pose3d.getRotation().getY());
-        var xspeed = pidControllerX.calculate(pose3d.getZ());          
-        if (pidControllerX.atSetpoint()) {
-          xspeed = 0;
-        }
-  
-          // Handle alignment side-to-side
-        var ySpeed = pidControllerY.calculate(pose3d.getX());
-        if (pidControllerY.atSetpoint()) {
-          ySpeed = 0;
-        }
+        if(aprilTag != null){
+          Pose3d pose3d = aprilTag.GetTagPose3d();
+          SmartDashboard.putNumber("Current April Tag "+ aprilTag.GetTagId() + " X", pose3d.getZ());
+          SmartDashboard.putNumber("Current April Tag "+ aprilTag.GetTagId() + " Y", pose3d.getX());
+          SmartDashboard.putNumber("CurrentApril Tag "+ aprilTag.GetTagId() +" Rotation", pose3d.getRotation().getY());
+          var xspeed = pidControllerX.calculate(pose3d.getZ());          
+          if (pidControllerX.atSetpoint()) {
+            xspeed = 0;
+          }
+    
+            // Handle alignment side-to-side
+          var ySpeed = pidControllerY.calculate(pose3d.getX());
+          if (pidControllerY.atSetpoint()) {
+            ySpeed = 0;
+          }
 
-        // Handle rotation using target Yaw/Z rotation
-        var omegaSpeed = pidControllerOmega.calculate(pose3d.getRotation().getY());
-        if (pidControllerOmega.atSetpoint()) {
-          omegaSpeed = 0;
-        }
-  
-        if(CommonConstants.LOG_INTO_FILE_ENABLED){
-          String logMessage = "target X: " + pose3d.getX() + ": ";
-          logMessage += "target X(inches): " + Units.metersToInches(pose3d.getZ()) + ": ";
-          logMessage += "X speed : " + xspeed + ": ";
-          logMessage += "X SetPoint : " + pidControllerX.getSetpoint() + ": ";
-          logMessage += "X is at SetPoint : " + pidControllerX.atSetpoint() + ": ";
-          logMessage += "target Y: " + pose3d.getX() + ": ";
-          logMessage += "Y speed : " + ySpeed + ": ";
-          logMessage += "Y SetPoint : " + pidControllerY.getSetpoint() + ": ";
-          logMessage += "Y is at SetPoint : " + pidControllerY.atSetpoint() + ": ";
-          logMessage += "target rotation: " + pose3d.getRotation().getY() + ": ";
-          logMessage += "rotation speed : " + omegaSpeed + ": ";
-          logMessage += "rotation SetPoint : " + pidControllerOmega.getSetpoint() + ": ";
-          logMessage += "rotation is at SetPoint : " + pidControllerOmega.atSetpoint() + ": ";
-          log.append(logMessage);
-        }          
-        //speeds = ChassisSpeeds.fromFieldRelativeSpeeds(-xspeed, -ySpeed, -zSpeed, swerveSubsystem.getRotation2d());
-        speeds = new ChassisSpeeds(-ySpeed, xspeed, omegaSpeed);
+          // Handle rotation using target Yaw/Z rotation
+          var omegaSpeed = pidControllerOmega.calculate(pose3d.getRotation().getY());
+          if (pidControllerOmega.atSetpoint()) {
+            omegaSpeed = 0;
+          }
+    
+          if(CommonConstants.LOG_INTO_FILE_ENABLED){
+            String logMessage = "target X: " + pose3d.getX() + ": ";
+            logMessage += "target X(inches): " + Units.metersToInches(pose3d.getZ()) + ": ";
+            logMessage += "X speed : " + xspeed + ": ";
+            logMessage += "X SetPoint : " + pidControllerX.getSetpoint() + ": ";
+            logMessage += "X is at SetPoint : " + pidControllerX.atSetpoint() + ": ";
+            logMessage += "target Y: " + pose3d.getX() + ": ";
+            logMessage += "Y speed : " + ySpeed + ": ";
+            logMessage += "Y SetPoint : " + pidControllerY.getSetpoint() + ": ";
+            logMessage += "Y is at SetPoint : " + pidControllerY.atSetpoint() + ": ";
+            logMessage += "target rotation: " + pose3d.getRotation().getY() + ": ";
+            logMessage += "rotation speed : " + omegaSpeed + ": ";
+            logMessage += "rotation SetPoint : " + pidControllerOmega.getSetpoint() + ": ";
+            logMessage += "rotation is at SetPoint : " + pidControllerOmega.atSetpoint() + ": ";
+            log.append(logMessage);
+          }          
+          //speeds = ChassisSpeeds.fromFieldRelativeSpeeds(-xspeed, -ySpeed, -zSpeed, swerveSubsystem.getRotation2d());
+          speeds = new ChassisSpeeds(-ySpeed, xspeed, omegaSpeed);
 
-        SwerveModuleState[] calculatedModuleStates = DriveConstants.KINEMATICS.toSwerveModuleStates(speeds);
-        swerveSubsystem.setModules(calculatedModuleStates);
-          
+          SwerveModuleState[] calculatedModuleStates = DriveConstants.KINEMATICS.toSwerveModuleStates(speeds);
+          swerveSubsystem.setModules(calculatedModuleStates);
+        } 
       }
     }
     catch(Exception e){

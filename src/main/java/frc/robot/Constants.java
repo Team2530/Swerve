@@ -133,15 +133,17 @@ public final class Constants {
     public static final Transform3d robotToCamera = new Transform3d(
     new Translation3d(0.06, -0.2, 0.2127),
     new Rotation3d(0.0, Units.degreesToRadians(-15.0), Units.degreesToRadians(3.0)));
+    public static final boolean LOG_APRIL_TAGS_INTO_SMARTDASH_BOARD = true;
   }
 
   public static class AprilTags {
-    //Area left or single tags
+    //Blue alliance left or single tags
     public static final String[] BLUE_ALLIANCE_LEFT_OR_SINGLE_APRILTAGS = { "2", "8", "6", "14", "15", "16" };
-    //Area right tags
+    //Blue alliance right tags
     public static final String[] BLUE_ALLIANCE_RIGHT_APRILTAGS = { "1", "7" };
-    //Area left or single tags
+    //Red alliance left or single tags
     public static final String[] RED_ALLIANCE_LEFT_OR_SINLGE_APRILTAGS = { "10", "4", "5", "11", "12", "13" };
+     //Blue alliance right tags
     public static final String[] RED_ALLIANCE_RIGHT_APRILTAGS = { "9", "3" };
   }
 }
