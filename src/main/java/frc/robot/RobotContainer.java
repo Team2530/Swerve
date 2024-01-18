@@ -5,6 +5,7 @@
 package frc.robot;
 
 import frc.robot.Constants.*;
+import frc.robot.Constants.AprilTags.AprilTagPosition;
 import frc.robot.commands.*;
 import frc.robot.subsystems.LimeLightSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
@@ -60,9 +61,12 @@ public class RobotContainer {
      * joysticks}.
      */
     private void configureBindings() {
-        // use b to chase April tag
-        driverXbox.b().whileTrue(new GoToAprilTagCommand(swerveDriveSubsystem, limeLightSubsystem, false));
-        driverXbox.a().whileTrue(new GoToAprilTagCommand(swerveDriveSubsystem, limeLightSubsystem, true));
+        // Left tag
+        driverXbox.a().whileTrue(new GoToAprilTagCommand(swerveDriveSubsystem, limeLightSubsystem, AprilTagPosition.LEFT));
+        // Right tag
+        driverXbox.b().whileTrue(new GoToAprilTagCommand(swerveDriveSubsystem, limeLightSubsystem, AprilTagPosition.RIGHT));
+        // single/center tag
+        driverXbox.y().whileTrue(new GoToAprilTagCommand(swerveDriveSubsystem, limeLightSubsystem, AprilTagPosition.CENTER));
     }
 
     /**

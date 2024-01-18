@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.VisionContsants;
+import frc.robot.Constants.AprilTags.AprilTagPosition;
 import frc.robot.KnownAprilTag;
 import frc.robot.Constants.CommonConstants;
 import frc.robot.Constants.DriveConstants;
@@ -28,7 +29,7 @@ public class GoToAprilTagCommand extends Command {
     
     private final SwerveSubsystem swerveSubsystem;
     public final LimeLightSubsystem limeLightSubsystem;
-    public final boolean isItForRightSideAprilTag;
+    public final AprilTagPosition tagPosition;
 
     private final ProfiledPIDController pidControllerX = new ProfiledPIDController(VisionContsants.X_kP, VisionContsants.X_kI, VisionContsants.X_kD, new Constraints(DriveConstants.MAX_ROBOT_VELOCITY, DriveConstants.MAX_ROBOT_RAD_VELOCITY));
     private final ProfiledPIDController pidControllerY = new ProfiledPIDController(VisionContsants.Y_kP, VisionContsants.Y_kI, VisionContsants.Y_kD, new Constraints(DriveConstants.MAX_ROBOT_VELOCITY, DriveConstants.MAX_ROBOT_RAD_VELOCITY));
@@ -39,11 +40,11 @@ public class GoToAprilTagCommand extends Command {
     public GoToAprilTagCommand(
         SwerveSubsystem swerveSubsystem,
         LimeLightSubsystem limeLightSubsystem,
-        boolean isItForRightSideAprilTag) 
+        AprilTagPosition tagPosition) 
     {
         this.swerveSubsystem = swerveSubsystem;
         this.limeLightSubsystem = limeLightSubsystem;
-        this.isItForRightSideAprilTag = isItForRightSideAprilTag;
+        this.tagPosition = tagPosition;
         addRequirements(swerveSubsystem);
   }
 
@@ -85,7 +86,7 @@ public class GoToAprilTagCommand extends Command {
     try{
       ChassisSpeeds speeds;
       if(limeLightSubsystem.isAprilTagFound()){
-        KnownAprilTag aprilTag = limeLightSubsystem.getKnownAprilTag(isItForRightSideAprilTag);
+        KnownAprilTag aprilTag = limeLightSubsystem.getKnownAprilTag(tagPosition);
         if(aprilTag != null){
           Pose3d pose3d = aprilTag.GetTagPose3d();
           SmartDashboard.putNumber("Current April Tag "+ aprilTag.GetTagId() + " X", pose3d.getZ());

@@ -16,6 +16,7 @@ import frc.robot.KnownAprilTag;
 import frc.robot.LimelightHelpers;
 import frc.robot.Constants.AprilTags;
 import frc.robot.Constants.LimelightConstants;
+import frc.robot.Constants.AprilTags.AprilTagPosition;
 import frc.robot.LimelightHelpers.LimelightTarget_Fiducial;
 
 public class LimeLightSubsystem extends SubsystemBase {
@@ -89,26 +90,32 @@ public class LimeLightSubsystem extends SubsystemBase {
         return hasRetroTape;
     }
 
-    public KnownAprilTag getKnownAprilTag(boolean isItForRightSideAprilTag)
+    public KnownAprilTag getKnownAprilTag(AprilTagPosition tagPosition)
     {
         String[] tagIdsForThisAction = {};
         Optional<Alliance> alliance = DriverStation.getAlliance();
         KnownAprilTag aprilTag = null;
         if(alliance.isPresent()){
             if(alliance.get() == Alliance.Blue){
-                if(isItForRightSideAprilTag){
+                if(tagPosition == AprilTagPosition.LEFT){
+                    tagIdsForThisAction = AprilTags.BLUE_ALLIANCE_LEFT_APRILTAGS;
+                }
+                else if(tagPosition == AprilTagPosition.RIGHT){
                     tagIdsForThisAction = AprilTags.BLUE_ALLIANCE_RIGHT_APRILTAGS;
                 }
-                else{
-                    tagIdsForThisAction = AprilTags.BLUE_ALLIANCE_LEFT_OR_SINGLE_APRILTAGS;
+                else if(tagPosition == AprilTagPosition.CENTER){
+                    tagIdsForThisAction = AprilTags.BLUE_ALLIANCE_CENTER_APRILTAGS;
                 }
             }
             else if(alliance.get() == Alliance.Red){
-                if(isItForRightSideAprilTag){
+                if(tagPosition == AprilTagPosition.LEFT){
+                    tagIdsForThisAction = AprilTags.RED_ALLIANCE_LEFT_APRILTAGS;
+                }
+                else if(tagPosition == AprilTagPosition.RIGHT){
                     tagIdsForThisAction = AprilTags.RED_ALLIANCE_RIGHT_APRILTAGS;
                 }
-                else{
-                    tagIdsForThisAction = AprilTags.RED_ALLIANCE_LEFT_OR_SINLGE_APRILTAGS;
+                else if(tagPosition == AprilTagPosition.CENTER){
+                    tagIdsForThisAction = AprilTags.RED_ALLIANCE_CENTER_APRILTAGS;
                 }
             }
             for (int i = 0; i < tagIdsForThisAction.length; i++) {
