@@ -48,13 +48,18 @@ public class LimeLightSubsystem extends SubsystemBase {
                     }
                     lastKnownAprilTags.put(String.valueOf(fd.fiducialID), aprilTag);
                 }
-                Enumeration<String> e = lastKnownAprilTags.keys();
+            }
+            else{
+                hasAprilTag = false;
+            }
+            Enumeration<String> e = lastKnownAprilTags.keys();
                 //Loops through dictionary of april tags, and if it's been over a second from capture time, removes the tag
                 while(e.hasMoreElements()) {
                     String key = e.nextElement();
                     aprilTag = lastKnownAprilTags.get(key);
-                    Duration duration = Duration.between(LocalDateTime.now(), aprilTag.GetTagCaptureTime());
-                    if(duration.getSeconds() * 1000 >= 40){
+                    Duration duration = Duration.between(aprilTag.GetTagCaptureTime(), LocalDateTime.now());
+                    SmartDashboard.putNumber("April Tag "+ aprilTag.GetTagId() + " duration ", duration.toMillis());
+                    if(duration.toMillis() >= 40){
                         lastKnownAprilTags.remove(key);
                     }
                 }
@@ -72,10 +77,7 @@ public class LimeLightSubsystem extends SubsystemBase {
                         }
                     }
                 }
-            }
-            else{
-                hasAprilTag = false;
-            }
+                SmartDashboard.putNumber("April Tags Count", lastKnownAprilTags.size());
         }
         catch(Exception e){
             SmartDashboard.putString("LimeLight Read error", e.getMessage());

@@ -51,12 +51,12 @@ public class GoToAprilTagCommand extends Command {
   @Override
   public void initialize() {
     super.initialize();
-    pidControllerX.reset(swerveSubsystem.getPose().getY());
-    pidControllerY.reset(swerveSubsystem.getPose().getX());
-    pidControllerOmega.reset(swerveSubsystem.getRotation2d().getRadians());
+    //pidControllerX.reset(swerveSubsystem.getPose().getY());
+    //pidControllerY.reset(swerveSubsystem.getPose().getX());
+    //pidControllerOmega.reset(swerveSubsystem.getRotation2d().getRadians());
     
 
-    pidControllerX.setGoal(Units.inchesToMeters(0)); // Move forward/backwork to keep 36 inches from the target
+    pidControllerX.setGoal(Units.inchesToMeters(50)); // Move forward/backwork to keep 36 inches from the target
     pidControllerX.setTolerance(Units.inchesToMeters(2.5));
 
     pidControllerY.setGoal(0); // Move side to side to keep target centered
