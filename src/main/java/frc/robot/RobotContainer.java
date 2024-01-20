@@ -69,7 +69,7 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        return new PathPlannerAuto("Test Auto");
+        return new PathPlannerAuto("AMP");
     }
 
     public SwerveSubsystem getSwerveSubsystem() {
