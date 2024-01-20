@@ -48,10 +48,10 @@ public class LimeLightSubsystem extends SubsystemBase {
                     }
                     lastKnownAprilTags.put(String.valueOf(fd.fiducialID), aprilTag);
                 }
-                Enumeration<String> e = lastKnownAprilTags.keys();
+                Enumeration<String> latestResults = lastKnownAprilTags.keys();
                 //Loops through dictionary of april tags, and if it's been over a second from capture time, removes the tag
-                while(e.hasMoreElements()) {
-                    String key = e.nextElement();
+                while(latestResults.hasMoreElements()) {
+                    String key = latestResults.nextElement();
                     aprilTag = lastKnownAprilTags.get(key);
                     Duration duration = Duration.between(LocalDateTime.now(), aprilTag.GetTagCaptureTime());
                     if(duration.getSeconds() * 1000 >= 40){
@@ -59,10 +59,10 @@ public class LimeLightSubsystem extends SubsystemBase {
                     }
                 }
                 if(LimelightConstants.LOG_APRIL_TAGS_INTO_SMARTDASH_BOARD){
-                    e = lastKnownAprilTags.keys();
+                    latestResults = lastKnownAprilTags.keys();
                     //Loops through values of dictionary, for each april tag, prints ID as well as positioning/rotation
-                    while(e.hasMoreElements()) {
-                        String key = e.nextElement();
+                    while(latestResults.hasMoreElements()) {
+                        String key = latestResults.nextElement();
                         aprilTag = lastKnownAprilTags.get(key);
                         if(aprilTag != null){
                             Pose3d pose3d = aprilTag.GetTagPose3d();
