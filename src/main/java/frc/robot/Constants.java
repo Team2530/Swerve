@@ -137,8 +137,8 @@ public final class Constants {
   }
 
   public static class AprilTags {
-    //Blue Alliance April tags 1, 2, 6, 7, 8, 14, 15, 16
-    //Blue alliance left tags
+    //Blue Alliance April tags 1, 2, 6, 7, 8, 14, 15, 16.
+    //Blue alliance left tags.
     public static final String[] BLUE_ALLIANCE_LEFT_APRILTAGS = { "2", "8" };
     //Blue alliance right tags
     public static final String[] BLUE_ALLIANCE_RIGHT_APRILTAGS = { "1", "7" };
