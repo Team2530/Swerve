@@ -139,18 +139,18 @@ public final class Constants {
   public static class AprilTags {
     //Blue Alliance April tags 1, 2, 6, 7, 8, 14, 15, 16.
     //Blue alliance left tags.
-    public static final String[] BLUE_ALLIANCE_LEFT_APRILTAGS = { "2", "8" };
+    public static final String[] BLUE_ALLIANCE_LEFT_APRILTAGS = { "2.0", "8.0" };
     //Blue alliance right tags
-    public static final String[] BLUE_ALLIANCE_RIGHT_APRILTAGS = { "1", "7" };
+    public static final String[] BLUE_ALLIANCE_RIGHT_APRILTAGS = { "1.0", "70" };
     //Blue alliance center/single tags
-    public static final String[] BLUE_ALLIANCE_CENTER_APRILTAGS = { "6", "14", "15", "16"};
+    public static final String[] BLUE_ALLIANCE_CENTER_APRILTAGS = { "6.0", "14.0", "15.0", "16.0"};
     //Red Alliance April tags 3, 4, 5, 9, 10, 11, 12, 13
     //Red alliance left tags
-    public static final String[] RED_ALLIANCE_LEFT_APRILTAGS = { "10", "4" };
+    public static final String[] RED_ALLIANCE_LEFT_APRILTAGS = { "10.0", "4.0" };
      //Blue alliance right tags
-    public static final String[] RED_ALLIANCE_RIGHT_APRILTAGS = { "9", "3" };
+    public static final String[] RED_ALLIANCE_RIGHT_APRILTAGS = { "9.0", "3.0" };
     //Blue alliance center/single tags
-    public static final String[] RED_ALLIANCE_CENTER_APRILTAGS = { "5", "11", "12", "13"};
+    public static final String[] RED_ALLIANCE_CENTER_APRILTAGS = { "5.0", "11.0", "12.0", "13.0"};
 
     public static enum AprilTagPosition {
       LEFT,
