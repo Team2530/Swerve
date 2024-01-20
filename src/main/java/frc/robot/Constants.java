@@ -141,7 +141,7 @@ public final class Constants {
     //Blue alliance left tags.
     public static final String[] BLUE_ALLIANCE_LEFT_APRILTAGS = { "2.0", "8.0" };
     //Blue alliance right tags
-    public static final String[] BLUE_ALLIANCE_RIGHT_APRILTAGS = { "1.0", "70" };
+    public static final String[] BLUE_ALLIANCE_RIGHT_APRILTAGS = { "1.0", "7.0" };
     //Blue alliance center/single tags
     public static final String[] BLUE_ALLIANCE_CENTER_APRILTAGS = { "6.0", "14.0", "15.0", "16.0"};
     //Red Alliance April tags 3, 4, 5, 9, 10, 11, 12, 13
