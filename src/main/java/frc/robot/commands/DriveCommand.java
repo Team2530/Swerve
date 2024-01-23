@@ -7,10 +7,12 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.*;
 import edu.wpi.first.wpilibj.*;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants.*;
 import frc.robot.subsystems.SwerveSubsystem;
+import edu.wpi.first.math.util.Units;
 
 public class DriveCommand extends Command {
     private final SwerveSubsystem swerveSubsystem;
@@ -20,6 +22,8 @@ public class DriveCommand extends Command {
 
     private double DRIVE_MULT = 1.0;
     private final double SLOWMODE_MULT = 0.25;
+    
+    private double ORIENTATION = 0;
 
     private enum DriveState {
         Free,
@@ -62,19 +66,25 @@ public class DriveCommand extends Command {
 
     @Override
     public void execute() {
+
+        double rightX = DeadBand(xbox.getRightX(), 0.15);
+        double rightY = DeadBand(xbox.getRightY(), 0.15);
+
+
+        double rawORIENTATION = Units.radiansToDegrees(Math.atan(rightX/rightY));
+        ORIENTATION = Math.abs(rightX) > 0 || Math.abs(rightY) > 0 ? (rightX > 0 ? (360 + rawORIENTATION) % 360 : 180 + rawORIENTATION) : ORIENTATION;
+
         Translation2d xyRaw = new Translation2d(xbox.getLeftX(), xbox.getLeftY());
         Translation2d xySpeed = DeadBand(xyRaw, 0.15);
         double zSpeed = DeadBand(xbox.getRightX(), 0.1);
         double xSpeed = xySpeed.getX(); // xbox.getLeftX();
         double ySpeed = xySpeed.getY(); // xbox.getLeftY();
 
-        // System.out.println("DRIVE!!");
+        SmartDashboard.putNumber("zSpeed", zSpeed);
+        SmartDashboard.putNumber("ORIENTATION", ORIENTATION);
 
-        // double mag_xy = Math.sqrt(xSpeed*xSpeed + ySpeed*ySpeed);
 
-        // xSpeed = mag_xy > 0.15 ? xSpeed : 0.0;
-        // ySpeed = mag_xy > 0.15 ? ySpeed : 0.0;
-        // zSpeed = Math.abs(zSpeed) > 0.15 ? zSpeed : 0.0;
+
 
         // TODO: Full speed!
         xSpeed *= DriveConstants.XY_SPEED_LIMIT * DriveConstants.MAX_ROBOT_VELOCITY;
