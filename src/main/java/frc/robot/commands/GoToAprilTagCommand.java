@@ -89,9 +89,11 @@ public class GoToAprilTagCommand extends Command {
         KnownAprilTag aprilTag = limeLightSubsystem.getKnownAprilTag(tagPosition);
         if(aprilTag != null){
           Pose3d pose3d = aprilTag.GetTagPose3d();
-          SmartDashboard.putNumber("Current April Tag "+ aprilTag.GetTagId() + " X", pose3d.getZ());
-          SmartDashboard.putNumber("Current April Tag "+ aprilTag.GetTagId() + " Y", pose3d.getX());
-          SmartDashboard.putNumber("CurrentApril Tag "+ aprilTag.GetTagId() +" Rotation", pose3d.getRotation().getY());
+          if(CommonConstants.LOG_INTO_FILE_ENABLED){
+            SmartDashboard.putNumber("Current April Tag "+ aprilTag.GetTagId() + " X", pose3d.getZ());
+            SmartDashboard.putNumber("Current April Tag "+ aprilTag.GetTagId() + " Y", pose3d.getX());
+            SmartDashboard.putNumber("CurrentApril Tag "+ aprilTag.GetTagId() +" Rotation", pose3d.getRotation().getY());
+          }
           var xspeed = pidControllerX.calculate(pose3d.getZ());          
           if (pidControllerX.atSetpoint()) {
             xspeed = 0;

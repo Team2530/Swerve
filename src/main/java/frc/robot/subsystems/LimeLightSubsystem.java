@@ -59,7 +59,7 @@ public class LimeLightSubsystem extends SubsystemBase {
                     aprilTag = lastKnownAprilTags.get(key);
                     Duration duration = Duration.between(aprilTag.GetTagCaptureTime(), LocalDateTime.now());
                     SmartDashboard.putNumber("April Tag "+ aprilTag.GetTagId() + " duration ", duration.toMillis());
-                    if(duration.toMillis() >= 40){
+                    if(duration.toMillis() >=  LimelightConstants.CLEAR_APRILTAG_INTERVAL){
                         lastKnownAprilTags.remove(key);
                     }
                 }
@@ -76,8 +76,8 @@ public class LimeLightSubsystem extends SubsystemBase {
                             SmartDashboard.putNumber("April Tag "+ aprilTag.GetTagId() +" Rotation", pose3d.getRotation().getY());
                         }
                     }
+                     SmartDashboard.putNumber("April Tags Count", lastKnownAprilTags.size());
                 }
-                SmartDashboard.putNumber("April Tags Count", lastKnownAprilTags.size());
         }
         catch(Exception e){
             SmartDashboard.putString("LimeLight Read error", e.getMessage());

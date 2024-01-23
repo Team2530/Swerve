@@ -134,6 +134,7 @@ public final class Constants {
     new Translation3d(0.06, -0.2, 0.2127),
     new Rotation3d(0.0, Units.degreesToRadians(-15.0), Units.degreesToRadians(3.0)));
     public static final boolean LOG_APRIL_TAGS_INTO_SMARTDASH_BOARD = true;
+    public static final int CLEAR_APRILTAG_INTERVAL = 40; // 20 mili sec
   }
 
   public static class AprilTags {
