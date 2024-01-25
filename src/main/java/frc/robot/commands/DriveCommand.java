@@ -67,12 +67,17 @@ public class DriveCommand extends Command {
     @Override
     public void execute() {
 
-        double rightX = DeadBand(xbox.getRightX(), 0.15);
-        double rightY = DeadBand(xbox.getRightY(), 0.15);
+        double rightX = DeadBand(xbox.getRightX(), 0.05);
+        double rightY = DeadBand(xbox.getRightY(), 0.05);
 
-
-        double rawORIENTATION = Units.radiansToDegrees(Math.atan(rightX/rightY));
-        ORIENTATION = Math.abs(rightX) > 0 || Math.abs(rightY) > 0 ? (rightX > 0 ? (360 + rawORIENTATION) % 360 : 180 + rawORIENTATION) : ORIENTATION;
+        if (Math.abs(rightX) > 0 || Math.abs(rightY) > 0){
+            this.ORIENTATION = Units.radiansToDegrees(Math.atan2(rightX, -rightY));
+        }
+        
+        double aSpeedRaw = (Units.radiansToDegrees(swerveSubsystem.getHeading()) + this.ORIENTATION )/20;
+        double aSpeedRawClock = (Units.radiansToDegrees(swerveSubsystem.getHeading()) + this.ORIENTATION + 360 )/20;
+        double aSpeed = Math.max(Math.min(aSpeedRaw, 1), -1);
+        double aSpeedClock = Math.max(Math.min(aSpeedRawClock, 1), -1);
 
         Translation2d xyRaw = new Translation2d(xbox.getLeftX(), xbox.getLeftY());
         Translation2d xySpeed = DeadBand(xyRaw, 0.15);
@@ -80,11 +85,11 @@ public class DriveCommand extends Command {
         double xSpeed = xySpeed.getX(); // xbox.getLeftX();
         double ySpeed = xySpeed.getY(); // xbox.getLeftY();
 
-        SmartDashboard.putNumber("zSpeed", zSpeed);
-        SmartDashboard.putNumber("ORIENTATION", ORIENTATION);
+        zSpeed = aSpeed;
 
-
-
+        SmartDashboard.putNumber("Orientation", this.ORIENTATION);
+        SmartDashboard.putNumber("aSpeed", aSpeed);
+        SmartDashboard.putNumber("heading", Units.radiansToDegrees(swerveSubsystem.getHeading()));
 
         // TODO: Full speed!
         xSpeed *= DriveConstants.XY_SPEED_LIMIT * DriveConstants.MAX_ROBOT_VELOCITY;
