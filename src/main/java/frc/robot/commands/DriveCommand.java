@@ -27,7 +27,7 @@ public class DriveCommand extends Command {
     private double DRIVE_MULT = 1.0;
     private final double SLOWMODE_MULT = 0.25;
     
-    private final ProfiledPIDController ROTATION_PID = new ProfiledPIDController(DriveConstants.STICK_ROTATION_ANGLE_P, 0.0, 0.0, new Constraints(40,360));
+    private final ProfiledPIDController ROTATION_PID = new ProfiledPIDController(DriveConstants.STICK_ROTATION_ANGLE_P, 0.0, 0.0, new Constraints(360,360));
 
     private double ORIENTATION = 0;
 
@@ -43,7 +43,7 @@ public class DriveCommand extends Command {
         this.xbox = xbox;
 
         dsratelimiter.reset(SLOWMODE_MULT);
-
+        ROTATION_PID.enableContinuousInput(-180, 180);
         addRequirements(swerveSubsystem);
     }
 
