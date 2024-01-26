@@ -3,12 +3,16 @@ package frc.robot.commands;
 import java.util.HashSet;
 import java.util.Set;
 
+import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.*;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.*;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.PIDCommand;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants.*;
 import frc.robot.subsystems.SwerveSubsystem;
@@ -23,6 +27,8 @@ public class DriveCommand extends Command {
     private double DRIVE_MULT = 1.0;
     private final double SLOWMODE_MULT = 0.25;
     
+    private final ProfiledPIDController ROTATION_PID = new ProfiledPIDController(DriveConstants.STICK_ROTATION_ANGLE_P, 0.0, 0.0, new Constraints(40,360));
+
     private double ORIENTATION = 0;
 
     private enum DriveState {
@@ -69,15 +75,11 @@ public class DriveCommand extends Command {
 
         double rightX = DeadBand(xbox.getRightX(), 0.05);
         double rightY = DeadBand(xbox.getRightY(), 0.05);
+        double heading = -Units.radiansToDegrees(swerveSubsystem.getHeading());
 
         if (Math.abs(rightX) > 0 || Math.abs(rightY) > 0){
             this.ORIENTATION = Units.radiansToDegrees(Math.atan2(rightX, -rightY));
         }
-        
-        double aSpeedRaw = (Units.radiansToDegrees(swerveSubsystem.getHeading()) + this.ORIENTATION )/20;
-        double aSpeedRawClock = (Units.radiansToDegrees(swerveSubsystem.getHeading()) + this.ORIENTATION + 360 )/20;
-        double aSpeed = Math.max(Math.min(aSpeedRaw, 1), -1);
-        double aSpeedClock = Math.max(Math.min(aSpeedRawClock, 1), -1);
 
         Translation2d xyRaw = new Translation2d(xbox.getLeftX(), xbox.getLeftY());
         Translation2d xySpeed = DeadBand(xyRaw, 0.15);
@@ -85,11 +87,10 @@ public class DriveCommand extends Command {
         double xSpeed = xySpeed.getX(); // xbox.getLeftX();
         double ySpeed = xySpeed.getY(); // xbox.getLeftY();
 
-        zSpeed = aSpeed;
+        zSpeed = ROTATION_PID.calculate(heading, this.ORIENTATION);
 
-        SmartDashboard.putNumber("Orientation", this.ORIENTATION);
-        SmartDashboard.putNumber("aSpeed", aSpeed);
-        SmartDashboard.putNumber("heading", Units.radiansToDegrees(swerveSubsystem.getHeading()));
+        SmartDashboard.putNumber("heading", heading);
+        SmartDashboard.putNumber("orientation", this.ORIENTATION);
 
         // TODO: Full speed!
         xSpeed *= DriveConstants.XY_SPEED_LIMIT * DriveConstants.MAX_ROBOT_VELOCITY;

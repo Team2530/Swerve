@@ -84,6 +84,8 @@ public final class Constants {
     public static final double MAX_ROBOT_VELOCITY = 4.8;
     public static final double MAX_ROBOT_RAD_VELOCITY = 12.0; // Approx. Measured rads/sec
 
+    public static final double STICK_ROTATION_ANGLE_P = 0.03;
+
     // TODO: Change based on actual robot!
     public static final double TRACK_WIDTH = Units.inchesToMeters(18.75);
     public static final double WHEEL_BASE = Units.inchesToMeters(18.75);
