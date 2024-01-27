@@ -9,7 +9,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -38,8 +37,9 @@ public class SwerveSubsystem extends SubsystemBase {
             SwerveModuleConstants.BL_ABSOLUTE_ENCODER_PORT, SwerveModuleConstants.BL_OFFSET_RADIANS,
             SwerveModuleConstants.BL_ABSOLUTE_ENCODER_REVERSED,
             SwerveModuleConstants.BL_MOTOR_REVERSED);
+    public SwerveModule[] modules = {frontLeft, frontRight, backRight, backLeft};
 
-    PowerDistribution pdh = new PowerDistribution(1, ModuleType.kRev);
+    public PowerDistribution pdh = new PowerDistribution(1, ModuleType.kRev);
     int[] pdh_channels = {
             18, 19,
             0, 1,
@@ -47,7 +47,7 @@ public class SwerveSubsystem extends SubsystemBase {
             2, 3
     };
 
-    private final AHRS navX = new AHRS(SPI.Port.kMXP);
+    public final AHRS navX = new AHRS(SPI.Port.kMXP);
     private double navxSim;
 
     private ChassisSpeeds lastChassisSpeeds = new ChassisSpeeds();
@@ -55,7 +55,7 @@ public class SwerveSubsystem extends SubsystemBase {
     private Field2d field = new Field2d();
 
     // TODO: Properly set starting pose
-    private final SwerveDrivePoseEstimator odometry = new SwerveDrivePoseEstimator(DriveConstants.KINEMATICS,
+    public final SwerveDrivePoseEstimator odometry = new SwerveDrivePoseEstimator(DriveConstants.KINEMATICS,
             getRotation2d(),
             getModulePositions(), new Pose2d());
 

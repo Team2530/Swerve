@@ -28,13 +28,13 @@ public class RobotContainer {
     private final CommandXboxController operatorXbox = new CommandXboxController(
             ControllerConstants.OPERATOR_CONTROLLER_PORT);
 
-    private final SwerveSubsystem swerveDriveSubsystem = new SwerveSubsystem();
+    public final SwerveSubsystem swerveDriveSubsystem = new SwerveSubsystem();
     private final LimeLightSubsystem limeLightSubsystem = new LimeLightSubsystem();
 
     private final UsbCamera intakeCam = CameraServer.startAutomaticCapture();
 
     private final DriveCommand normalDrive = new DriveCommand(swerveDriveSubsystem, driverXbox.getHID());
-
+    
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */

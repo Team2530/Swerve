@@ -25,6 +25,12 @@ import edu.wpi.first.math.util.Units;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+
+  public static class LoggingConstants {
+    public static final String LOG_FILE_DATE_FORMAT = "yyyy-MM-dd-HH-mm";
+    public static final String LOG_FILE_NAME_FORMAT = "logs/%s.log.bin"; // %s is the date
+  }
+
   public static class ControllerConstants {
     public static final int DRIVER_CONTROLLER_PORT = 1;
     public static final int OPERATOR_CONTROLLER_PORT = 2;

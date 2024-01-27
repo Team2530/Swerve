@@ -14,8 +14,8 @@ import frc.robot.Robot;
 import frc.robot.Constants.*;
 
 public class SwerveModule {
-    private final CANSparkMax driveMotor;
-    private final CANSparkMax steerMotor;
+    public final CANSparkMax driveMotor;
+    public final CANSparkMax steerMotor;
 
     private final RelativeEncoder driveMotorEncoder;
     private final RelativeEncoder steerMotorEncoder;
@@ -29,7 +29,7 @@ public class SwerveModule {
     private final boolean isAbsoluteEncoderReversed;
     private final boolean motor_inv;
 
-    private final PIDController steerPID;
+    public final PIDController steerPID;
 
     private static int moduleNumber = 0;
     int thisModuleNumber;
