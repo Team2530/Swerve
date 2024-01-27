@@ -25,6 +25,7 @@ public final class Constants {
   public static class ControllerConstants {
     public static final int DRIVER_CONTROLLER_PORT = 1;
     public static final int OPERATOR_CONTROLLER_PORT = 2;
+    public static final double ORIENTED_ROTATION_DEADZONE = 0.05;
   }
 
   public static class SwerveModuleConstants {
@@ -84,7 +85,12 @@ public final class Constants {
     public static final double MAX_ROBOT_VELOCITY = 4.8;
     public static final double MAX_ROBOT_RAD_VELOCITY = 12.0; // Approx. Measured rads/sec
 
-    public static final double STICK_ROTATION_ANGLE_P = 0.03;
+    public static final double ORIENTED_ROTATION_P = 0.03;
+    public static final double ORIENTED_ROTATION_I = 0.0;
+    public static final double ORIENTED_ROTATION_D = 0.0;
+
+    public static final int ORIENTED_ROTATION_MAX_VELOCITY = 360;
+    public static final int ORINETED_ROTATION_MAX_ACCELERATION = 360; 
 
     // TODO: Change based on actual robot!
     public static final double TRACK_WIDTH = Units.inchesToMeters(18.75);
