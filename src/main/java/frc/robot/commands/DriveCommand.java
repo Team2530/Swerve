@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.kinematics.*;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.wpilibj.*;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
@@ -30,17 +31,18 @@ public class DriveCommand extends Command {
     private final ProfiledPIDController ORIENTED_ROTATION_PID = new ProfiledPIDController(DriveConstants.ORIENTED_ROTATION_P, DriveConstants.ORIENTED_ROTATION_I, DriveConstants.ORIENTED_ROTATION_D, new Constraints(DriveConstants.ORIENTED_ROTATION_MAX_VELOCITY, DriveConstants.ORINETED_ROTATION_MAX_ACCELERATION));
     private double ORIENTATION = 0;
 
-    private enum DriveState {
+    private enum StanceState {
         Free,
         Locked
     };
-    private enum RotationState {
+    private enum OrientationState {
         Free,
         Oriented
     };
 
-    private DriveState driveState = DriveState.Free;
-    private RotationState rotationState = RotationState.Free; 
+    private StanceState stance = StanceState.Free;
+    private OrientationState driveState = OrientationState.Oriented;
+    private OrientationState rotationState = OrientationState.Free; 
 
     public DriveCommand(SwerveSubsystem swerveSubsystem, XboxController xbox) {
         this.swerveSubsystem = swerveSubsystem;
@@ -87,17 +89,34 @@ public class DriveCommand extends Command {
             this.ORIENTATION = Units.radiansToDegrees(Math.atan2(xySpeedRight.getX(), -xySpeedRight.getY()));
         }
 
-        double zSpeed;
-        double xSpeed = xySpeedLeft.getX(); // xbox.getLeftX();
-        double ySpeed = xySpeedLeft.getY(); // xbox.getLeftY();
-
         // Rotation state switch logic
         if (xbox.getRightStickButtonPressed()) {
-            rotationState = RotationState.values()[RotationState.values().length > rotationState.ordinal() + 1 
+            rotationState = OrientationState.values()[OrientationState.values().length > rotationState.ordinal() + 1 
                 ? rotationState.ordinal() + 1 
                 : 0
                 ];  
         }
+        // Stance transition logic
+        switch (stance) {
+            case Free:
+                stance = xbox.getBButton() ? StanceState.Locked : StanceState.Free;
+                break;
+            case Locked:
+                stance = ((xyRawLeft.getNorm() > 0.15) && !xbox.getBButton()) ? StanceState.Free : StanceState.Locked;
+                break;
+        }
+        // Drive state transition logic
+        if (xbox.getLeftStickButtonPressed()) {
+            driveState = OrientationState.values()[OrientationState.values().length > driveState.ordinal() + 1 
+                ? driveState.ordinal() + 1 
+                : 0
+                ];  
+        }
+
+
+        double zSpeed;
+        double xSpeed = xySpeedLeft.getX(); // xbox.getLeftX();
+        double ySpeed = xySpeedLeft.getY(); // xbox.getLeftY();
 
         // Rotation state execution logic 
         switch(rotationState){
@@ -130,27 +149,20 @@ public class DriveCommand extends Command {
 
         ChassisSpeeds speeds;
 
-        // Drive Non Field Oriented
-        if (!xbox.getLeftBumper()) {
-            speeds = ChassisSpeeds.fromFieldRelativeSpeeds(ySpeed, -xSpeed, -zSpeed,
+        // Drive oriented/not execution logic
+        switch (driveState) {
+            case Oriented:
+                speeds = ChassisSpeeds.fromFieldRelativeSpeeds(ySpeed, -xSpeed, -zSpeed,
                     new Rotation2d(
                             -swerveSubsystem.getRotation2d().rotateBy(DriveConstants.NAVX_ANGLE_OFFSET).getRadians()));
-        } else {
-            speeds = new ChassisSpeeds(xSpeed, ySpeed, -zSpeed);
-        }
-
-        // Drive state transition logic
-        switch (driveState) {
-            case Free:
-                driveState = xbox.getBButton() ? DriveState.Locked : DriveState.Free;
                 break;
-            case Locked:
-                driveState = ((xyRawLeft.getNorm() > 0.15) && !xbox.getBButton()) ? DriveState.Free : DriveState.Locked;
+            case Free: default:
+                speeds = new ChassisSpeeds(xSpeed, ySpeed, -zSpeed);
                 break;
         }
 
-        // Drive execution logic
-        switch (driveState) {
+        // Stance execution logic
+        switch (stance) {
             case Free:
                 SwerveModuleState[] calculatedModuleStates = DriveConstants.KINEMATICS.toSwerveModuleStates(speeds);
                 swerveSubsystem.setModules(calculatedModuleStates);
