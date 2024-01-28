@@ -10,8 +10,6 @@ import edu.wpi.first.wpilibj2.command.Subsystem;
 public class OperatorCommand extends Command {
     private final XboxController xbox;
 
-    private Set<Subsystem> requirements = new HashSet<>();
-
     public OperatorCommand(XboxController xbox) {
         this.xbox = xbox;
     }

@@ -122,7 +122,9 @@ public final class Constants {
 
     public static final int MAST_ARM_ENCODER_PORT = 5;
 
-    public static final int SHOOTAKE_ENCODER_PORT = 6;
+    public static final int INTAKE_MOTOR_PORT = 10;
+
+    public static final int SHOTER_MOTOR_PORT = 11;
     
   }
 }

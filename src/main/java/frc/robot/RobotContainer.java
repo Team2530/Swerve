@@ -6,8 +6,11 @@ package frc.robot;
 
 import frc.robot.Constants.*;
 import frc.robot.commands.*;
-import frc.robot.subsystems.Shootake;
-import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.subsystems.*;
+import frc.robot.subsystems.Shooter.ShooterMode;
+
+import java.util.function.BooleanSupplier;
+
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.wpilibj2.command.*;
@@ -32,9 +35,11 @@ public class RobotContainer {
 
     private final UsbCamera intakeCam = CameraServer.startAutomaticCapture();
 
-    private final Shootake shootake = new Shootake();
-
     private final DriveCommand normalDrive = new DriveCommand(swerveDriveSubsystem, driverXbox.getHID());
+
+    private final Intake intake = new Intake();
+
+    private final Shooter shooter = new Shooter();
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -42,7 +47,6 @@ public class RobotContainer {
     public RobotContainer() {
         // Configure the trigger bindings
         configureBindings();
-
         swerveDriveSubsystem.setDefaultCommand(normalDrive);
     }
 
@@ -60,7 +64,28 @@ public class RobotContainer {
      * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
      * joysticks}.
      */
-    private void configureBindings() {}
+    private void configureBindings() {
+        driverXbox.a().onTrue(new IntakeCommand(intake));
+
+        driverXbox.b().onTrue(new SequentialCommandGroup(
+            new PrepShooterCommand(shooter),
+            new InstantCommand(() -> {
+                intake.coast();
+                intake.setCustomPercent(0.2);
+            }),
+            // wait until piece is gone or 1.5 seconds has elapsed
+            new WaitUntilCommand(new BooleanSupplier() {
+                @Override
+                public boolean getAsBoolean() {
+                    return !intake.getFrontLimitClosed();
+                }
+            }).raceWith(new WaitCommand(1.5)),
+            new InstantCommand(() -> {
+                shooter.coast();
+                shooter.setMode(ShooterMode.STOPPED);
+            })
+        ));
+    }
 
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.
