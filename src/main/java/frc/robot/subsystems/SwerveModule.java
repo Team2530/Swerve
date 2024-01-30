@@ -1,30 +1,21 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.configs.CANcoderConfigurator;
 import com.revrobotics.*;
-import com.revrobotics.CANSparkMax.IdleMode;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+import com.revrobotics.CANSparkBase.IdleMode;
+import com.revrobotics.CANSparkLowLevel.MotorType;
 
-import edu.wpi.first.hal.SimDouble;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.*;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.AnalogInput;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.simulation.EncoderSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Constants;
 import frc.robot.Robot;
-import frc.robot.Constants.DriveConstants;
-import frc.robot.Constants.SwerveModuleConstants;
+import frc.robot.Constants.*;
 
 public class SwerveModule {
-    private final CANSparkMax driveMotor;
-    private final CANSparkMax steerMotor;
+    public final CANSparkMax driveMotor;
+    public final CANSparkMax steerMotor;
 
     private final RelativeEncoder driveMotorEncoder;
     private final RelativeEncoder steerMotorEncoder;
@@ -38,7 +29,7 @@ public class SwerveModule {
     private final boolean isAbsoluteEncoderReversed;
     private final boolean motor_inv;
 
-    private final PIDController steerPID;
+    public final PIDController steerPID;
 
     private static int moduleNumber = 0;
     int thisModuleNumber;
@@ -58,6 +49,7 @@ public class SwerveModule {
         driveMotorEncoder = driveMotor.getEncoder();
         steerMotorEncoder = steerMotor.getEncoder();
 
+        // Reset encoder offsets possibly set in Tuner X
         absoluteEncoder = new com.ctre.phoenix6.hardware.CANcoder(absoluteEncoderPort);
         com.ctre.phoenix6.configs.CANcoderConfiguration cfg = new com.ctre.phoenix6.configs.CANcoderConfiguration();
         cfg.MagnetSensor = new com.ctre.phoenix6.configs.MagnetSensorConfigs();

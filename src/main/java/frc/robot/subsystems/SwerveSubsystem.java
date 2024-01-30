@@ -8,16 +8,12 @@ import edu.wpi.first.math.kinematics.*;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.LimelightHelpers;
 import frc.robot.Robot;
 import frc.robot.Constants.*;
 
@@ -41,8 +37,9 @@ public class SwerveSubsystem extends SubsystemBase {
             SwerveModuleConstants.BL_ABSOLUTE_ENCODER_PORT, SwerveModuleConstants.BL_OFFSET_RADIANS,
             SwerveModuleConstants.BL_ABSOLUTE_ENCODER_REVERSED,
             SwerveModuleConstants.BL_MOTOR_REVERSED);
+    public SwerveModule[] modules = {frontLeft, frontRight, backRight, backLeft};
 
-    PowerDistribution pdh = new PowerDistribution(1, ModuleType.kRev);
+    public PowerDistribution pdh = new PowerDistribution(1, ModuleType.kRev);
     int[] pdh_channels = {
             18, 19,
             0, 1,
@@ -50,7 +47,7 @@ public class SwerveSubsystem extends SubsystemBase {
             2, 3
     };
 
-    private final AHRS navX = new AHRS(SPI.Port.kMXP);
+    public final AHRS navX = new AHRS(SPI.Port.kMXP);
     private double navxSim;
 
     private ChassisSpeeds lastChassisSpeeds = new ChassisSpeeds();
@@ -58,7 +55,7 @@ public class SwerveSubsystem extends SubsystemBase {
     private Field2d field = new Field2d();
 
     // TODO: Properly set starting pose
-    private final SwerveDrivePoseEstimator odometry = new SwerveDrivePoseEstimator(DriveConstants.KINEMATICS,
+    public final SwerveDrivePoseEstimator odometry = new SwerveDrivePoseEstimator(DriveConstants.KINEMATICS,
             getRotation2d(),
             getModulePositions(), new Pose2d());
 
@@ -75,10 +72,22 @@ public class SwerveSubsystem extends SubsystemBase {
         // odometry.addVisionMeasurement(LimelightHelpers.getBotPose2d(null),
         // Timer.getFPGATimestamp());
 
-        field.setRobotPose((DriverStation.getAlliance() == Alliance.Red)
-                ? new Pose2d(new Translation2d(16.5 - getPose().getX(), 8.02 - getPose().getY()),
-                        getPose().getRotation().rotateBy(Rotation2d.fromDegrees(180)))
-                : getPose());
+        if(DriverStation.getAlliance().isPresent()) {
+            switch (DriverStation.getAlliance().get()) {
+                case Red:
+                    field.setRobotPose(new Pose2d(new Translation2d(16.5 - getPose().getX(), 8.02 - getPose().getY()),
+                        getPose().getRotation().rotateBy(Rotation2d.fromDegrees(180)))); 
+                    break;
+            
+                case Blue:
+                    field.setRobotPose(getPose());
+                    break;
+            }
+        } else {
+            // If no alliance provided, just go with blue
+            field.setRobotPose(getPose());
+        }
+
         SmartDashboard.putData("Field", field);
 
         SmartDashboard.putString("Robot Pose",

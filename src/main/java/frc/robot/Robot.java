@@ -4,12 +4,18 @@
 
 package frc.robot;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.Constants.LoggingConstants;
+import frc.robot.util.DataCollector;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -23,9 +29,12 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
-  private RobotContainer m_robotContainer;
+  public RobotContainer m_robotContainer;
 
   public static SendableChooser<String> autoChooser = new SendableChooser<>();
+
+  /* The data collector for debugging and future visualizations. */
+  private DataCollector dataCollector;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -63,11 +72,27 @@ public class Robot extends TimedRobot {
     // robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
+
+    if (this.dataCollector != null) this.dataCollector.collectFrame(this);
+  }
+
+
+  @Override
+  public void disabledExit() {
+    SimpleDateFormat dateFormat = new SimpleDateFormat(LoggingConstants.LOG_FILE_DATE_FORMAT);
+    try {
+      this.dataCollector = new DataCollector(String.format(LoggingConstants.LOG_FILE_NAME_FORMAT, dateFormat.format(new Date())));
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    this.dataCollector.writeHeader();
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
   @Override
   public void disabledInit() {
+    if(this.dataCollector != null) this.dataCollector.stop();
+    this.dataCollector = null;
   }
 
   @Override

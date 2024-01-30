@@ -1,20 +1,18 @@
 package frc.robot.commands;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import edu.wpi.first.math.filter.SlewRateLimiter;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants.DriveConstants;
-import frc.robot.Constants.SwerveModuleConstants;
+import edu.wpi.first.math.geometry.*;
+import edu.wpi.first.math.kinematics.*;
+import edu.wpi.first.wpilibj.*;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Subsystem;
+import frc.robot.Constants.*;
 import frc.robot.subsystems.SwerveSubsystem;
 
-public class DriveCommand extends CommandBase {
+public class DriveCommand extends Command {
     private final SwerveSubsystem swerveSubsystem;
     private final XboxController xbox;
 
@@ -135,7 +133,6 @@ public class DriveCommand extends CommandBase {
         swerveSubsystem.stopDrive();
     }
 
-    @Override
     public boolean isFinished() {
         return false;
     }
