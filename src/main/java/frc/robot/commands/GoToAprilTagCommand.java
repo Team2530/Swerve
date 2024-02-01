@@ -12,10 +12,12 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.VisionContsants;
-import frc.robot.Constants.AprilTags.AprilTagPosition;
-import frc.robot.KnownAprilTag;
+import frc.robot.KnownAprilTagDetail;
+import frc.robot.Constants.AprilTagPosition;
+import frc.robot.Constants.AprilTagType;
 import frc.robot.Constants.CommonConstants;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.LimelightConstants;
 import frc.robot.subsystems.LimeLightSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import static edu.wpi.first.math.MathUtil.clamp;
@@ -30,27 +32,33 @@ public class GoToAprilTagCommand extends Command {
     private final SwerveSubsystem swerveSubsystem;
     public final LimeLightSubsystem limeLightSubsystem;
     public final AprilTagPosition tagPosition;
+    public final AprilTagType searchTagType;
 
-    private final ProfiledPIDController pidControllerX = new ProfiledPIDController(VisionContsants.X_kP, VisionContsants.X_kI, VisionContsants.X_kD, new Constraints(DriveConstants.MAX_ROBOT_VELOCITY, DriveConstants.MAX_ROBOT_RAD_VELOCITY));
-    private final ProfiledPIDController pidControllerY = new ProfiledPIDController(VisionContsants.Y_kP, VisionContsants.Y_kI, VisionContsants.Y_kD, new Constraints(DriveConstants.MAX_ROBOT_VELOCITY, DriveConstants.MAX_ROBOT_RAD_VELOCITY));
-    private final ProfiledPIDController pidControllerOmega = new ProfiledPIDController(VisionContsants.THETA_kP, VisionContsants.THETA_kI, VisionContsants.THETA_kD, new Constraints(DriveConstants.MAX_ROBOT_VELOCITY, DriveConstants.MAX_ROBOT_RAD_VELOCITY));
+    private final ProfiledPIDController pidControllerX = new ProfiledPIDController(VisionContsants.X_kP, VisionContsants.X_kI, VisionContsants.X_kD, LimelightConstants.pidXConstriants);
+    private final ProfiledPIDController pidControllerY = new ProfiledPIDController(VisionContsants.Y_kP, VisionContsants.Y_kI, VisionContsants.Y_kD, LimelightConstants.pidYConstraints);
+    private final ProfiledPIDController pidControllerOmega = new ProfiledPIDController(VisionContsants.THETA_kP, VisionContsants.THETA_kI, VisionContsants.THETA_kD, LimelightConstants.pidOmegaConstraints);
     
     StringLogEntry log;
+    Boolean isSearchTagFound = false;
 
     public GoToAprilTagCommand(
         SwerveSubsystem swerveSubsystem,
         LimeLightSubsystem limeLightSubsystem,
-        AprilTagPosition tagPosition) 
+        AprilTagPosition tagPosition,
+        AprilTagType searchTagType) 
     {
         this.swerveSubsystem = swerveSubsystem;
         this.limeLightSubsystem = limeLightSubsystem;
         this.tagPosition = tagPosition;
+        this.searchTagType = searchTagType;
         addRequirements(swerveSubsystem);
   }
 
   @Override
   public void initialize() {
     super.initialize();
+    isSearchTagFound = false;
+    
     //pidControllerX.reset(swerveSubsystem.getPose().getY());
     //pidControllerY.reset(swerveSubsystem.getPose().getX());
     //pidControllerOmega.reset(swerveSubsystem.getRotation2d().getRadians());
@@ -76,7 +84,7 @@ public class GoToAprilTagCommand extends Command {
       }
       // Record both DS control and joystick data
       DriverStation.startDataLog(DataLogManager.getLog());
-      log = new StringLogEntry(DataLogManager.getLog(), "ChaseApriltagCommand");
+      log = new StringLogEntry(DataLogManager.getLog(), "GoToAprilTagCommand");
     }
 
   }
@@ -86,13 +94,22 @@ public class GoToAprilTagCommand extends Command {
     try{
       ChassisSpeeds speeds;
       if(limeLightSubsystem.isAprilTagFound()){
-        KnownAprilTag aprilTag = limeLightSubsystem.getKnownAprilTag(tagPosition);
+        KnownAprilTagDetail aprilTag = null;
+        if(searchTagType == null){
+          aprilTag = limeLightSubsystem.getKnownAprilTagDetail(tagPosition);
+        }
+        else{
+          aprilTag = limeLightSubsystem.getKnownAprilTagDetailByType(searchTagType);
+        }
         if(aprilTag != null){
+          if(searchTagType !=  null){
+            isSearchTagFound = true;
+          }
           Pose3d pose3d = aprilTag.GetTagPose3d();
           if(CommonConstants.LOG_INTO_FILE_ENABLED){
-            SmartDashboard.putNumber("Current April Tag "+ aprilTag.GetTagId() + " X", pose3d.getZ());
-            SmartDashboard.putNumber("Current April Tag "+ aprilTag.GetTagId() + " Y", pose3d.getX());
-            SmartDashboard.putNumber("CurrentApril Tag "+ aprilTag.GetTagId() +" Rotation", pose3d.getRotation().getY());
+            SmartDashboard.putNumber("Current April Tag "+ aprilTag.GetAprilTag().GetTagId() + " X", pose3d.getZ());
+            SmartDashboard.putNumber("Current April Tag "+ aprilTag.GetAprilTag().GetTagId() + " Y", pose3d.getX());
+            SmartDashboard.putNumber("CurrentApril Tag "+ aprilTag.GetAprilTag().GetTagId() +" Rotation", pose3d.getRotation().getY());
           }
           var xspeed = pidControllerX.calculate(pose3d.getZ());          
           if (pidControllerX.atSetpoint()) {
@@ -134,11 +151,25 @@ public class GoToAprilTagCommand extends Command {
           swerveSubsystem.setModules(calculatedModuleStates);
         } 
         else{
-          swerveSubsystem.stopDrive();
+          if(searchTagType != null && !isSearchTagFound){
+            speeds = new ChassisSpeeds(0, 0, Units.degreesToRadians(LimelightConstants.APRILTAG_SEARCH_ROTATION));
+            SwerveModuleState[] calculatedModuleStates = DriveConstants.KINEMATICS.toSwerveModuleStates(speeds);
+            swerveSubsystem.setModules(calculatedModuleStates);
+          }
+          else{
+            swerveSubsystem.stopDrive();
+          }
         }
       }
       else{
-        swerveSubsystem.stopDrive();
+        if(searchTagType != null && !isSearchTagFound){
+          speeds = new ChassisSpeeds(0, 0, Units.degreesToRadians(LimelightConstants.APRILTAG_SEARCH_ROTATION));
+          SwerveModuleState[] calculatedModuleStates = DriveConstants.KINEMATICS.toSwerveModuleStates(speeds);
+          swerveSubsystem.setModules(calculatedModuleStates);
+        }
+        else{
+          swerveSubsystem.stopDrive();
+        }
       }
     }
     catch(Exception e){
@@ -165,5 +196,6 @@ public class GoToAprilTagCommand extends Command {
   public void end(boolean interrupted) {
     swerveSubsystem.stopDrive();
   }
-}
+  
 
+}

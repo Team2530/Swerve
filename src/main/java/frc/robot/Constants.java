@@ -4,13 +4,18 @@
 
 package frc.robot;
 
+import java.util.Dictionary;
+import java.util.Hashtable;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -110,7 +115,7 @@ public final class Constants {
   }
 
   public static class CommonConstants {
-    public static final boolean LOG_INTO_FILE_ENABLED = false;
+    public static final boolean LOG_INTO_FILE_ENABLED = true;
   }
 
   public static class VisionContsants {
@@ -134,29 +139,44 @@ public final class Constants {
     new Translation3d(0.06, -0.2, 0.2127),
     new Rotation3d(0.0, Units.degreesToRadians(-15.0), Units.degreesToRadians(3.0)));
     public static final boolean LOG_APRIL_TAGS_INTO_SMARTDASH_BOARD = true;
-    public static final int CLEAR_APRILTAG_INTERVAL = 40; // 20 mili sec
+    public static final int CLEAR_APRILTAG_INTERVAL = 40; // in mili sec
+    public static final int APRILTAG_SEARCH_ROTATION = 40; // in degrees
+    public static Constraints pidXConstriants = new Constraints(5, 5);
+    public static Constraints pidYConstraints = new Constraints(5, 5);
+    public static Constraints pidOmegaConstraints = new Constraints(20, 20);
   }
 
-  public static class AprilTags {
+  public static enum AprilTagPosition {
+    LEFT,
+    RIGHT,
+    CENTER
+  }
+
+  public static enum AprilTagType {
+    SOURCE,
+    AMP,
+    SPEAKER,
+    STAGE
+  }
+
+  public static Dictionary<String, AprilTag> AllAprilTags = new Hashtable<String, AprilTag>() {{
     //Blue Alliance April tags 1, 2, 6, 7, 8, 14, 15, 16.
-    //Blue alliance left tags.
-    public static final String[] BLUE_ALLIANCE_LEFT_APRILTAGS = { "2.0", "8.0" };
-    //Blue alliance right tags
-    public static final String[] BLUE_ALLIANCE_RIGHT_APRILTAGS = { "1.0", "7.0" };
-    //Blue alliance center/single tags
-    public static final String[] BLUE_ALLIANCE_CENTER_APRILTAGS = { "6.0", "14.0", "15.0", "16.0"};
+    put("2.0", new AprilTag("2.0", AprilTagType.SOURCE, AprilTagPosition.LEFT, Alliance.Blue));
+    put("8.0", new AprilTag("8.0", AprilTagType.SPEAKER, AprilTagPosition.LEFT, Alliance.Blue));
+    put("1.0", new AprilTag("1.0", AprilTagType.SOURCE, AprilTagPosition.RIGHT, Alliance.Blue));
+    put("7.0", new AprilTag("7.0", AprilTagType.SPEAKER, AprilTagPosition.RIGHT, Alliance.Blue));
+    put("6.0", new AprilTag("6.0", AprilTagType.AMP, AprilTagPosition.CENTER, Alliance.Blue));
+    put("14.0", new AprilTag("14.0", AprilTagType.STAGE, AprilTagPosition.CENTER, Alliance.Blue));
+    put("15.0", new AprilTag("15.0", AprilTagType.STAGE, AprilTagPosition.CENTER, Alliance.Blue));
+    put("16.0", new AprilTag("16.0", AprilTagType.STAGE, AprilTagPosition.CENTER, Alliance.Blue));
     //Red Alliance April tags 3, 4, 5, 9, 10, 11, 12, 13
-    //Red alliance left tags
-    public static final String[] RED_ALLIANCE_LEFT_APRILTAGS = { "10.0", "4.0" };
-     //Blue alliance right tags
-    public static final String[] RED_ALLIANCE_RIGHT_APRILTAGS = { "9.0", "3.0" };
-    //Blue alliance center/single tags
-    public static final String[] RED_ALLIANCE_CENTER_APRILTAGS = { "5.0", "11.0", "12.0", "13.0"};
-
-    public static enum AprilTagPosition {
-      LEFT,
-      RIGHT,
-      CENTER
-  }
-  }
+    put("10.0", new AprilTag("10.0", AprilTagType.SOURCE, AprilTagPosition.LEFT, Alliance.Red));
+    put("4.0", new AprilTag("4.0", AprilTagType.SPEAKER, AprilTagPosition.LEFT, Alliance.Red));
+    put("9.0", new AprilTag("9.0", AprilTagType.SOURCE, AprilTagPosition.RIGHT, Alliance.Red));
+    put("3.0", new AprilTag("3.0", AprilTagType.SPEAKER, AprilTagPosition.RIGHT, Alliance.Red));
+    put("5.0", new AprilTag("5.0", AprilTagType.AMP, AprilTagPosition.CENTER, Alliance.Red));
+    put("11.0", new AprilTag("11.0", AprilTagType.STAGE, AprilTagPosition.CENTER, Alliance.Red));
+    put("12.0", new AprilTag("12.0", AprilTagType.STAGE, AprilTagPosition.CENTER, Alliance.Red));
+    put("13.0", new AprilTag("13.0", AprilTagType.STAGE, AprilTagPosition.CENTER, Alliance.Red));
+  }};
 }
