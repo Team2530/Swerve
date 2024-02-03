@@ -2,13 +2,17 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.Intake.IntakeMode;
 
-public class IntakeCommand extends Command {
+public class AlignNoteCommand extends Command {
     private final Intake intake;
+    private final Shooter shooter;
 
-    public IntakeCommand(Intake intake) {
+
+    public AlignNoteCommand(Intake intake, Shooter shooter) {
         this.intake = intake;
+        this.shooter = shooter;
         addRequirements(intake);
     }
 
@@ -16,11 +20,17 @@ public class IntakeCommand extends Command {
     public void initialize() {
         intake.brake();
         intake.setForwardLimitEnabled(true);
-        intake.setMode(IntakeMode.INTAKING);
     }
 
     @Override
-    public void execute() {}
+    public void execute() {
+        if (!intake.getFrontLimitClosed()) {
+            intake.setCustomPercent(0.1);
+        }
+        if (!intake.getReverseLimitClosed()) {
+            shooter.setCustomPercent(-0.4);
+        }
+    }
 
     @Override
     public void end(boolean interrupted) {
@@ -29,7 +39,7 @@ public class IntakeCommand extends Command {
 
     @Override
     public boolean isFinished() {
-        return intake.getFrontLimitClosed();
+        return !(intake.getFrontLimitClosed() ^ intake.getReverseLimitClosed());
     }
     
 }

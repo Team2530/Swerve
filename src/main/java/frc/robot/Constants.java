@@ -122,11 +122,13 @@ public final class Constants {
     // Refrenced from axis of rotation to end of intake
     public static final double INTAKE_LENGTH = 15.041;
 
+    public static final double INTAKE_ENCODER_TO_ROT = 10.0 / 18.0;
+
     public static final int MAST_ARM_ENCODER_PORT = 5;
 
-    public static final int INTAKE_MOTOR_PORT = 10;
+    public static final int INTAKE_MOTOR_PORT = 1;
 
-    public static final int SHOOTER_MOTOR_PORT = 1;
+    public static final int SHOOTER_MOTOR_PORT = 10;
     
   }
 }
