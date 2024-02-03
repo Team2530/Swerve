@@ -107,6 +107,8 @@ public final class Constants {
   }
 
   public static final class ArmConstants {
+
+    // TODO: Update constants for real robot, are currently probably outdated!
     // All arm constants to do with placement are refrenced from intake side and bottom plate.
     // NOTE: All units are in inches
     public static final Translation2d MAST_CENTER_OF_ROTATION = new Translation2d(-9.6, 22.780);
@@ -124,7 +126,7 @@ public final class Constants {
 
     public static final int INTAKE_MOTOR_PORT = 10;
 
-    public static final int SHOTER_MOTOR_PORT = 11;
+    public static final int SHOOTER_MOTOR_PORT = 1;
     
   }
 }

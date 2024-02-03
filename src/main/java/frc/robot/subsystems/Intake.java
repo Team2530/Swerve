@@ -1,26 +1,23 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.controls.ControlRequest;
-import com.ctre.phoenix6.hardware.CANcoder;
+import java.text.DecimalFormat;
+
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.ForwardLimitValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
-import frc.robot.commands.IntakeCommand;
 
 public class Intake extends SubsystemBase {
 
     public enum IntakeMode {
          IDLE(0.2),
-         STOPED(0.0),
-         INTAKING(0.3),
-         REVERSE(-0.2),
+         STOPPED(0.0),
+         INTAKING(0.2),
+         REVERSE(-0.1),
          CUSTOM(1.5);
 
          private double modeSpeed;
@@ -31,7 +28,7 @@ public class Intake extends SubsystemBase {
     }
 
     // Current Wanted setpoint of intake
-    private IntakeMode intakeMode = IntakeMode.STOPED;
+    private IntakeMode intakeMode = IntakeMode.STOPPED;
 
     // Falcon 500 intake motor
     private final TalonFX intakeMotor = new TalonFX(ArmConstants.INTAKE_MOTOR_PORT);
@@ -39,7 +36,10 @@ public class Intake extends SubsystemBase {
     // desired custom motor output percent
     private double outputPercent = 0.0;
 
-    private final PIDController intakeProfile = new PIDController(0.01, 0.0, 0.0);
+    // private final PIDController intakeProfile = new PIDController(0.1, 0.0, 0.01);
+
+    // allow motor to speed up quickly and slow down over a period of time
+    private final SlewRateLimiter intakeProfile = new SlewRateLimiter(5, -10, 0.0);
 
     public Intake() {
         intakeMotor.setNeutralMode(NeutralModeValue.Brake);
@@ -47,26 +47,36 @@ public class Intake extends SubsystemBase {
 
     @Override
     public void periodic() {
-        double percent = intakeProfile.calculate(intakeMotor.get(), outputPercent);
+        double percent = intakeProfile.calculate(outputPercent);
         intakeMotor.set(percent);
+
+        SmartDashboard.putNumber("Intake Percent", percent * 100);
+        SmartDashboard.putBoolean("Intake FWD Limit", getFrontLimitClosed());
+        SmartDashboard.putBoolean("Intake REV Limit", getReverseLimitClosed());
+
     }
 
     /**
      * Sets intake mode
      * @param mode {@link IntakeMode} desired intake mode
      */
-    public void setIntakeMode(IntakeMode mode) {
+    public void setMode(IntakeMode mode) {
         intakeMode = mode;
         outputPercent = intakeMode.modeSpeed;
+
+        SmartDashboard.putString("Shootake", "Intake mode set to " + (intakeMode.name()));
     }
 
     /**
      * Changes the intake state to custom, and sets motor to custom output
-     * @param percent output percent
+     * @param percent output percent from (-1 to 1)
      */
     public void setCustomPercent(double percent) {
         intakeMode = IntakeMode.CUSTOM;
-        outputPercent = percent;
+        // clamp between (-1,1)
+        outputPercent = Math.max(-1, Math.min(percent, 1));
+
+        SmartDashboard.putString("Shootake", "Intake speed set to " + String.format("%.0f", percent * 100) + " percent");
     }
 
     public double getOutputPercent() {

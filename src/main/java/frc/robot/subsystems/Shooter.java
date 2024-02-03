@@ -1,16 +1,14 @@
 package frc.robot.subsystems;
 
+import java.text.DecimalFormat;
+
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
-import frc.robot.commands.PrepShooterCommand;
 
 public class Shooter extends SubsystemBase {
     public enum ShooterMode {
@@ -31,11 +29,12 @@ public class Shooter extends SubsystemBase {
     private ShooterMode shooterMode = ShooterMode.STOPPED;
 
     // Falcon 500 shooter motor
-    private final TalonFX shooterMotor = new TalonFX(ArmConstants.SHOTER_MOTOR_PORT);
+    private final TalonFX shooterMotor = new TalonFX(ArmConstants.SHOOTER_MOTOR_PORT);
 
     private double outputPercent = 0.0;
 
-    private final PIDController shooterPID = new PIDController(0.001, 0.0, 0.0);
+    //TODO: TUNE! allow shooter to spool in 1/3 sec and stop in 1/2.
+    private final SlewRateLimiter shooterProfile = new SlewRateLimiter(3, -2, 0.0);
 
     public Shooter() {
         shooterMotor.setNeutralMode(NeutralModeValue.Brake);
@@ -43,18 +42,25 @@ public class Shooter extends SubsystemBase {
 
     @Override
     public void periodic() {
-        double percent = shooterPID.calculate(shooterMotor.get(), outputPercent);
+        double percent = shooterProfile.calculate(outputPercent);
         shooterMotor.set(percent);
+
+        SmartDashboard.putNumber("Shooter Percent", percent * 100);
     }
 
     public void setMode(ShooterMode mode) {
         shooterMode = mode;
         outputPercent = shooterMode.modeSpeed;
+
+         SmartDashboard.putString("Shootake", "Shooter mode set to " + (shooterMode.name()));
     }
 
     public void setCustomPercent(double percent) {
         shooterMode = ShooterMode.CUSTOM;
-        outputPercent = percent;
+        // clamp between (-1, 1)
+        outputPercent = Math.max(-1, Math.min(percent, 1));
+
+        SmartDashboard.putString("Shootake", "Shooter speed set to " + String.format("%.0.f", percent * 100) + " percent");
     }
 
     public double getOutputPercent() {

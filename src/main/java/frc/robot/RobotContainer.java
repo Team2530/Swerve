@@ -7,9 +7,7 @@ package frc.robot;
 import frc.robot.Constants.*;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
-import frc.robot.subsystems.Shooter.ShooterMode;
-
-import java.util.function.BooleanSupplier;
+import frc.robot.subsystems.Intake.IntakeMode;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
@@ -41,6 +39,8 @@ public class RobotContainer {
 
     private final Shooter shooter = new Shooter();
 
+    // ----------- Commands ---------- \\
+
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
      */
@@ -65,26 +65,35 @@ public class RobotContainer {
      * joysticks}.
      */
     private void configureBindings() {
-        driverXbox.a().onTrue(new IntakeCommand(intake));
+        driverXbox.a().whileTrue(new RepeatCommand(new InstantCommand(() -> {
+            System.out.println(driverXbox.getRawAxis(0));
+            intake.setCustomPercent(driverXbox.getRawAxis(0));
+        }))).onFalse(new InstantCommand(() -> {
+            intake.setMode(IntakeMode.STOPPED);
+        }));
 
-        driverXbox.b().onTrue(new SequentialCommandGroup(
-            new PrepShooterCommand(shooter),
-            new InstantCommand(() -> {
-                intake.coast();
-                intake.setCustomPercent(0.2);
-            }),
-            // wait until piece is gone or 1.5 seconds has elapsed
-            new WaitUntilCommand(new BooleanSupplier() {
-                @Override
-                public boolean getAsBoolean() {
-                    return !intake.getFrontLimitClosed();
-                }
-            }).raceWith(new WaitCommand(1.5)),
-            new InstantCommand(() -> {
-                shooter.coast();
-                shooter.setMode(ShooterMode.STOPPED);
-            })
-        ));
+        // driverXbox.x().toggleOnTrue(new InstantCommand(() -> {
+        //     shooter.setCustomPercent(10);
+        // }));
+
+        // driverXbox.b().onTrue(new SequentialCommandGroup(
+        //     new PrepShooterCommand(shooter),
+        //     new InstantCommand(() -> {
+        //         intake.coast();
+        //         intake.setCustomPercent(0.2);
+        //     }),
+        //     // wait until piece is gone or 1.5 seconds has elapsed
+        //     new WaitUntilCommand(new BooleanSupplier() {
+        //         @Override
+        //         public boolean getAsBoolean() {
+        //             return !intake.getFrontLimitClosed();
+        //         }
+        //     }).raceWith(new WaitCommand(1.5)),
+        //     new InstantCommand(() -> {
+        //         shooter.coast();
+        //         shooter.setMode(ShooterMode.STOPPED);
+        //     })
+        // ));
     }
 
     /**

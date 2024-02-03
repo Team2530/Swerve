@@ -14,7 +14,7 @@ public class IntakeCommand extends Command {
 
     @Override
     public void initialize() {
-        intake.setIntakeMode(IntakeMode.INTAKING);
+        intake.setMode(IntakeMode.INTAKING);
     }
 
     @Override
@@ -22,7 +22,7 @@ public class IntakeCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        intake.setIntakeMode(IntakeMode.STOPED);
+        intake.setMode(IntakeMode.STOPPED);
     }
 
     @Override
