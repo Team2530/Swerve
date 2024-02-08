@@ -35,7 +35,6 @@ public class LimeLightSubsystem extends SubsystemBase {
             KnownAprilTagDetail aprilTagDetail;
             AprilTag tag;
             LimelightHelpers.LimelightResults results = LimelightHelpers.getLatestResults((LimelightConstants.limeLightName));
-            
             //If we see april tag(s), we update the dictionary if needed, with position, capture time, and tag ID
             if(results.targetingResults.targets_Fiducials.length > 0){
                 hasAprilTag = true;
@@ -52,7 +51,7 @@ public class LimeLightSubsystem extends SubsystemBase {
                     }
                     else if(aprilTagDetail != null){ //If it DOES exist, make sure it's up to date 
                         aprilTagDetail.SetTagCaptureTime(LocalDateTime.now());
-                        aprilTagDetail.SetTagPose3d(fd.getTargetPose_RobotSpace());
+                        aprilTagDetail.SetTargetPoseRobotSpace(fd.getTargetPose_RobotSpace());
                     }
                     if(aprilTagDetail != null){
                         lastKnownAprilTagDetails.put(String.valueOf(fd.fiducialID), aprilTagDetail);
@@ -79,7 +78,7 @@ public class LimeLightSubsystem extends SubsystemBase {
                         String key = e.nextElement();
                         aprilTagDetail = lastKnownAprilTagDetails.get(key);
                         if(aprilTagDetail != null){
-                            Pose3d pose3d = aprilTagDetail.GetTagPose3d();
+                            Pose3d pose3d = aprilTagDetail.GetTargetPoseRobotSpace();
                             SmartDashboard.putNumber("April Tag "+ aprilTagDetail.GetAprilTag().GetTagId() + " X", pose3d.getZ());
                             SmartDashboard.putNumber("April Tag "+ aprilTagDetail.GetAprilTag().GetTagId() + " Y", pose3d.getX());
                             SmartDashboard.putNumber("April Tag "+ aprilTagDetail.GetAprilTag().GetTagId() +" Rotation", pose3d.getRotation().getY());

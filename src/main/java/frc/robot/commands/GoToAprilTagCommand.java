@@ -1,10 +1,8 @@
 package frc.robot.commands;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.util.datalog.StringLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -20,7 +18,6 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.LimelightConstants;
 import frc.robot.subsystems.LimeLightSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
-import static edu.wpi.first.math.MathUtil.clamp;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -105,7 +102,7 @@ public class GoToAprilTagCommand extends Command {
           if(searchTagType !=  null){
             isSearchTagFound = true;
           }
-          Pose3d pose3d = aprilTag.GetTagPose3d();
+          Pose3d pose3d = aprilTag.GetTargetPoseRobotSpace();
           if(CommonConstants.LOG_INTO_FILE_ENABLED){
             SmartDashboard.putNumber("Current April Tag "+ aprilTag.GetAprilTag().GetTagId() + " X", pose3d.getZ());
             SmartDashboard.putNumber("Current April Tag "+ aprilTag.GetAprilTag().GetTagId() + " Y", pose3d.getX());
@@ -157,7 +154,7 @@ public class GoToAprilTagCommand extends Command {
             swerveSubsystem.setModules(calculatedModuleStates);
           }
           else{
-            swerveSubsystem.stopDrive();
+            //swerveSubsystem.stopDrive();
           }
         }
       }
@@ -168,7 +165,7 @@ public class GoToAprilTagCommand extends Command {
           swerveSubsystem.setModules(calculatedModuleStates);
         }
         else{
-          swerveSubsystem.stopDrive();
+          //swerveSubsystem.stopDrive();
         }
       }
     }
@@ -177,25 +174,19 @@ public class GoToAprilTagCommand extends Command {
     }
   }
 
-  public Translation2d DeadBand(Translation2d input, double deadzone) {
-    double mag = input.getNorm();
-    Translation2d norm = input.div(mag);
-
-    if (mag < deadzone) {
-        return new Translation2d(0.0, 0.0);
-    } else {
-        // TODO: Check is it sqrt2 or 1.0...
-        Translation2d result = norm.times((mag - deadzone) / (1.0 - deadzone));
-        return new Translation2d(
-                clamp(result.getX(), -1.0, 1.0),
-                clamp(result.getY(), -1.0, 1.0));
-    }
-}
-
   @Override
   public void end(boolean interrupted) {
     swerveSubsystem.stopDrive();
   }
-  
+
+  public boolean atGoal() {
+    return pidControllerX.atGoal() && pidControllerY.atGoal() && pidControllerOmega.atGoal();
+  }
+
+
+  @Override
+  public boolean isFinished() {
+    return atGoal();
+  }
 
 }

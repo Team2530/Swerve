@@ -2,18 +2,15 @@ package frc.robot;
 
 import java.time.LocalDateTime;
 import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import frc.robot.Constants.AprilTagPosition;
-import frc.robot.Constants.AprilTagType;
 
 public class KnownAprilTagDetail {
     private AprilTag _tag;
     private LocalDateTime _tagCaptureTime;
-    private Pose3d _tagPose3d;
-    public KnownAprilTagDetail(AprilTag tag, LocalDateTime tagCaptureTime, Pose3d tagPose3d){
+    private Pose3d _targetPoseRobotSpace;
+    public KnownAprilTagDetail(AprilTag tag, LocalDateTime tagCaptureTime, Pose3d targetPoseRobotSpace){
         _tag = tag;
         _tagCaptureTime = tagCaptureTime;
-        _tagPose3d = tagPose3d;
+        _targetPoseRobotSpace = targetPoseRobotSpace;
     }
 
     public void SetTagCaptureTime(LocalDateTime tagCaptureTime){
@@ -24,12 +21,12 @@ public class KnownAprilTagDetail {
         return _tagCaptureTime;
     }
 
-    public void SetTagPose3d(Pose3d tagPose3d){
-        _tagPose3d = tagPose3d;
+    public void SetTargetPoseRobotSpace(Pose3d targetPoseRobotSpace){
+        _targetPoseRobotSpace = targetPoseRobotSpace;
     }
 
-    public Pose3d GetTagPose3d(){
-        return _tagPose3d;
+    public Pose3d GetTargetPoseRobotSpace(){
+        return _targetPoseRobotSpace;
     }
 
     public AprilTag GetAprilTag() {

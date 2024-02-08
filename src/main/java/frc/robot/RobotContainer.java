@@ -9,17 +9,8 @@ import frc.robot.commands.*;
 import frc.robot.subsystems.LimeLightSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
-import edu.wpi.first.util.datalog.StringLogEntry;
-import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.*;
 import edu.wpi.first.wpilibj2.command.button.*;
 
@@ -81,6 +72,10 @@ public class RobotContainer {
         driverXbox.povDown().whileTrue(new GoToAprilTagCommand(swerveDriveSubsystem, limeLightSubsystem, null, AprilTagType.SPEAKER));
         // Search and got to AMP April Tag
         driverXbox.povUp().whileTrue(new GoToAprilTagCommand(swerveDriveSubsystem, limeLightSubsystem, null, AprilTagType.STAGE));
+        
+        // driverXbox.y().whileTrue(new GoToAprilTagCommandUsingPoseEstimator(swerveDriveSubsystem, swerveDriveSubsystem::getEstimatedPosition, AprilTagPosition.LEFT, AprilTagType.SPEAKER));
+        // driverXbox.a().whileTrue(new GoToAprilTagCommandUsingPoseEstimator(swerveDriveSubsystem, swerveDriveSubsystem::getEstimatedPosition, AprilTagPosition.CENTER, AprilTagType.AMP));
+        // driverXbox.b().whileTrue(new GoToAprilTagCommandUsingPoseEstimator(swerveDriveSubsystem, swerveDriveSubsystem::getEstimatedPosition, AprilTagPosition.CENTER, AprilTagType.STAGE));
     }
 
     /**
