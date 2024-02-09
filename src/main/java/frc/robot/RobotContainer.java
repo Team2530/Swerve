@@ -8,6 +8,7 @@ import frc.robot.Constants.*;
 import frc.robot.commands.*;
 import frc.robot.subsystems.LimeLightSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
+
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
 import edu.wpi.first.wpilibj2.command.*;
@@ -41,7 +42,6 @@ public class RobotContainer {
     public RobotContainer() {
         // Configure the trigger bindings
         configureBindings();
-
         swerveDriveSubsystem.setDefaultCommand(normalDrive);
     }
 
@@ -60,9 +60,22 @@ public class RobotContainer {
      * joysticks}.
      */
     private void configureBindings() {
-        // use b to chase April tag
-        driverXbox.b().whileTrue(new GoToAprilTagCommand(swerveDriveSubsystem, limeLightSubsystem, false));
-        driverXbox.a().whileTrue(new GoToAprilTagCommand(swerveDriveSubsystem, limeLightSubsystem, true));
+        // Left tag
+        driverXbox.a().whileTrue(new GoToAprilTagCommand(swerveDriveSubsystem, limeLightSubsystem, AprilTagPosition.LEFT, null));
+        // Right tag
+        driverXbox.b().whileTrue(new GoToAprilTagCommand(swerveDriveSubsystem, limeLightSubsystem, AprilTagPosition.RIGHT, null));
+        // single/center tag
+        driverXbox.y().whileTrue(new GoToAprilTagCommand(swerveDriveSubsystem, limeLightSubsystem, AprilTagPosition.CENTER, null));
+        // Search and go to AMP April Tag
+        driverXbox.povRight().whileTrue(new GoToAprilTagCommand(swerveDriveSubsystem, limeLightSubsystem, null, AprilTagType.AMP));
+        // Search and got to AMP April Tag
+        driverXbox.povDown().whileTrue(new GoToAprilTagCommand(swerveDriveSubsystem, limeLightSubsystem, null, AprilTagType.SPEAKER));
+        // Search and got to AMP April Tag
+        driverXbox.povUp().whileTrue(new GoToAprilTagCommand(swerveDriveSubsystem, limeLightSubsystem, null, AprilTagType.STAGE));
+        
+        // driverXbox.y().whileTrue(new GoToAprilTagCommandUsingPoseEstimator(swerveDriveSubsystem, swerveDriveSubsystem::getEstimatedPosition, AprilTagPosition.LEFT, AprilTagType.SPEAKER));
+        // driverXbox.a().whileTrue(new GoToAprilTagCommandUsingPoseEstimator(swerveDriveSubsystem, swerveDriveSubsystem::getEstimatedPosition, AprilTagPosition.CENTER, AprilTagType.AMP));
+        // driverXbox.b().whileTrue(new GoToAprilTagCommandUsingPoseEstimator(swerveDriveSubsystem, swerveDriveSubsystem::getEstimatedPosition, AprilTagPosition.CENTER, AprilTagType.STAGE));
     }
 
     /**

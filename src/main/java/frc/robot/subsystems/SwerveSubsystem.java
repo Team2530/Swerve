@@ -9,7 +9,6 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.SPI;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -17,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Robot;
 import frc.robot.Constants.*;
+import frc.robot.LimelightHelpers;
 
 public class SwerveSubsystem extends SubsystemBase {
     SwerveModule frontLeft = new SwerveModule(SwerveModuleConstants.FL_STEER_ID, SwerveModuleConstants.FL_DRIVE_ID,
@@ -67,10 +67,15 @@ public class SwerveSubsystem extends SubsystemBase {
     public void periodic() {
         odometry.update(getRotation2d(), getModulePositions());
 
-        // TODO: Test
-        // WARNING: REMOVE IF USING TAG FOLLOW!!!
-        // odometry.addVisionMeasurement(LimelightHelpers.getBotPose2d(null),
-        // Timer.getFPGATimestamp());
+        var poseEntry = LimelightHelpers.getLimelightNTTableEntry("limelight", "botpose_wpiblue");
+        var poseArray = poseEntry.getDoubleArray(new double[0]);
+        var timestamp = poseEntry.getLastChange() / 1e6 - poseArray[6] / 1e3;
+
+        var pose = new Pose2d(
+            new Translation2d(poseArray[0], poseArray[1]),
+            new Rotation2d(Units.degreesToRadians(poseArray[5])));
+
+        odometry.addVisionMeasurement(pose, timestamp);
 
         if(DriverStation.getAlliance().isPresent()) {
             switch (DriverStation.getAlliance().get()) {
@@ -200,5 +205,9 @@ public class SwerveSubsystem extends SubsystemBase {
         backLeft.simulate_step();
         backRight.simulate_step();
         navxSim += 0.02 * lastChassisSpeeds.omegaRadiansPerSecond;
+    }
+
+    public Pose2d getEstimatedPosition(){
+        return odometry.getEstimatedPosition();
     }
 }
