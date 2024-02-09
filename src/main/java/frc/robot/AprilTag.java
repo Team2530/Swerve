@@ -17,8 +17,12 @@ public class AprilTag {
     private Double _y;
     private Double _z;
     private double _rotation;
+    // _preset is for the distance to stop from the target
+    private double _presetX;
+    private double _presetY;
+    private double _presetRotation;
 
-    public AprilTag(String tagId, AprilTagType tagType, AprilTagPosition tagPosition, Alliance alliance, Double x, Double y, Double z, Double rotation){
+    public AprilTag(String tagId, AprilTagType tagType, AprilTagPosition tagPosition, Alliance alliance, double x, double y, double z, double rotation, double presetX, double presetY, double presetRotation){
         _tagId = tagId;
         _tagType = tagType;
         _tagPosition = tagPosition;
@@ -27,6 +31,9 @@ public class AprilTag {
         _y = y;
         _z = z;
         _rotation = rotation;
+        _presetX = presetX;
+        _presetY = presetY;
+        _presetRotation = presetRotation;
     }
 
     public AprilTagType GetTagType(){
@@ -46,6 +53,19 @@ public class AprilTag {
     }
 
     public Pose2d getPose2d(){
+        //return new Pose2d(new Translation2d(_x-_presetX, _y-_presetY), new Rotation2d(Units.degreesToRadians(_rotation)));
         return new Pose2d(new Translation2d(_x, _y), new Rotation2d(Units.degreesToRadians(_rotation)));
+    }
+
+    public double getPresetX(){
+        return(_presetX);
+    }
+
+    public double getPresetY(){
+        return(_presetY);
+    }
+
+    public double getPresetRotation(){
+        return(_presetRotation);
     }
 }

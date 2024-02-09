@@ -66,16 +66,24 @@ public class SwerveSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         odometry.update(getRotation2d(), getModulePositions());
+        
+        try{
+            double timestamp;
+            var poseEntry = LimelightHelpers.getLimelightNTTableEntry("limelight", "botpose_wpiblue");
+            var poseArray = poseEntry.getDoubleArray(new double[0]);
+            if(poseArray.length >= 7)
+            {
+                timestamp = poseEntry.getLastChange() / 1e6 - poseArray[6] / 1e3;
+                var pose = new Pose2d(
+                new Translation2d(poseArray[0], poseArray[1]),
+                new Rotation2d(Units.degreesToRadians(poseArray[5])));
 
-        var poseEntry = LimelightHelpers.getLimelightNTTableEntry("limelight", "botpose_wpiblue");
-        var poseArray = poseEntry.getDoubleArray(new double[0]);
-        var timestamp = poseEntry.getLastChange() / 1e6 - poseArray[6] / 1e3;
-
-        var pose = new Pose2d(
-            new Translation2d(poseArray[0], poseArray[1]),
-            new Rotation2d(Units.degreesToRadians(poseArray[5])));
-
-        odometry.addVisionMeasurement(pose, timestamp);
+                odometry.addVisionMeasurement(pose, timestamp);
+            }
+        }
+        catch(Exception e){
+            SmartDashboard.putString("AddvisionError", e.getMessage());
+          }
 
         if(DriverStation.getAlliance().isPresent()) {
             switch (DriverStation.getAlliance().get()) {

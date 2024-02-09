@@ -98,6 +98,7 @@ public class GoToAprilTagCommandUsingPoseEstimator extends Command {
         Pose2d robotPose = robotPoseSupplier.get();
         if(robotPose != null){
          if(CommonConstants.LOG_INTO_FILE_ENABLED){
+            SmartDashboard.putString("Current tagID", tag.GetTagId());
             SmartDashboard.putNumber("Current pose X", robotPose.getX());
             SmartDashboard.putNumber("Current pose Y", robotPose.getY());
             SmartDashboard.putNumber("Current pose Rotation", robotPose.getRotation().getRadians());
@@ -108,13 +109,13 @@ public class GoToAprilTagCommandUsingPoseEstimator extends Command {
           }
 
           // Handle alignment side-to-side
-          var ySpeed = pidControllerY.calculate(robotPose.getY());
+          var ySpeed = 0;//pidControllerY.calculate(robotPose.getY());
           if (pidControllerY.atSetpoint()) {
             ySpeed = 0;
           }
 
           // Handle rotation using target Yaw/Z rotation
-          var omegaSpeed = pidControllerOmega.calculate(robotPose.getRotation().getDegrees());
+          var omegaSpeed = 0;//pidControllerOmega.calculate(robotPose.getRotation().getDegrees());
           if (pidControllerOmega.atSetpoint()) {
             omegaSpeed = 0;
           }
@@ -135,7 +136,7 @@ public class GoToAprilTagCommandUsingPoseEstimator extends Command {
             logMessage += "rotation is at SetPoint : " + pidControllerOmega.atSetpoint() + ": ";
             log.append(logMessage);
           }          
-          speeds = ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, omegaSpeed, robotPose.getRotation());
+          speeds = ChassisSpeeds.fromFieldRelativeSpeeds(ySpeed, -xSpeed, omegaSpeed, robotPose.getRotation());
 
           SwerveModuleState[] calculatedModuleStates = DriveConstants.KINEMATICS.toSwerveModuleStates(speeds);
           swerveSubsystem.setModules(calculatedModuleStates); 
