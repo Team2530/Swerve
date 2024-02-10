@@ -52,7 +52,7 @@ public class GoToAprilTagCommandUsingPoseEstimator extends Command {
         this.robotPoseSupplier = robotPoseSupplier;
         this.tagPosition = tagPosition;
         this.tagType = tagType;
-        this.tag = swerveSubsystem.getApirlTag(tagPosition, tagType);
+        this.tag = swerveSubsystem.getAprilTag(tagPosition, tagType);
         addRequirements(swerveSubsystem);
     }
 
