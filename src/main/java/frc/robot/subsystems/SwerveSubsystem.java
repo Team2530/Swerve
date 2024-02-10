@@ -228,7 +228,7 @@ public class SwerveSubsystem extends SubsystemBase {
         return odometry.getEstimatedPosition();
     }
 
-    public AprilTag getApirlTag(AprilTagPosition tagPosition, AprilTagType tagType)
+    public AprilTag getAprilTag(AprilTagPosition tagPosition, AprilTagType tagType)
     {
       // if there is an alliance it gets the alliance (blue or red)
       Optional<Alliance> alliance = DriverStation.getAlliance();
