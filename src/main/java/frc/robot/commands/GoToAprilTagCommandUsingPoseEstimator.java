@@ -53,7 +53,7 @@ public class GoToAprilTagCommandUsingPoseEstimator extends Command {
         this.robotPoseSupplier = robotPoseSupplier;
         this.tagPosition = tagPosition;
         this.tagType = tagType;
-        this.tag = getApirlTag(tagPosition, tagType);
+        this.tag = getAprilTag(tagPosition, tagType);
         addRequirements(swerveSubsystem);
     }
 
@@ -168,7 +168,7 @@ public class GoToAprilTagCommandUsingPoseEstimator extends Command {
     pidControllerY.reset(robotPose.getY());
   }
 
-  public AprilTag getApirlTag(AprilTagPosition tagPosition, AprilTagType tagType)
+  public AprilTag getAprilTag(AprilTagPosition tagPosition, AprilTagType tagType)
   {
       // if there is an alliance it gets the alliance (blue or red)
       Optional<Alliance> alliance = DriverStation.getAlliance();
