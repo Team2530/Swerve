@@ -128,7 +128,7 @@ public final class Constants {
 
     public static final int INTAKE_MOTOR_PORT = 1;
 
-    public static final int SHOOTER_MOTOR_PORT = 10;
+    public static final int SHOOTER_MOTOR_PORT = 2;
     
   }
 }

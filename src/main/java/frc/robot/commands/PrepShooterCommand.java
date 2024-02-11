@@ -36,9 +36,9 @@ public class PrepShooterCommand extends Command {
 
     @Override
     public void execute() {
-        if ((RobotController.getFPGATime() - starttime) > 1.0) {
-            cancel();
-        }
+        // if ((RobotController.getFPGATime() - starttime) > 1.25) {
+        //     cancel();
+        // }
     }
 
     @Override
@@ -52,5 +52,10 @@ public class PrepShooterCommand extends Command {
     public boolean isFinished() {
         // piece is behind front limit switch and is clear
         return shooter.isUpToSpeed();
+        // if ((RobotController.getFPGATime() - starttime) > 10.0*10e6) {
+        //     return true;
+        // } else {
+        //     return false;
+        // }
     }
 }

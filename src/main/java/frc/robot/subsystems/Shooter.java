@@ -13,7 +13,7 @@ import frc.robot.Constants.ArmConstants;
 public class Shooter extends SubsystemBase {
     public enum ShooterMode {
         STOPPED(0.0),
-        FULL(0.8),
+        FULL(1.0),
         REVERSE(-0.2),
         IDLE(0.1),
         CUSTOM(1.5);
@@ -84,6 +84,6 @@ public class Shooter extends SubsystemBase {
     }
 
     public boolean isUpToSpeed() {
-        return (outputPercent * 89.0f - shooterMotor.getRotorVelocity().getValueAsDouble()) < 1.0;
+        return shooterMotor.getRotorVelocity().getValueAsDouble() > (outputPercent * 90.0);
     }
 }

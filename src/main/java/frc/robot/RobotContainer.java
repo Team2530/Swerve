@@ -36,7 +36,7 @@ public class RobotContainer {
 
     private final UsbCamera intakeCam = CameraServer.startAutomaticCapture();
 
-    private final DriveCommand normalDrive = new DriveCommand(swerveDriveSubsystem, driverXbox.getHID());
+    // private final DriveCommand normalDrive = new DriveCommand(swerveDriveSubsystem, driverXbox.getHID());
 
     private final Intake intake = new Intake();
 
@@ -50,7 +50,7 @@ public class RobotContainer {
     public RobotContainer() {
         // Configure the trigger bindings
         configureBindings();
-        swerveDriveSubsystem.setDefaultCommand(normalDrive);
+        // swerveDriveSubsystem.setDefaultCommand(normalDrive);
     }
 
     /**
@@ -71,7 +71,7 @@ public class RobotContainer {
         driverXbox.a().whileTrue(new RepeatCommand(new InstantCommand(() -> {
             System.out.println(driverXbox.getRawAxis(0));
             intake.setCustomPercent(driverXbox.getRawAxis(0));
-            shooter.setCustomPercent(driverXbox.getRawAxis(2));
+            shooter.setCustomPercent(driverXbox.getRawAxis(2) - driverXbox.getRawAxis(3));
         }))).onFalse(new InstantCommand(() -> {
             intake.setMode(IntakeMode.STOPPED);
             shooter.setMode(ShooterMode.STOPPED);

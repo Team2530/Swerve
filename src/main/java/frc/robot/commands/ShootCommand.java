@@ -26,7 +26,7 @@ public class ShootCommand extends Command {
         intake.coast();
         shooter.coast();
         intake.setForwardLimitEnabled(false);
-        intake.setCustomPercent(0.65);
+        intake.setCustomPercent(0.75);
         SmartDashboard.putString("Shootake", "Shooting note");
 
         dTime = Timer.getFPGATimestamp();
@@ -47,7 +47,7 @@ public class ShootCommand extends Command {
     public boolean isFinished() {
         // terminate after 1.5 seconds has passed and front limit doesn't see the note
         // TODO Determine if 1.5 seconds is too long or not
-       if ((!intake.getFrontLimitClosed()) && ((Timer.getFPGATimestamp() - dTime) > 0.5)) {
+       if ((!intake.getFrontLimitClosed()) && ((Timer.getFPGATimestamp() - dTime) > 0.5)) {   
             return true;
        } else {
             return false;

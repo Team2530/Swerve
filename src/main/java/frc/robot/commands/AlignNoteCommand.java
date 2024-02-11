@@ -9,7 +9,6 @@ public class AlignNoteCommand extends Command {
     private final Intake intake;
     private final Shooter shooter;
 
-
     public AlignNoteCommand(Intake intake, Shooter shooter) {
         this.intake = intake;
         this.shooter = shooter;
@@ -41,5 +40,5 @@ public class AlignNoteCommand extends Command {
     public boolean isFinished() {
         return !(intake.getFrontLimitClosed() ^ intake.getReverseLimitClosed());
     }
-    
+
 }
