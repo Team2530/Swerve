@@ -162,21 +162,21 @@ public final class Constants {
   public static Dictionary<String, AprilTag> AllAprilTags = new Hashtable<String, AprilTag>() {{
     //Blue Alliance April tags 1, 2, 6, 7, 8, 14, 15, 16
     //Red Alliance April tags 3, 4, 5, 9, 10, 11, 12, 13
-    put("1.0", new AprilTag("1.0", AprilTagType.SOURCE, AprilTagPosition.RIGHT, Alliance.Blue, Units.inchesToMeters(593.68), Units.inchesToMeters(9.68), Units.inchesToMeters(53.38), 120.00, 25.0, 0, 0));
-    put("2.0", new AprilTag("2.0", AprilTagType.SOURCE, AprilTagPosition.LEFT, Alliance.Blue, Units.inchesToMeters(637.21), Units.inchesToMeters(34.79), Units.inchesToMeters(53.38), 120.00, 25.0, 0, 0));
-    put("3.0", new AprilTag("3.0", AprilTagType.SPEAKER, AprilTagPosition.RIGHT, Alliance.Red, Units.inchesToMeters(652.73),Units.inchesToMeters(196.17), Units.inchesToMeters(57.13), 180.00, 55.0, 0, 30));
-    put("4.0", new AprilTag("4.0", AprilTagType.SPEAKER, AprilTagPosition.LEFT, Alliance.Red, Units.inchesToMeters(652.73), Units.inchesToMeters(218.42), Units.inchesToMeters(57.13), 180.00, 55.0, 0, 0));
-    put("5.0", new AprilTag("5.0", AprilTagType.AMP, AprilTagPosition.CENTER, Alliance.Red, Units.inchesToMeters(578.77), Units.inchesToMeters(323.00), Units.inchesToMeters(53.38), 270.00, 20.0, 0, 0));
-    put("6.0", new AprilTag("6.0", AprilTagType.AMP, AprilTagPosition.CENTER, Alliance.Blue, Units.inchesToMeters(72.5), Units.inchesToMeters(323.00), Units.inchesToMeters(53.38), 270.00, 20, 0, 0));
-    put("7.0", new AprilTag("7.0", AprilTagType.SPEAKER, AprilTagPosition.RIGHT, Alliance.Blue, Units.inchesToMeters(-1.50), Units.inchesToMeters(218.42), Units.inchesToMeters(57.13), 0.00, 55, 0, 45));
-    put("8.0", new AprilTag("8.0", AprilTagType.SPEAKER, AprilTagPosition.LEFT, Alliance.Blue, Units.inchesToMeters(-1.50), Units.inchesToMeters(196.17), Units.inchesToMeters(57.13), 0.00, 55, 0, 0));
-    put("9.0", new AprilTag("9.0", AprilTagType.SOURCE, AprilTagPosition.RIGHT, Alliance.Red, Units.inchesToMeters(14.02), Units.inchesToMeters(34.79), Units.inchesToMeters(53.38), 60.00, 25, 0, 0));
-    put("10.0", new AprilTag("10.0", AprilTagType.SOURCE, AprilTagPosition.LEFT, Alliance.Red, Units.inchesToMeters(57.54), Units.inchesToMeters(9.68), Units.inchesToMeters(53.38), 60.00, 20, 0, 0));
-    put("11.0", new AprilTag("11.0", AprilTagType.STAGE, AprilTagPosition.CENTER, Alliance.Red, Units.inchesToMeters(468.69), Units.inchesToMeters(146.19), Units.inchesToMeters(52.00), 300.00, 16, 0, 0));
-    put("12.0", new AprilTag("12.0", AprilTagType.STAGE, AprilTagPosition.CENTER, Alliance.Red, Units.inchesToMeters(468.69), Units.inchesToMeters(177.10), Units.inchesToMeters(52.00), 60.00, 16, 0, 0));
-    put("13.0", new AprilTag("13.0", AprilTagType.STAGE, AprilTagPosition.CENTER, Alliance.Red, Units.inchesToMeters(441.74), Units.inchesToMeters(161.62), Units.inchesToMeters(52.00), 180.00, 16, 0, 0));
-    put("14.0", new AprilTag("14.0", AprilTagType.STAGE, AprilTagPosition.CENTER, Alliance.Blue, Units.inchesToMeters(209.48), Units.inchesToMeters(161.62), Units.inchesToMeters(52.00), 0.00, 16, 0, 0));
-    put("15.0", new AprilTag("15.0", AprilTagType.STAGE, AprilTagPosition.CENTER, Alliance.Blue, Units.inchesToMeters(182.73), Units.inchesToMeters(177.10), Units.inchesToMeters(52.00), 120.00, 16, 0, 0));
-    put("16.0", new AprilTag("16.0", AprilTagType.STAGE, AprilTagPosition.CENTER, Alliance.Blue, Units.inchesToMeters(182.73), Units.inchesToMeters(146.19), Units.inchesToMeters(52.00), 240.00, 16, 0, 0));
+    put("1.0", new AprilTag("1.0", AprilTagType.SOURCE, AprilTagPosition.RIGHT, Alliance.Blue, 593.68, 9.68, 53.38, 120.00, 25.0, 0, 0));
+    put("2.0", new AprilTag("2.0", AprilTagType.SOURCE, AprilTagPosition.LEFT, Alliance.Blue, 637.21, 34.79, 53.38, 120.00, 25.0, 0, 0));
+    put("3.0", new AprilTag("3.0", AprilTagType.SPEAKER, AprilTagPosition.RIGHT, Alliance.Red, 652.73,196.17, 57.13, 180.00, 55.0, 0, 30));
+    put("4.0", new AprilTag("4.0", AprilTagType.SPEAKER, AprilTagPosition.LEFT, Alliance.Red, 652.73, 218.42, 57.13, 180.00, 55.0, 0, 0));
+    put("5.0", new AprilTag("5.0", AprilTagType.AMP, AprilTagPosition.CENTER, Alliance.Red, 578.77, 323.00, 53.38, 270.00, 20.0, 0, 0));
+    put("6.0", new AprilTag("6.0", AprilTagType.AMP, AprilTagPosition.CENTER, Alliance.Blue, 72.5, 323.00, 53.38, 270.00, 20, 0, 0));
+    put("7.0", new AprilTag("7.0", AprilTagType.SPEAKER, AprilTagPosition.RIGHT, Alliance.Blue, -1.50, 218.42, 57.13, 0.00, 55, 0, 45));
+    put("8.0", new AprilTag("8.0", AprilTagType.SPEAKER, AprilTagPosition.LEFT, Alliance.Blue, -1.50, 196.17, 57.13, 0.00, 55, 0, 0));
+    put("9.0", new AprilTag("9.0", AprilTagType.SOURCE, AprilTagPosition.RIGHT, Alliance.Red, 14.02, 34.79, 53.38, 60.00, 25, 0, 0));
+    put("10.0", new AprilTag("10.0", AprilTagType.SOURCE, AprilTagPosition.LEFT, Alliance.Red, 57.54, 9.68, 53.38, 60.00, 20, 0, 0));
+    put("11.0", new AprilTag("11.0", AprilTagType.STAGE, AprilTagPosition.CENTER, Alliance.Red, 468.69, 146.19, 52.00, 300.00, 16, 0, 0));
+    put("12.0", new AprilTag("12.0", AprilTagType.STAGE, AprilTagPosition.CENTER, Alliance.Red, 468.69, 177.10, 52.00, 60.00, 16, 0, 0));
+    put("13.0", new AprilTag("13.0", AprilTagType.STAGE, AprilTagPosition.CENTER, Alliance.Red, 441.74, 161.62, 52.00, 180.00, 16, 0, 0));
+    put("14.0", new AprilTag("14.0", AprilTagType.STAGE, AprilTagPosition.CENTER, Alliance.Blue, 209.48, 161.62, 52.00, 0.00, 16, 0, 0));
+    put("15.0", new AprilTag("15.0", AprilTagType.STAGE, AprilTagPosition.CENTER, Alliance.Blue, 182.73, 177.10, 52.00, 120.00, 16, 0, 0));
+    put("16.0", new AprilTag("16.0", AprilTagType.STAGE, AprilTagPosition.CENTER, Alliance.Blue, 182.73, 146.19, 52.00, 240.00, 16, 0, 0));
   }};
 }

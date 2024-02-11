@@ -29,6 +29,9 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 public class GoToAprilTagCommandUsingPoseEstimator extends Command {
+
+    private static final double TRANSLATION_TOLERANCE = 0.02;
+    private static final double THETA_TOLERANCE = Units.degreesToRadians(2.0);
     
     private final SwerveSubsystem swerveSubsystem;
     public final Supplier<Pose2d> robotPoseSupplier;
@@ -61,7 +64,7 @@ public class GoToAprilTagCommandUsingPoseEstimator extends Command {
     super.initialize();
     if(tag != null)
     {
-      Pose2d goalPose = tag.getPose2d();
+      Pose2d goalPose = tag.getTagPose2dInField();
       if(goalPose != null){
         if(CommonConstants.LOG_INTO_FILE_ENABLED){
         SmartDashboard.putNumber("GoalPoseX", goalPose.getX());
@@ -70,14 +73,14 @@ public class GoToAprilTagCommandUsingPoseEstimator extends Command {
         
       }
         resetPIDControllers();
-        pidControllerX.setGoal(Units.inchesToMeters(goalPose.getX())); // Move forward/backwork to keep 36 inches from the target
-        pidControllerX.setTolerance(Units.inchesToMeters(2.5));
+        pidControllerX.setGoal(goalPose.getX()); // Move forward/backwork to keep 36 inches from the target
+        pidControllerX.setTolerance(TRANSLATION_TOLERANCE);
 
         pidControllerY.setGoal(goalPose.getY()); // Move side to side to keep target centered
-        pidControllerY.setTolerance(Units.inchesToMeters(2.5));
+        pidControllerY.setTolerance(TRANSLATION_TOLERANCE);
 
-        pidControllerOmega.setGoal(Units.degreesToRadians(goalPose.getRotation().getRadians())); // Rotate the keep perpendicular with the target
-        pidControllerOmega.setTolerance(Units.degreesToRadians(1));
+        pidControllerOmega.setGoal(goalPose.getRotation().getRadians()); // Rotate the keep perpendicular with the target
+        pidControllerOmega.setTolerance(THETA_TOLERANCE);
 
         if(CommonConstants.LOG_INTO_FILE_ENABLED){
           /// Starts recording to data log
@@ -120,7 +123,7 @@ public class GoToAprilTagCommandUsingPoseEstimator extends Command {
           }
 
           // Handle rotation using target Yaw/Z rotation
-          var omegaSpeed = 0;//pidControllerOmega.calculate(robotPose.getRotation().getDegrees());
+          var omegaSpeed = 0;//pidControllerOmega.calculate(robotPose.getRotation().getRadians());
           if (pidControllerOmega.atSetpoint()) {
             omegaSpeed = 0;
           }

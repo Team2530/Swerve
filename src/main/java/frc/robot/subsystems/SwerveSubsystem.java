@@ -224,10 +224,6 @@ public class SwerveSubsystem extends SubsystemBase {
         navxSim += 0.02 * lastChassisSpeeds.omegaRadiansPerSecond;
     }
 
-    public Pose2d getEstimatedPosition(){
-        return odometry.getEstimatedPosition();
-    }
-
     public AprilTag getAprilTag(AprilTagPosition tagPosition, AprilTagType tagType)
     {
       // if there is an alliance it gets the alliance (blue or red)
