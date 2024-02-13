@@ -33,6 +33,7 @@ public class RobotContainer {
             ControllerConstants.OPERATOR_CONTROLLER_PORT);
 
     private final SwerveSubsystem swerveDriveSubsystem = new SwerveSubsystem();
+    private final Arm armSubsystem = new Arm();
 
     private final UsbCamera intakeCam = CameraServer.startAutomaticCapture();
 
@@ -41,6 +42,8 @@ public class RobotContainer {
     private final Intake intake = new Intake();
 
     private final Shooter shooter = new Shooter();
+
+    private final OperatorCommand operator = new OperatorCommand(operatorXbox.getHID(), armSubsystem);
 
     // ----------- Commands ---------- \\
 
@@ -51,6 +54,7 @@ public class RobotContainer {
         // Configure the trigger bindings
         configureBindings();
         // swerveDriveSubsystem.setDefaultCommand(normalDrive);
+        armSubsystem.setDefaultCommand(operator);
     }
 
     /**
@@ -68,43 +72,6 @@ public class RobotContainer {
      * joysticks}.
      */
     private void configureBindings() {
-        driverXbox.a().whileTrue(new RepeatCommand(new InstantCommand(() -> {
-            System.out.println(driverXbox.getRawAxis(0));
-            intake.setCustomPercent(driverXbox.getRawAxis(0));
-            shooter.setCustomPercent(driverXbox.getRawAxis(2) - driverXbox.getRawAxis(3));
-        }))).onFalse(new InstantCommand(() -> {
-            intake.setMode(IntakeMode.STOPPED);
-            shooter.setMode(ShooterMode.STOPPED);
-        }));
-
-
-        driverXbox.x().and(new BooleanSupplier() {
-            public boolean getAsBoolean() {
-                return !intake.getFrontLimitClosed();
-            }
-        }).onTrue(
-            new IntakeCommand(intake).raceWith(new WaitUntilCommand(driverXbox.x().negate()))
-        );
-
-        driverXbox.b().and(new BooleanSupplier() {
-            public boolean getAsBoolean() {
-                return intake.getReverseLimitClosed() || intake.getFrontLimitClosed();
-            }
-        }).onTrue(
-            new ParallelRaceGroup(
-                new WaitUntilCommand(driverXbox.b().negate()),
-                new SequentialCommandGroup(
-                    new AlignNoteCommand(intake, shooter),
-                    new PrintCommand("EEEEEEEEEEEEEEEE"),
-                    new PrepNoteCommand(shooter, intake),
-                    new PrepShooterCommand(intake, shooter, 1.0),
-                    new ShootCommand(shooter, intake)
-                    // new InstantCommand(() -> {
-                    //     shooter.coast();
-                    //     shooter.setMode(ShooterMode.STOPPED);
-                    // })
-            ))
-        );
     }
 
     /**

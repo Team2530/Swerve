@@ -1,8 +1,10 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix6.controls.Follower;
+import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.ReverseLimitValue;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -90,8 +92,11 @@ public class Arm extends SubsystemBase {
         Homing
     }
     private ControlState controlState = ControlState.Human;
+
         
     // ---------------------------- \\
+
+    private final VoltageOut request = new VoltageOut(0);
 
 
     public Arm() {
@@ -101,9 +106,14 @@ public class Arm extends SubsystemBase {
 
         // motos n things        
         stageOneLeader.setInverted(ArmConstants.L_STAGE_ONE_ISREVERSED);
-        stageOneFollower.setControl(new Follower(stageOneLeader.getDeviceID(), false));
+        stageOneFollower.setControl(new Follower(stageOneLeader.getDeviceID(), ArmConstants.FOLLOWER_STAGE_ONE_ISREVERSED));
 
-        stageTwoMotor.setInverted(ArmConstants.R_STAGE_ONE_ISREVERSED);
+        stageTwoMotor.setInverted(ArmConstants.STAGE_TWO_ISREVERSED);
+
+        stageOneLeader.setSafetyEnabled(false);        
+        stageOneFollower.setSafetyEnabled(false);
+        stageTwoMotor.setSafetyEnabled(false);
+
     }
 
     @Override
@@ -126,15 +136,23 @@ public class Arm extends SubsystemBase {
                 break;
         }
         // shoulder
-        stageOneLeader.setVoltage(
-            ArmConstants.STAGE_ONE_PROFILEDPID.calculate(stageOneEncoder.getPosition().getValue(), shoulderSetpoint + Preferences.getDouble(ArmConstants.STAGE_ONE_OFFSET_KEY, ArmConstants.STAGE_ONE_ENCODER_OFFSET)) +
-            ArmConstants.STAGE_ONE_FEEDFORWARD.calculate(shoulderSetpoint, shoulderVelocity)
-        );
+
+
+        stageOneLeader.set(Math.max(0, Math.min( 0.4 ,ArmConstants.STAGE_ONE_PROFILEDPID.calculate(stageOneEncoder.getPosition().getValue(), shoulderSetpoint))));
+
+        SmartDashboard.putNumber("L_POS", stageOneLeader.getPosition().getValue());
+        SmartDashboard.putNumber("actual", stageOneLeader.getMotorVoltage().getValue());
+        SmartDashboard.putNumber("voltage", ArmConstants.STAGE_ONE_PROFILEDPID.calculate(stageOneEncoder.getPosition().getValue(), shoulderSetpoint + Preferences.getDouble(ArmConstants.STAGE_ONE_OFFSET_KEY, ArmConstants.STAGE_ONE_ENCODER_OFFSET)) +
+            ArmConstants.STAGE_ONE_FEEDFORWARD.calculate(shoulderSetpoint, shoulderVelocity));
         // wrist
         stageTwoMotor.setVoltage(
             wristFeedback.calculate(stageTwoEncoder.getPosition().getValue(), wristSetpoint + Preferences.getDouble(ArmConstants.STAGE_TWO_OFFSET_KEY, ArmConstants.STAGE_TWO_ENCODER_OFFSET)) +
             ArmConstants.STAGE_TWO_FEEDFORWARD.calculate(wristSetpoint, wristVelocity)
         );
+
+        SmartDashboard.putBoolean("left fwd limit", stageOneFollower.getReverseLimit().getValue().value == 1);
+        SmartDashboard.putBoolean("right fwd limit", stageOneLeader.getReverseLimit().getValue().value == 1);
+
     }
 
 

@@ -121,7 +121,7 @@ public final class Constants {
 
     public static final int STAGE_ONE_MOTOR_R = 3;
 
-    public static final int STAGE_TWO_MOTOR_PORT = 11;
+    public static final int STAGE_TWO_MOTOR_PORT = 5;
 
     public static final int STAGE_ONE_ENCODER_PORT = 11;
 
@@ -138,22 +138,22 @@ public final class Constants {
     public static final String STAGE_ONE_OFFSET_KEY = "STAGE_ONE_OFFSET";
     public static final String STAGE_TWO_OFFSET_KEY = "STAGE_TWO_OFFSET";
 
-    public static final double STAGE_ONE_ENCODER_OFFSET = Units.rotationsToRadians(0.0);
+    public static final double STAGE_ONE_ENCODER_OFFSET = Units.rotationsToRadians(0.018311);
 
-    public static final double STAGE_TWO_ENCODER_OFFSET = Units.rotationsToRadians(0.0);
+    public static final double STAGE_TWO_ENCODER_OFFSET = Units.rotationsToRadians(-0.033936);
 
     public static final double INTAKE_ENCODER_TO_ROT = 10.0 / 18.0;
 
     public static final int MAST_ARM_ENCODER_PORT = 5;
 
     public static final ProfiledPIDController STAGE_ONE_PROFILEDPID = new ProfiledPIDController(
-      0.1, 
+      0.6, 
       0.0, 
       0.0, 
       new Constraints(1, 1));
 
       public static final ProfiledPIDController STAGE_TWO_PROFILEDPID = new ProfiledPIDController(
-      0.1, 
+      0.2, 
       0.0,
       0.0, 
       new Constraints(1, 1));
@@ -170,8 +170,9 @@ public final class Constants {
       1.19,
       0.0);
 
-    public static final boolean L_STAGE_ONE_ISREVERSED = false;
-    public static final boolean R_STAGE_ONE_ISREVERSED = false;
+    public static final boolean L_STAGE_ONE_ISREVERSED = true;
+    public static final boolean FOLLOWER_STAGE_ONE_ISREVERSED = true;
+    public static final boolean STAGE_TWO_ISREVERSED = true;
 
 
 
