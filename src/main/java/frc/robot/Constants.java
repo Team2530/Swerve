@@ -158,6 +158,24 @@ public final class Constants {
       0.0, 
       new Constraints(1, 1));
 
+    public static final ArmFeedforward STAGE_ONE_FEEDFORWARD = new ArmFeedforward(
+      0.0,
+      0.42, 
+      2.07,
+      0.02);
+
+    public static final ArmFeedforward STAGE_TWO_FEEDFORWARD = new ArmFeedforward(
+      0.0,
+      0.26, 
+      1.19,
+      0.0);
+
+    public static final boolean L_STAGE_ONE_ISREVERSED = false;
+    public static final boolean R_STAGE_ONE_ISREVERSED = false;
+
+
+
+
 
 
 
