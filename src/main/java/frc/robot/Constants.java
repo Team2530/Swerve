@@ -4,10 +4,14 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.Constraints;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.units.Unit;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
@@ -112,21 +116,65 @@ public final class Constants {
     // All arm constants to do with placement are refrenced from intake side and bottom plate.
     // NOTE: All units are in inches
     public static final Translation2d MAST_CENTER_OF_ROTATION = new Translation2d(-9.6, 22.780);
+
+    public static final int STAGE_ONE_MOTOR_L = 4;    
+
+    public static final int STAGE_ONE_MOTOR_R = 3;
+
+    public static final int STAGE_TWO_MOTOR_PORT = 11;
+
+    public static final int STAGE_ONE_ENCODER_PORT = 11;
+
+    public static final int INTAKE_MOTOR_PORT = 1;
+
+    public static final int SHOOTER_MOTOR_PORT = 2;
+
+    public static final int STAGE_TWO_ENCODER_PORT = 10;
     
-    // Refrenced from center of rotation
-    public static final double INNER_MAST_LENGTH = 15.07;
+    // Link lengths in inches
+    public static final double STAGE_ONE_LENGTH = 19.7;
+    public static final double STAGE_TWO_LENGTH = 12.0;
 
-    // Refrenced from axis of rotation to end of shooter
-    public static final double SHOOTER_LENGTH = 9.068;
+    public static final String STAGE_ONE_OFFSET_KEY = "STAGE_ONE_OFFSET";
+    public static final String STAGE_TWO_OFFSET_KEY = "STAGE_TWO_OFFSET";
 
-    // Refrenced from axis of rotation to end of intake
-    public static final double INTAKE_LENGTH = 15.041;
+    public static final double STAGE_ONE_ENCODER_OFFSET = Units.rotationsToRadians(0.0);
 
-    public static final int MAST_ARM_ENCODER_PORT = 5;
+    public static final double STAGE_TWO_ENCODER_OFFSET = Units.rotationsToRadians(0.0);
 
-    public static final int INTAKE_MOTOR_PORT = 10;
+    public static final boolean L_STAGE_ONE_ISREVERSED = false;
+    
+    public static final boolean R_STAGE_ONE_ISREVERSED = false;
 
-    public static final int SHOOTER_MOTOR_PORT = 1;
+    public static final ArmFeedforward STAGE_ONE_FEEDFORWARD = new ArmFeedforward(
+      0.0, 
+      0.42,
+      2.07,
+      0.02);
+
+    public static final ArmFeedforward STAGE_TWO_FEEDFORWARD = new ArmFeedforward(
+      0.0, 
+      0.26,
+      1.19, 
+      0.0);
+
+    public static final ProfiledPIDController STAGE_ONE_PROFILEDPID = new ProfiledPIDController(
+      0.1, 
+      0.0, 
+      0.0, 
+      new Constraints(1, 1));
+
+      public static final ProfiledPIDController STAGE_TWO_PROFILEDPID = new ProfiledPIDController(
+      0.1, 
+      0.0, 
+      0.0, 
+      new Constraints(1, 1));
+
+
+
+
+
+
     
   }
 }
