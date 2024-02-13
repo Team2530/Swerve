@@ -34,7 +34,7 @@ public class Shooter extends SubsystemBase {
     private double outputPercent = 0.0;
 
     //TODO: TUNE! allow shooter to spool in 1/3 sec and stop in 1/2.
-    private final SlewRateLimiter shooterProfile = new SlewRateLimiter(3, -2, 0.0);
+    private final SlewRateLimiter shooterProfile = new SlewRateLimiter(5, -5, 0.0);
 
     public Shooter() {
         shooterMotor.setNeutralMode(NeutralModeValue.Brake);
@@ -45,7 +45,9 @@ public class Shooter extends SubsystemBase {
         double percent = shooterProfile.calculate(outputPercent);
         shooterMotor.set(percent);
 
-        SmartDashboard.putNumber("Shooter Percent", percent * 100);
+        SmartDashboard.putNumber("Shooter Percent", percent * 100);        
+        SmartDashboard.putNumber("Shooter Real", shooterMotor.getRotorVelocity().getValueAsDouble());
+
     }
 
     public void setMode(ShooterMode mode) {
@@ -60,7 +62,7 @@ public class Shooter extends SubsystemBase {
         // clamp between (-1, 1)
         outputPercent = Math.max(-1, Math.min(percent, 1));
 
-        SmartDashboard.putString("Shootake", "Shooter speed set to " + String.format("%.0.f", percent * 100) + " percent");
+        SmartDashboard.putString("Shootake", "Shooter speed set to " + String.format("%.0f", percent * 100) + " percent");
     }
 
     public double getOutputPercent() {
@@ -82,6 +84,6 @@ public class Shooter extends SubsystemBase {
     }
 
     public boolean isUpToSpeed() {
-        return Math.abs(shooterMotor.get() - outputPercent) < 0.05;
+        return shooterMotor.getRotorVelocity().getValueAsDouble() > (outputPercent * 90.0);
     }
 }

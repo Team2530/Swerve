@@ -2,9 +2,18 @@ package frc.robot.subsystems;
 
 import java.text.DecimalFormat;
 
+import javax.swing.text.Utilities;
+
+import com.ctre.phoenix6.StatusSignal;
+import com.ctre.phoenix6.Utils;
+import com.ctre.phoenix6.configs.HardwareLimitSwitchConfigs;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.ForwardLimitSourceValue;
+import com.ctre.phoenix6.signals.ForwardLimitTypeValue;
 import com.ctre.phoenix6.signals.ForwardLimitValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import com.ctre.phoenix6.signals.ReverseLimitSourceValue;
+import com.ctre.phoenix6.signals.ReverseLimitValue;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -16,7 +25,7 @@ public class Intake extends SubsystemBase {
     public enum IntakeMode {
          IDLE(0.2),
          STOPPED(0.0),
-         INTAKING(0.2),
+         INTAKING(0.5),
          REVERSE(-0.1),
          CUSTOM(1.5);
 
@@ -32,6 +41,8 @@ public class Intake extends SubsystemBase {
 
     // Falcon 500 intake motor
     private final TalonFX intakeMotor = new TalonFX(ArmConstants.INTAKE_MOTOR_PORT);
+    HardwareLimitSwitchConfigs limconf =new HardwareLimitSwitchConfigs();
+
 
     // desired custom motor output percent
     private double outputPercent = 0.0;
@@ -39,15 +50,25 @@ public class Intake extends SubsystemBase {
     // private final PIDController intakeProfile = new PIDController(0.1, 0.0, 0.01);
 
     // allow motor to speed up quickly and slow down over a period of time
-    private final SlewRateLimiter intakeProfile = new SlewRateLimiter(5, -10, 0.0);
+    private final SlewRateLimiter intakeProfile = new SlewRateLimiter(5, -5, 0.0);
 
     public Intake() {
+        limconf.ForwardLimitSource = ForwardLimitSourceValue.LimitSwitchPin;
+        limconf.ReverseLimitSource = ReverseLimitSourceValue.LimitSwitchPin;
+        limconf.ReverseLimitEnable = false;
+        limconf.ForwardLimitEnable = true;
+        intakeMotor.getConfigurator().apply(limconf);
+    
         intakeMotor.setNeutralMode(NeutralModeValue.Brake);
+        intakeMotor.setInverted(true);
     }
 
     @Override
     public void periodic() {
         double percent = intakeProfile.calculate(outputPercent);
+        if (intakeMode == IntakeMode.INTAKING) {
+            percent *= getReverseLimitClosed() ? 0.5f : 1.0f;
+        }
         intakeMotor.set(percent);
 
         SmartDashboard.putNumber("Intake Percent", percent * 100);
@@ -65,6 +86,10 @@ public class Intake extends SubsystemBase {
         outputPercent = intakeMode.modeSpeed;
 
         SmartDashboard.putString("Shootake", "Intake mode set to " + (intakeMode.name()));
+    }
+
+    public double getIntakePosition() {
+        return intakeMotor.getPosition().getValueAsDouble() * ArmConstants.INTAKE_ENCODER_TO_ROT;
     }
 
     /**
@@ -96,6 +121,11 @@ public class Intake extends SubsystemBase {
     }
 
     public boolean getReverseLimitClosed() {
-        return intakeMotor.getForwardLimit().getValue() == ForwardLimitValue.ClosedToGround;
+        return intakeMotor.getReverseLimit().getValue() == ReverseLimitValue.ClosedToGround;
+    }
+
+    public void setForwardLimitEnabled(boolean enabled) {
+        limconf.ForwardLimitEnable = enabled;
+        intakeMotor.getConfigurator().apply(limconf);
     }
 }

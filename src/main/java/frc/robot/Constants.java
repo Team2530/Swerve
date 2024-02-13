@@ -142,21 +142,9 @@ public final class Constants {
 
     public static final double STAGE_TWO_ENCODER_OFFSET = Units.rotationsToRadians(0.0);
 
-    public static final boolean L_STAGE_ONE_ISREVERSED = false;
-    
-    public static final boolean R_STAGE_ONE_ISREVERSED = false;
+    public static final double INTAKE_ENCODER_TO_ROT = 10.0 / 18.0;
 
-    public static final ArmFeedforward STAGE_ONE_FEEDFORWARD = new ArmFeedforward(
-      0.0, 
-      0.42,
-      2.07,
-      0.02);
-
-    public static final ArmFeedforward STAGE_TWO_FEEDFORWARD = new ArmFeedforward(
-      0.0, 
-      0.26,
-      1.19, 
-      0.0);
+    public static final int MAST_ARM_ENCODER_PORT = 5;
 
     public static final ProfiledPIDController STAGE_ONE_PROFILEDPID = new ProfiledPIDController(
       0.1, 
@@ -166,7 +154,7 @@ public final class Constants {
 
       public static final ProfiledPIDController STAGE_TWO_PROFILEDPID = new ProfiledPIDController(
       0.1, 
-      0.0, 
+      0.0,
       0.0, 
       new Constraints(1, 1));
 

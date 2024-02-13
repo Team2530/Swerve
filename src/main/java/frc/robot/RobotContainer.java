@@ -8,6 +8,9 @@ import frc.robot.Constants.*;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.Intake.IntakeMode;
+import frc.robot.subsystems.Shooter.ShooterMode;
+
+import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
@@ -33,7 +36,7 @@ public class RobotContainer {
 
     private final UsbCamera intakeCam = CameraServer.startAutomaticCapture();
 
-    private final DriveCommand normalDrive = new DriveCommand(swerveDriveSubsystem, driverXbox.getHID());
+    // private final DriveCommand normalDrive = new DriveCommand(swerveDriveSubsystem, driverXbox.getHID());
 
     private final Intake intake = new Intake();
 
@@ -47,7 +50,7 @@ public class RobotContainer {
     public RobotContainer() {
         // Configure the trigger bindings
         configureBindings();
-        swerveDriveSubsystem.setDefaultCommand(normalDrive);
+        // swerveDriveSubsystem.setDefaultCommand(normalDrive);
     }
 
     /**
@@ -68,32 +71,40 @@ public class RobotContainer {
         driverXbox.a().whileTrue(new RepeatCommand(new InstantCommand(() -> {
             System.out.println(driverXbox.getRawAxis(0));
             intake.setCustomPercent(driverXbox.getRawAxis(0));
+            shooter.setCustomPercent(driverXbox.getRawAxis(2) - driverXbox.getRawAxis(3));
         }))).onFalse(new InstantCommand(() -> {
             intake.setMode(IntakeMode.STOPPED);
+            shooter.setMode(ShooterMode.STOPPED);
         }));
 
-        // driverXbox.x().toggleOnTrue(new InstantCommand(() -> {
-        //     shooter.setCustomPercent(10);
-        // }));
 
-        // driverXbox.b().onTrue(new SequentialCommandGroup(
-        //     new PrepShooterCommand(shooter),
-        //     new InstantCommand(() -> {
-        //         intake.coast();
-        //         intake.setCustomPercent(0.2);
-        //     }),
-        //     // wait until piece is gone or 1.5 seconds has elapsed
-        //     new WaitUntilCommand(new BooleanSupplier() {
-        //         @Override
-        //         public boolean getAsBoolean() {
-        //             return !intake.getFrontLimitClosed();
-        //         }
-        //     }).raceWith(new WaitCommand(1.5)),
-        //     new InstantCommand(() -> {
-        //         shooter.coast();
-        //         shooter.setMode(ShooterMode.STOPPED);
-        //     })
-        // ));
+        driverXbox.x().and(new BooleanSupplier() {
+            public boolean getAsBoolean() {
+                return !intake.getFrontLimitClosed();
+            }
+        }).onTrue(
+            new IntakeCommand(intake).raceWith(new WaitUntilCommand(driverXbox.x().negate()))
+        );
+
+        driverXbox.b().and(new BooleanSupplier() {
+            public boolean getAsBoolean() {
+                return intake.getReverseLimitClosed() || intake.getFrontLimitClosed();
+            }
+        }).onTrue(
+            new ParallelRaceGroup(
+                new WaitUntilCommand(driverXbox.b().negate()),
+                new SequentialCommandGroup(
+                    new AlignNoteCommand(intake, shooter),
+                    new PrintCommand("EEEEEEEEEEEEEEEE"),
+                    new PrepNoteCommand(shooter, intake),
+                    new PrepShooterCommand(intake, shooter, 1.0),
+                    new ShootCommand(shooter, intake)
+                    // new InstantCommand(() -> {
+                    //     shooter.coast();
+                    //     shooter.setMode(ShooterMode.STOPPED);
+                    // })
+            ))
+        );
     }
 
     /**
