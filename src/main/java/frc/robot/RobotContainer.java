@@ -7,6 +7,7 @@ package frc.robot;
 import frc.robot.Constants.*;
 import frc.robot.commands.*;
 import frc.robot.subsystems.*;
+import frc.robot.subsystems.Arm.Presets;
 import frc.robot.subsystems.Intake.IntakeMode;
 import frc.robot.subsystems.Shooter.ShooterMode;
 
@@ -33,17 +34,18 @@ public class RobotContainer {
             ControllerConstants.OPERATOR_CONTROLLER_PORT);
 
     private final SwerveSubsystem swerveDriveSubsystem = new SwerveSubsystem();
-    private final Arm armSubsystem = new Arm();
+
+    private final StageOne stageOne = new StageOne();
+    private final StageTwo stageTwo = new StageTwo();
+    private final Arm arm = new Arm(stageOne, stageTwo);
 
     private final UsbCamera intakeCam = CameraServer.startAutomaticCapture();
 
+    // TODO: Uncomment when ready to test DRIVE!
     // private final DriveCommand normalDrive = new DriveCommand(swerveDriveSubsystem, driverXbox.getHID());
 
     private final Intake intake = new Intake();
-
     private final Shooter shooter = new Shooter();
-
-    private final OperatorCommand operator = new OperatorCommand(operatorXbox.getHID(), armSubsystem);
 
     // ----------- Commands ---------- \\
 
@@ -54,7 +56,6 @@ public class RobotContainer {
         // Configure the trigger bindings
         configureBindings();
         // swerveDriveSubsystem.setDefaultCommand(normalDrive);
-        armSubsystem.setDefaultCommand(operator);
     }
 
     /**
@@ -72,6 +73,13 @@ public class RobotContainer {
      * joysticks}.
      */
     private void configureBindings() {
+        operatorXbox.a().onTrue(new InstantCommand(() -> {
+            arm.setArmPreset(Presets.INTAKE);
+        }));
+
+        operatorXbox.b().onTrue(new InstantCommand(() -> {
+            arm.setArmPreset(Presets.STOW);
+        }));
     }
 
     /**

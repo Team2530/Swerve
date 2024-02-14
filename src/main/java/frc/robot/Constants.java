@@ -112,11 +112,6 @@ public final class Constants {
 
   public static final class ArmConstants {
 
-    // TODO: Update constants for real robot, are currently probably outdated!
-    // All arm constants to do with placement are refrenced from intake side and bottom plate.
-    // NOTE: All units are in inches
-    public static final Translation2d MAST_CENTER_OF_ROTATION = new Translation2d(-9.6, 22.780);
-
     public static final int STAGE_ONE_MOTOR_L = 4;    
 
     public static final int STAGE_ONE_MOTOR_R = 3;
@@ -143,8 +138,6 @@ public final class Constants {
     public static final double STAGE_TWO_ENCODER_OFFSET = Units.rotationsToRadians(-0.033936);
 
     public static final double INTAKE_ENCODER_TO_ROT = 10.0 / 18.0;
-
-    public static final int MAST_ARM_ENCODER_PORT = 5;
 
     public static final ProfiledPIDController STAGE_ONE_PROFILEDPID = new ProfiledPIDController(
       0.6, 
@@ -174,14 +167,8 @@ public final class Constants {
     public static final boolean FOLLOWER_STAGE_ONE_ISREVERSED = true;
     public static final boolean STAGE_TWO_ISREVERSED = true;
 
+    public static final boolean STAGE_ONE_ENCODER_ISREVERSED = true;
 
-
-
-
-
-
-
-
-    
+    public static final boolean STAGE_TWO_ENCODER_ISREVERSED = false;
   }
 }
