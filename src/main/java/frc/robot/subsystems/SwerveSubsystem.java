@@ -71,7 +71,7 @@ public class SwerveSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         odometry.update(getRotation2d(), getModulePositions());
-        
+       
         try{
             var poseEntry = LimelightHelpers.getLimelightNTTableEntry("limelight", "botpose_wpiblue");
             var poseArray = poseEntry.getDoubleArray(new double[0]);
@@ -79,11 +79,14 @@ public class SwerveSubsystem extends SubsystemBase {
             {
                 SmartDashboard.putNumber("I am here", poseArray.length);
                 double timestamp = poseEntry.getLastChange() / 1e6 - poseArray[6] / 1e3;
-                Pose2d pose = new Pose2d(
-                new Translation2d(poseArray[0], poseArray[1]),
-                new Rotation2d(Units.degreesToRadians(poseArray[5])));
+                if(!(poseArray[0] == 0.0 && poseArray[1] == 0.0 && poseArray[5] == 0.0)){
+                    Pose2d pose = new Pose2d(
+                    new Translation2d(poseArray[0], poseArray[1]),
+                    new Rotation2d(Units.degreesToRadians(poseArray[5])));
 
-                odometry.addVisionMeasurement(pose, timestamp);
+                    odometry.addVisionMeasurement(pose, timestamp);
+                }
+               
             }
         }
         catch(Exception e){

@@ -4,15 +4,11 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.util.datalog.StringLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.VisionContsants;
 import frc.robot.AprilTag;
-import frc.robot.Constants;
 import frc.robot.Constants.AprilTagPosition;
 import frc.robot.Constants.AprilTagType;
 import frc.robot.Constants.CommonConstants;
@@ -24,8 +20,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Enumeration;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 public class GoToAprilTagCommandUsingPoseEstimator extends Command {
@@ -43,7 +37,6 @@ public class GoToAprilTagCommandUsingPoseEstimator extends Command {
     private final ProfiledPIDController pidControllerY = new ProfiledPIDController(VisionContsants.Y_kP, VisionContsants.Y_kI, VisionContsants.Y_kD, LimelightConstants.pidYConstraints);
     private final ProfiledPIDController pidControllerOmega = new ProfiledPIDController(VisionContsants.THETA_kP, VisionContsants.THETA_kI, VisionContsants.THETA_kD, LimelightConstants.pidOmegaConstraints);
     
-    StringLogEntry log;
 
     public GoToAprilTagCommandUsingPoseEstimator(
         SwerveSubsystem swerveSubsystem,
@@ -91,9 +84,6 @@ public class GoToAprilTagCommandUsingPoseEstimator extends Command {
           } catch (IOException e) {
             SmartDashboard.putString("AprilTag Log error", e.getMessage());
           }
-          // Record both DS control and joystick data
-          DriverStation.startDataLog(DataLogManager.getLog());
-          log = new StringLogEntry(DataLogManager.getLog(), "GoToAprilTagCommand");
         }
       }
     }
@@ -106,7 +96,10 @@ public class GoToAprilTagCommandUsingPoseEstimator extends Command {
         Pose2d robotPose = robotPoseSupplier.get();
         if(robotPose != null){
          if(CommonConstants.LOG_INTO_FILE_ENABLED){
+          if(tag != null){
             SmartDashboard.putString("Current tagID", tag.GetTagId());
+          }
+           
             SmartDashboard.putNumber("Current pose X", robotPose.getX());
             SmartDashboard.putNumber("Current pose Y", robotPose.getY());
             SmartDashboard.putNumber("Current pose Rotation", robotPose.getRotation().getRadians());
@@ -126,24 +119,7 @@ public class GoToAprilTagCommandUsingPoseEstimator extends Command {
           var omegaSpeed = 0;//pidControllerOmega.calculate(robotPose.getRotation().getRadians());
           if (pidControllerOmega.atSetpoint()) {
             omegaSpeed = 0;
-          }
-
-          if(CommonConstants.LOG_INTO_FILE_ENABLED){
-            String logMessage = "target X: " + robotPose.getX() + ": ";
-            logMessage += "target X(inches): " + Units.metersToInches(robotPose.getX()) + ": ";
-            logMessage += "X speed : " + xSpeed + ": ";
-            logMessage += "X SetPoint : " + pidControllerX.getSetpoint() + ": ";
-            logMessage += "X is at SetPoint : " + pidControllerX.atSetpoint() + ": ";
-            logMessage += "target Y: " + robotPose.getY() + ": ";
-            logMessage += "Y speed : " + ySpeed + ": ";
-            logMessage += "Y SetPoint : " + pidControllerY.getSetpoint() + ": ";
-            logMessage += "Y is at SetPoint : " + pidControllerY.atSetpoint() + ": ";
-            logMessage += "target rotation: " + robotPose.getRotation().getRadians() + ": ";
-            logMessage += "rotation speed : " + omegaSpeed + ": ";
-            logMessage += "rotation SetPoint : " + pidControllerOmega.getSetpoint() + ": ";
-            logMessage += "rotation is at SetPoint : " + pidControllerOmega.atSetpoint() + ": ";
-            log.append(logMessage);
-          }          
+          }        
           speeds = ChassisSpeeds.fromFieldRelativeSpeeds(ySpeed, -xSpeed, omegaSpeed, robotPose.getRotation());
 
           SwerveModuleState[] calculatedModuleStates = DriveConstants.KINEMATICS.toSwerveModuleStates(speeds);
@@ -176,3 +152,4 @@ public class GoToAprilTagCommandUsingPoseEstimator extends Command {
     pidControllerY.reset(robotPose.getY());
   }
 }
+
