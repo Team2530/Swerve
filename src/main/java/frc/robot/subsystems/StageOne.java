@@ -38,6 +38,9 @@ public class StageOne extends ProfiledPIDSubsystem {
 
     @Override
     public void periodic() {
+        SmartDashboard.putBoolean("Left FWD Limit", stageOneLeader.getReverseLimit().getValueAsDouble() == 1);
+        SmartDashboard.putBoolean("Right FWD Limit", stageOneFollower.getReverseLimit().getValueAsDouble() == 1);
+        SmartDashboard.putBoolean("Right BWD Limit", stageOneLeader.getForwardLimit().getValueAsDouble() == 1);
         super.periodic();
     }
 
