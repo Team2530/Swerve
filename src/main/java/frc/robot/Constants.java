@@ -133,27 +133,27 @@ public final class Constants {
     public static final String STAGE_ONE_OFFSET_KEY = "STAGE_ONE_OFFSET";
     public static final String STAGE_TWO_OFFSET_KEY = "STAGE_TWO_OFFSET";
 
-    public static final double STAGE_ONE_ENCODER_OFFSET = Units.rotationsToRadians(0.018311);
+    public static final double STAGE_ONE_ENCODER_OFFSET = 0.0175;
 
-    public static final double STAGE_TWO_ENCODER_OFFSET = Units.rotationsToRadians(-0.033936);
+    public static final double STAGE_TWO_ENCODER_OFFSET = -0.394043 - 0.0527;
 
     public static final double INTAKE_ENCODER_TO_ROT = 10.0 / 18.0;
 
     public static final ProfiledPIDController STAGE_ONE_PROFILEDPID = new ProfiledPIDController(
-      0.6, 
+      3, 
       0.0, 
-      0.0, 
-      new Constraints(1, 1));
+      0.0,
+      new Constraints(2, 1.5));
 
       public static final ProfiledPIDController STAGE_TWO_PROFILEDPID = new ProfiledPIDController(
-      0.2, 
+      4,
       0.0,
-      0.0, 
-      new Constraints(1, 1));
+      0.001,
+      new Constraints(3, 2));
 
     public static final ArmFeedforward STAGE_ONE_FEEDFORWARD = new ArmFeedforward(
       0.0,
-      0.42, 
+      0.18,
       2.07,
       0.02);
 

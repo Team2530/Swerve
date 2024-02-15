@@ -3,6 +3,7 @@ package frc.robot.subsystems;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.hardware.CANcoder;
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -34,6 +35,12 @@ public class StageOne extends ProfiledPIDSubsystem {
 
         stageOneLeader.setSafetyEnabled(false);
         stageOneFollower.setSafetyEnabled(false);
+
+        stageOneLeader.setNeutralMode(NeutralModeValue.Brake);        
+        stageOneFollower.setNeutralMode(NeutralModeValue.Brake);
+
+
+        setGoalDegrees(getMeasurement());
     }
 
     @Override
@@ -46,18 +53,18 @@ public class StageOne extends ProfiledPIDSubsystem {
         // calculated feedworward
         double feed = feedForward.calculate(setpoint.position, setpoint.velocity);
         // apply feedforward to PID
-        stageOneLeader.setVoltage(output + feed);
+        stageOneLeader.set((output + feed) / 12d);
     }
 
     @Override
     protected double getMeasurement() {
-        return Units.rotationsToRadians((stageOneEncoder.getPosition().getValueAsDouble()
-                * (ArmConstants.STAGE_ONE_ENCODER_ISREVERSED ? -1 : 1))
-                + ArmConstants.STAGE_ONE_ENCODER_OFFSET);
+        double actualPosition = (stageOneEncoder.getAbsolutePosition().getValueAsDouble() * (ArmConstants.STAGE_ONE_ENCODER_ISREVERSED ? -1 : 1));
+        return Units.rotationsToRadians(ArmConstants.STAGE_ONE_ENCODER_OFFSET + actualPosition);
     }
 
     public void setGoalDegrees(double degrees) {
         setGoal(Units.degreesToRadians(degrees));
+        enable();
     }
 
 }
