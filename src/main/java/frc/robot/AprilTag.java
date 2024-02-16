@@ -57,11 +57,11 @@ public class AprilTag {
     }
 
     public Pose2d getTagPose2dInFieldWithPreset(){
-        return new Pose2d(new Translation2d(Units.inchesToMeters(_x - _presetX), Units.inchesToMeters(_y - _presetY)), new Rotation2d(Units.degreesToRadians(_rotation - _presetRotation)));
+        return new Pose2d(new Translation2d(Units.inchesToMeters(_x - _presetX), Units.inchesToMeters(_y - _presetY)), new Rotation2d(Units.degreesToRadians(0)));
     }    
 
     public Pose2d getTagPose2dInFieldForGivenPreset(double presetX, double presetY, double presetRotation){
-        return new Pose2d(new Translation2d(Units.inchesToMeters(_x - presetX), Units.inchesToMeters(_y - presetY)), new Rotation2d(Units.degreesToRadians(_rotation - presetRotation)));
+        return new Pose2d(new Translation2d(Units.inchesToMeters(_x - presetX), Units.inchesToMeters(_y - presetY)), new Rotation2d(Units.degreesToRadians(0)));
     }    
 
 

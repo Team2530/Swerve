@@ -57,7 +57,7 @@ public class GoToAprilTagCommandUsingPoseEstimator extends Command {
     super.initialize();
     if(tag != null)
     {
-      Pose2d goalPose = tag.getTagPose2dInField();
+      Pose2d goalPose = tag.getTagPose2dInFieldWithPreset();
       if(goalPose != null){
         if(CommonConstants.LOG_INTO_FILE_ENABLED){
         SmartDashboard.putNumber("GoalPoseX", goalPose.getX());
@@ -110,17 +110,17 @@ public class GoToAprilTagCommandUsingPoseEstimator extends Command {
           }
 
           // Handle alignment side-to-side
-          var ySpeed = 0;//pidControllerY.calculate(robotPose.getY());
+          var ySpeed = pidControllerY.calculate(robotPose.getY());
           if (pidControllerY.atSetpoint()) {
             ySpeed = 0;
           }
 
           // Handle rotation using target Yaw/Z rotation
-          var omegaSpeed = 0;//pidControllerOmega.calculate(robotPose.getRotation().getRadians());
+          var omegaSpeed = pidControllerOmega.calculate(robotPose.getRotation().getRadians());
           if (pidControllerOmega.atSetpoint()) {
             omegaSpeed = 0;
           }        
-          speeds = ChassisSpeeds.fromFieldRelativeSpeeds(ySpeed, -xSpeed, omegaSpeed, robotPose.getRotation());
+          speeds = ChassisSpeeds.fromFieldRelativeSpeeds(-ySpeed, -xSpeed, omegaSpeed, robotPose.getRotation());
 
           SwerveModuleState[] calculatedModuleStates = DriveConstants.KINEMATICS.toSwerveModuleStates(speeds);
           swerveSubsystem.setModules(calculatedModuleStates); 
