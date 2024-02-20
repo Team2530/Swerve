@@ -106,7 +106,7 @@ public class GoToAprilTagCommand extends Command {
           if(CommonConstants.LOG_INTO_FILE_ENABLED){
             SmartDashboard.putNumber("Current April Tag "+ aprilTag.GetAprilTag().GetTagId() + " X", pose3d.getZ());
             SmartDashboard.putNumber("Current April Tag "+ aprilTag.GetAprilTag().GetTagId() + " Y", pose3d.getX());
-            SmartDashboard.putNumber("CurrentApril Tag "+ aprilTag.GetAprilTag().GetTagId() +" Rotation", pose3d.getRotation().getY());
+            SmartDashboard.putNumber("Current April Tag "+ aprilTag.GetAprilTag().GetTagId() +" Rotation", pose3d.getRotation().getY());
           }
           var xspeed = pidControllerX.calculate(pose3d.getZ());          
           if (pidControllerX.atSetpoint()) {
